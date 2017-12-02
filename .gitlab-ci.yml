@@ -21,6 +21,7 @@ build_client:
   artifacts:
     paths:
     - /node_modules
+    - /web/public
 
 deploy_to_firebase:
  stage: deploy
