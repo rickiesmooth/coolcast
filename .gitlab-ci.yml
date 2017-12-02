@@ -3,7 +3,7 @@
 image: node:latest
 
 stages:
-  -install
+  - install
   - build
   - deploy
 
