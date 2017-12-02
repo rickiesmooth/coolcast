@@ -24,9 +24,8 @@ build_client:
 
 deploy_to_firebase:
  stage: deploy
- environment: production
  only:
   - master
  script:
-  - npm install firebase-tools -g
+  - yarn global add firebase-tools --cache-folder ../.cache_yarn
   - firebase deploy --token $FIREBASE_TOKEN
