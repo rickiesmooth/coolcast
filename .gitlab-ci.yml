@@ -6,21 +6,25 @@ stages:
   - build
   - deploy
 
+cache:
+  key: cache_yarn
+  paths:
+  - .cache_yarn
+
 build_client:
   stage: build
   only:
    - master
   script:
-    - npm install
+    - yarn install --cache-folder ../.cache_yarn
     - npm run build-web
-
-cache:
-  paths:
-    - node_modules/
-  key: "$CI_BUILD_REPO"
+  artifacts:
+    paths:
+    - /node_modules
 
 deploy_to_firebase:
  stage: deploy
+ environment: production
  only:
   - master
  script:
