@@ -1,19 +1,14 @@
 import React from 'react'
-
-import { AppRegistry, AsyncStorage, View } from 'react-native'
+import { AppRegistry } from 'react-native'
 import { ApolloProvider } from 'react-apollo'
-
-import { Provider as MobxProvider, observer, inject } from 'mobx-react'
+import { Provider as MobxProvider } from 'mobx-react'
 
 import stores from './src/stores'
-
 import client from './src/apollo'
-
 import { RootNavigation } from './src/navigation'
 
 class Coolcast extends React.Component {
   render() {
-    console.log('✨log for robert!')
     return (
       <ApolloProvider client={client}>
         <MobxProvider {...stores}>
