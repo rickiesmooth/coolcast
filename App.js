@@ -5,13 +5,6 @@ import { ApolloProvider } from 'react-apollo'
 
 import { Provider as MobxProvider, observer, inject } from 'mobx-react'
 
-import { ApolloClient, HttpLink, InMemoryCache } from 'apollo-client-preset'
-import { setContext } from 'apollo-link-context' // 1.0.0
-import { ApolloLink } from 'apollo-link'
-
-import gql from 'graphql-tag'
-import { graphql } from 'react-apollo'
-
 import stores from './src/stores'
 
 import client from './src/apollo'
