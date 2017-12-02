@@ -19,7 +19,7 @@ const Episode = props => {
 }
 
 const EpisodeItem = PodcastEpisodeComposer(Episode)
-console.log('✨haha')
+
 export { EpisodeItem }
 
 const Header = props => {

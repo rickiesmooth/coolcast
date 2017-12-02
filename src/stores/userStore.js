@@ -15,7 +15,6 @@ export default class UserStore {
   async getFromToken(val) {
     const token = await AsyncStorage.getItem('graphcoolToken')
     if (token) {
-      console.log('✨we>>')
       const graphcoolResponse = await client.query({
         query: LOGGED_IN_USER,
         fetchPolicy: 'network-only'
