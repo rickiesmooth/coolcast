@@ -15,7 +15,7 @@ cache:
 install_client:
   stage: install
   script:
-    - cd yarn install --cache-folder ../.cache_yarn
+    - yarn install --cache-folder ../.cache_yarn
   artifacts:
     paths:
     - node_modules
