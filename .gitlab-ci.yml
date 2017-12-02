@@ -15,10 +15,9 @@ cache:
     - node_modules/
   key: "$CI_BUILD_REPO"
 
-
 deploy_to_firebase:
  stage: deploy
  only:
   - master
  script:
-  - firebase deploy --public web/public --token $FIREBASE_TOKEN
+  - firebase deploy --token $FIREBASE_TOKEN
