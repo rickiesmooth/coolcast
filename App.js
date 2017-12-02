@@ -20,7 +20,7 @@ import { RootNavigation } from './src/navigation'
 
 class Coolcast extends React.Component {
   render() {
-    console.log('✨log for test')
+    console.log('✨log for robert!')
     return (
       <ApolloProvider client={client}>
         <MobxProvider {...stores}>
