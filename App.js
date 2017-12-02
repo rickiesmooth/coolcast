@@ -3,9 +3,10 @@ import { AppRegistry } from 'react-native'
 import { ApolloProvider } from 'react-apollo'
 import { Provider as MobxProvider } from 'mobx-react'
 
+import { RootNavigation } from './src/navigation'
+
 import stores from './src/stores'
 import client from './src/apollo'
-import { RootNavigation } from './src/navigation'
 
 class Coolcast extends React.Component {
   render() {
