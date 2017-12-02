@@ -15,9 +15,7 @@ cache:
   key: "$CI_BUILD_REPO"
 
 deploy_to_firebase:
-  stage: deploy
- environment:
-  name: production
+ stage: deploy
  only:
   - master
  script:
