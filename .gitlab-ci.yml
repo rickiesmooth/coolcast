@@ -28,4 +28,4 @@ deploy_to_firebase:
   - master
  script:
   - yarn global add firebase-tools --cache-folder ../.cache_yarn
-  - firebase deploy --token $FIREBASE_TOKEN
+  - firebase deploy --project $FIREBASE_PROJECT --token $FIREBASE_TOKEN
