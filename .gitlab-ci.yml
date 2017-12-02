@@ -30,12 +30,12 @@ build_client:
     - web/public
 
 deploy_to_firebase:
- stage: deploy
- only:
-  - master
- script:
-  - yarn global add firebase-tools --cache-folder ../.cache_yarn
-  - firebase deploy --project $FIREBASE_PROJECT --token $FIREBASE_TOKEN
+  stage: deploy
+  only:
+    - master
+  script:
+    - yarn global add firebase-tools --cache-folder ../.cache_yarn
+    - firebase deploy --project $FIREBASE_PROJECT --token $FIREBASE_TOKEN
   dependencies:
   - install_client
   - build_client
