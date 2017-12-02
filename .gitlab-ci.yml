@@ -11,17 +11,23 @@ cache:
   paths:
   - .cache_yarn
 
+install_client:
+  stage: install
+  script:
+    - cd yarn install --cache-folder ../.cache_yarn
+  artifacts:
+    paths:
+    - node_modules
+
 build_client:
   stage: build
   only:
    - master
   script:
-    - yarn install --cache-folder ../.cache_yarn
     - npm run build-web
   artifacts:
     paths:
-    - /node_modules
-    - /web/public
+    - web/public
 
 deploy_to_firebase:
  stage: deploy
@@ -30,3 +36,6 @@ deploy_to_firebase:
  script:
   - yarn global add firebase-tools --cache-folder ../.cache_yarn
   - firebase deploy --project $FIREBASE_PROJECT --token $FIREBASE_TOKEN
+  dependencies:
+  - install_client
+  - build_client
