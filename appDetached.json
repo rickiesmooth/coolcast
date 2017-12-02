@@ -1,0 +1,24 @@
+{
+  "expo": {
+    "sdkVersion": "22.0.0",
+    "name": "Coolcast",
+    "icon": "./logo.png",
+    "version": "1.0.0",
+    "slug": "cool",
+    "ios": {
+      "bundleIdentifier": "com.rickiesmooth.cool",
+      "publishBundlePath": "ios/coolcast/Supporting/shell-app.bundle",
+      "publishManifestPath": "ios/coolcast/Supporting/shell-app-manifest.json"
+    },
+    "android": {
+      "package": "com.rickiesmooth.cool"
+    },
+    "facebookScheme": "fb354324435015552",
+    "isDetached": true,
+    "detach": {
+      "scheme": "exp9c4c57ae3dfc49c3872d8110909885f2",
+      "iosExpoViewUrl": "https://s3.amazonaws.com/exp-exponent-view-code/ios-v2.0.4-sdk22.0.0-10110e7c-e9b1-43e6-b7e0-8a0e971480e8.tar.gz",
+      "androidExpoViewUrl": "https://s3.amazonaws.com/exp-exponent-view-code/android-v2.0.0-exp.0-sdk22.0.0-bcb62dac-b993-47ff-951b-e8ecf086f9e0.tar.gz"
+    }
+  }
+}

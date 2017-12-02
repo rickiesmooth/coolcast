@@ -1,0 +1,18 @@
+{
+  "expo": {
+    "sdkVersion": "22.0.0",
+    "name": "Coolcast",
+    "icon": "./logo.png",
+    "version": "1.0.0",
+    "slug": "cool",
+    "ios": {
+      "bundleIdentifier": "com.rickiesmooth.cool",
+      "publishBundlePath": "ios/coolcast/Supporting/shell-app.bundle",
+      "publishManifestPath": "ios/coolcast/Supporting/shell-app-manifest.json"
+    },
+    "android": {
+      "package": "com.rickiesmooth.cool"
+    },
+    "facebookScheme": "fb354324435015552"
+  }
+}

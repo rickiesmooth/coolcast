@@ -1,0 +1,7 @@
+node_modules/
+.expo-source/
+.expo/
+android/
+ios/
+server/node_modules/
+npm-debug.*

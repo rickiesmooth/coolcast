@@ -1,0 +1,9 @@
+type PodcastPayload {
+  newPodcast: Boolean!
+  graphcoolPodcastId: ID!
+  episodeIds: [ID!]!
+}
+
+extend type Mutation {
+  getPodcastId(showId: Int!): PodcastPayload
+}
