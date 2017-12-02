@@ -3,5 +3,6 @@ node_modules/
 .expo/
 android/
 ios/
+!web/public/*.js
 server/node_modules/
 npm-debug.*
