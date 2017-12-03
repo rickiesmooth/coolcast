@@ -16,10 +16,11 @@ export const PodcastEpisodeComposer = Episode =>
     render() {
       const { currentStore } = this.props
       const { title, plays } = this.episode
+
       return (
         <Episode
           {...this.props}
-          title={title}
+          title={decodeURI(title)}
           progress={plays && plays.progress}
           setCurrentPlaying={() => currentStore.setCurrentPlaying(this.episode)}
         />
@@ -61,7 +62,6 @@ export const PodcastShowComposer = Show =>
     async getPodcastEpisodes() {
       const { showId, podcastStore, userStore } = this.props
       const history = userStore.currentUserHistory
-      console.log('✨calling getPodcastEpisodes', this.props)
       this.episodeList = await podcastStore.getPodcastEpisodes(showId, history)
     }
 
