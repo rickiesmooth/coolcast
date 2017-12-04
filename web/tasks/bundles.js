@@ -21,7 +21,6 @@ const configureBabelLoader = browserlist => {
     ],
     use: {
       loader: 'babel-loader',
-
       options: {
         babelrc: false,
         cacheDirectory: true,
@@ -56,6 +55,10 @@ const baseConfig = {
   entry: {
     main: ['regenerator-runtime/runtime', './App.js']
   },
+  output: {
+    path: path.resolve(__dirname, '..', config.publicDir),
+    publicPath: '/'
+  },
   module: {
     rules: [
       configureBabelLoader([
@@ -71,18 +74,20 @@ const baseConfig = {
 module.exports = {
   //plugins
   dev: Object.assign({}, baseConfig, {
-    output: {
-      path: path.resolve(__dirname, '..', config.publicDir),
-      publicPath: '/',
-      filename: 'bundle.js'
-    }
+    entry: {
+      main: baseConfig.entry.main.concat([
+        'webpack/hot/dev-server',
+        'webpack-dev-server/client?'
+      ])
+    },
+    output: { filename: '[name].bundle.js' },
+    plugins: [
+      new webpack.HotModuleReplacementPlugin(),
+      new webpack.NamedModulesPlugin()
+    ]
   }),
   prod: Object.assign({}, baseConfig, {
-    output: {
-      path: path.resolve(__dirname, '..', config.publicDir),
-      publicPath: '/',
-      filename: '[name]-[chunkhash:10].js'
-    },
+    output: { filename: '[name]-[chunkhash:10].js' },
     plugins: [
       new webpack.DefinePlugin({
         'process.env': {

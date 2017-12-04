@@ -3,7 +3,14 @@ import {
   PodcastShowComposer
 } from '../../containers/Podcast'
 import React from 'react'
-import { Text, TouchableOpacity, View, StyleSheet, Image } from 'react-native'
+import {
+  Text,
+  TouchableOpacity,
+  View,
+  StyleSheet,
+  Image,
+  ActivityIndicator
+} from 'react-native'
 import { FlatList } from '../../utils'
 import { Link } from '../../navigation'
 import { Title } from '../Text'
@@ -40,29 +47,33 @@ const Header = props => {
 
 const Show = props => {
   const { title, episodes, thumbLarge, showId, style } = props
-  if (!episodes) {
-    return <Header title={title} showId={showId} thumbLarge={thumbLarge} />
-  } else {
-    return (
-      <View style={[style, styles.content]}>
-        <FlatList
-          data={episodes}
-          keyExtractor={(id, index) => id}
-          renderItem={({ item }) => <EpisodeItem episodeId={item} />}
-          ListHeaderComponent={() => (
+  return (
+    <View style={[style, styles.content]}>
+      <FlatList
+        data={episodes || []}
+        keyExtractor={(id, index) => id}
+        renderItem={({ item }) => <EpisodeItem episodeId={item} />}
+        ListHeaderComponent={() => (
+          <View>
             <Header title={title} showId={showId} thumbLarge={thumbLarge} />
-          )}
-        />
-      </View>
-    )
-  }
+            {(!episodes || episodes.length < 1) && (
+                <ActivityIndicator size={'large'} />
+              )}
+          </View>
+        )}
+      />
+    </View>
+  )
 }
 
 export const ShowItem = PodcastShowComposer(Show)
 
 const styles = StyleSheet.create({
+  horizontal: {
+    alignItems: 'center',
+    flexDirection: 'row'
+  },
   content: {
-    padding: 15,
     flex: 1,
     borderWidth: 1,
     borderColor: 'green'

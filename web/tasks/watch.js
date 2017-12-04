@@ -9,29 +9,21 @@ const path = require('path')
 const dev = require('./bundles').dev
 
 const compiler = webpack(dev)
-
-const devServerOptions = Object.assign(
-  {},
-  {
-    contentBase: path.resolve(__dirname, '..', config.publicDir),
-    historyApiFallback: {
-      index: 'index.dev.html'
-    }
+const options = {
+  contentBase: path.resolve(__dirname, '..', config.publicDir),
+  historyApiFallback: {
+    index: 'index.html'
   },
-  {
-    index: 'index.dev.html',
-    stats: {
-      colors: true
-    },
-    before(app) {
-      app.use((req, res, next) => {
-        console.log(`Using middleware for ${req.url}`)
-        next()
-      })
-    }
+  hot: true,
+  inline: true,
+  stats: {
+    colors: true
   }
-)
-const server = new WebpackDevServer(compiler, devServerOptions)
+}
+
+WebpackDevServer.addDevServerEntrypoints(dev, options)
+
+const server = new WebpackDevServer(compiler, options)
 
 server.listen(8080, '127.0.0.1', () => {
   console.log('Starting server on http://localhost:8080')

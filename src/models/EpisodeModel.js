@@ -11,29 +11,6 @@ export default class EpisodeModel {
     this.title = title
     this.src = src
     this.description = description
-    this.plays = plays
-  }
-
-  toJS() {
-    return {
-      store: this.store,
-      id: this.id,
-      title: this.title,
-      src: this.src,
-      description: this.description,
-      plays: this.plays
-    }
-  }
-
-  static fromJS(store, object) {
-    return new PodcastModel(
-      store,
-      object.store,
-      object.id,
-      object.title,
-      object.src,
-      object.description,
-      object.plays
-    )
+    this.plays = plays || this.plays
   }
 }

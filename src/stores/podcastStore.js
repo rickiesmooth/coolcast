@@ -106,6 +106,7 @@ export default class PodcastStore {
             .then(response => response.json())
             .then(json => {
               const data = Object.keys(json).map(key => json[key])
+              console.log('✨data', data)
               return this.addEpisodesToState(data, key, history)
             })
         : await client // https://github.com/graphcool/framework/issues/743

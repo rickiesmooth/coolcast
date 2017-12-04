@@ -21,10 +21,10 @@ const AudioContainerComposer = Player =>
 
     render() {
       const {
-        _onSeekSliderValueChange,
-        _onSeekSliderSlidingComplete,
         _onPlayPausePressed,
         _getProgressPercentage,
+        _onSeekSliderValueChange,
+        _onSeekSliderSlidingComplete,
         state
       } = this.props.playerStore
       const { playbackInstanceDuration, isLoading, isPlaying } = state
@@ -33,7 +33,7 @@ const AudioContainerComposer = Player =>
       return currentPlaying ? (
         <Player
           artist={currentPlaying.id}
-          title={currentPlaying.title}
+          title={decodeURI(currentPlaying.title)}
           value={_getProgressPercentage()}
           duration={playbackInstanceDuration}
           isLoading={isLoading}

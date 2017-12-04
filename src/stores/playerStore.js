@@ -32,6 +32,47 @@ export default class PlayerStore {
     }
   }
 
+  _onSeekSliderSlidingComplete = async value => {
+    if (this.playbackInstance != null) {
+      this.isSeeking = false
+      const seekPosition = value * this.state.playbackInstanceDuration
+      if (this.shouldPlayAtEndOfSeek) {
+        this.playbackInstance.playFromPositionAsync(seekPosition)
+      } else {
+        this.playbackInstance.setPositionAsync(seekPosition)
+      }
+    }
+  }
+
+  _onSeekSliderSlidingComplete = async value => {
+    if (this.playbackInstance != null) {
+      this.isSeeking = false
+      const seekPosition = value * this.state.playbackInstanceDuration
+      if (this.shouldPlayAtEndOfSeek) {
+        this.playbackInstance.playFromPositionAsync(seekPosition)
+      } else {
+        this.playbackInstance.setPositionAsync(seekPosition)
+      }
+    }
+  }
+
+  _onSeekSliderValueChange = value => {
+    const {
+      playbackInstanceDuration,
+      playbackInstancePosition,
+      shouldPlay
+    } = this.state
+
+    const time = value * playbackInstanceDuration
+    this.state.playbackInstancePosition = time
+
+    if (this.playbackInstance != null && !this.isSeeking) {
+      this.isSeeking = true
+      this.shouldPlayAtEndOfSeek = shouldPlay
+      this.playbackInstance.pauseAsync()
+    }
+  }
+
   _getProgressPercentage = () => {
     if (
       this.playbackInstance != null &&
