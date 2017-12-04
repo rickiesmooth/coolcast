@@ -15,14 +15,14 @@ env.addFilter('revision', filename => revisionedAssetManifest[filename])
 module.exports = async () => {
   revisionedAssetManifest =
     (await fs.readJson(
-      path.join('web', config.publicDir, config.manifestFileName),
+      path.resolve('web', config.publicDir, config.manifestFileName),
       {
         throws: false
       }
     )) || {}
 
   await fs.outputFile(
-    path.join('web', config.publicDir, 'index.html'),
+    path.resolve('web', config.publicDir, 'index.html'),
     nunjucks.render('index.html')
   )
 

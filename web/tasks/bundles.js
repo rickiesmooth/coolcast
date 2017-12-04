@@ -6,9 +6,12 @@ const ManifestPlugin = require('webpack-manifest-plugin')
 const config = require('./config.json')
 
 let revisionedAssetManifest =
-  fs.readJsonSync(path.join(config.publicDir, config.manifestFileName), {
-    throws: false
-  }) || {}
+  fs.readJsonSync(
+    path.resolve('web', config.publicDir, config.manifestFileName),
+    {
+      throws: false
+    }
+  ) || {}
 
 const webpack = require('webpack')
 
@@ -55,10 +58,6 @@ const baseConfig = {
   entry: {
     main: ['regenerator-runtime/runtime', './App.js']
   },
-  output: {
-    path: path.resolve(__dirname, '..', config.publicDir),
-    publicPath: '/'
-  },
   module: {
     rules: [
       configureBabelLoader([
@@ -80,14 +79,22 @@ module.exports = {
         'webpack-dev-server/client?'
       ])
     },
-    output: { filename: '[name].bundle.js' },
+    output: {
+      path: path.resolve('web', config.publicDir),
+      publicPath: '/',
+      filename: '[name].bundle.js'
+    },
     plugins: [
       new webpack.HotModuleReplacementPlugin(),
       new webpack.NamedModulesPlugin()
     ]
   }),
   prod: Object.assign({}, baseConfig, {
-    output: { filename: '[name]-[chunkhash:10].js' },
+    output: {
+      path: path.resolve('web', config.publicDir),
+      publicPath: '/',
+      filename: '[name]-[chunkhash:10].js'
+    },
     plugins: [
       new webpack.DefinePlugin({
         'process.env': {
@@ -116,6 +123,7 @@ module.exports = {
       new webpack.optimize.CommonsChunkPlugin({
         name: 'runtime'
       }),
+
       new NameAllModulesPlugin(),
 
       new ManifestPlugin({

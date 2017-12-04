@@ -15,16 +15,12 @@ const createCompiler = config => {
     })
   }
 }
-const compileModernBundle = createCompiler(prod)
-
-const webpacked = async () => {
-  revisionedAssetManifest = {}
-  await compileModernBundle()
-}
 
 module.exports = async () => {
   console.log('Compiling modern and legacy script bundles...\n')
-  await webpacked()
+  const compileModernBundle = createCompiler(prod)
+
+  await compileModernBundle()
 
   console.log('Compiling templates...\n')
   await templates()
