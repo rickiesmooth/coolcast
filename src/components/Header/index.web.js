@@ -1,9 +1,6 @@
 import React from 'react'
 import { View, StyleSheet, Text } from 'react-native'
-import {
-  ComposedSearchInput,
-  ComposedSearchResults
-} from '../../components/Search'
+import { ComposedSearchInputWithResults } from '../../components/Search'
 import { Link } from '../../navigation'
 
 export default class Header extends React.Component {
@@ -16,10 +13,7 @@ export default class Header extends React.Component {
               <Text style={styles.link}>Home</Text>
             </Link>
           </View>
-          <View style={styles.search}>
-            <ComposedSearchInput />
-            <ComposedSearchResults style={styles.results} />
-          </View>
+          <ComposedSearchInputWithResults />
           <View style={styles.right}>
             <Link to={'/profile'}>
               <Text style={styles.link}>Profile</Text>
@@ -46,21 +40,11 @@ const styles = StyleSheet.create({
   right: {
     marginLeft: 'auto'
   },
-  search: {
-    width: '400px',
-    position: 'relative',
-    display: 'block',
-    overflow: 'visible'
-  },
   header: {
     width: '100%',
     position: 'relative',
     zIndex: 1,
     height: 48,
     backgroundColor: 'rgba(0,0,0,0.8)'
-  },
-  results: {
-    backgroundColor: 'white',
-    width: '100%'
   }
 })

@@ -7,15 +7,15 @@ import { observable, action, computed } from 'mobx'
 
 import { EpisodeItem, ShowItem } from '../Podcast'
 
-@inject('currentStore', 'podcastStore', 'userStore')
+@inject('currentStore', 'podcastStore')
 @observer
 export class Row extends React.Component {
   @observable history = []
 
   @computed
   get userHistory() {
-    const { podcastStore, userStore, data } = this.props
-    const history = userStore.currentUserHistory
+    const { podcastStore, currentStore, data } = this.props
+    const history = currentStore.currentUserHistory
     return Object.keys(history).reduce((r, a) => {
       const show = history[a].show
       r[show.showId] = r[show.showId] || {}
@@ -27,18 +27,14 @@ export class Row extends React.Component {
   }
 
   @action
-  updateHistory(history) {
-    this.history = history
-  }
-
   async componentDidMount() {
     const { podcastStore, data } = this.props
     const history = await podcastStore.currentUserHistory(this.userHistory)
-    this.updateHistory(history)
+    this.history = history
   }
 
   render() {
-    return this.history ? (
+    return this.userHistory ? (
       <View style={styles.container}>
         <Title text={'Continue listening'} size={'large'} />
         <FlatList
@@ -46,17 +42,15 @@ export class Row extends React.Component {
           style={styles.listView}
           keyExtractor={(item, index) => item.key}
           horizontal
-          renderItem={({ item }) => {
-            return (
-              <ShowItem
-                showId={item.key}
-                episodes={this.userHistory[item.key].episodes.map(ep => ep.id)}
-                style={{
-                  width: 250
-                }}
-              />
-            )
-          }}
+          renderItem={({ item }) => (
+            <ShowItem
+              showId={item.key}
+              episodes={this.userHistory[item.key].episodes.map(ep => ep.id)}
+              style={{
+                width: 250
+              }}
+            />
+          )}
         />
       </View>
     ) : null

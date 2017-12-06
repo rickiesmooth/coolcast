@@ -91,6 +91,7 @@ export default class PlayerStore {
   sendProgress = throttle(async progress => {
     if (this.playing) {
       this.playing.plays.progress = progress
+      console.log('✨this.playing.plays', this.playing.plays)
       const result = await client.mutate({
         mutation: UPDATE_PODCAST_PLAY,
         variables: {

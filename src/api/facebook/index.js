@@ -18,7 +18,7 @@ export default Button =>
             facebookToken: token
           }
         })
-        this.props.userStore.setCurrentUser(res.data.authenticateUser)
+        this.props.currentStore.setCurrentUser(res.data.authenticateUser)
         AsyncStorage.setItem('graphcoolToken', res.data.authenticateUser.token)
       }
     }

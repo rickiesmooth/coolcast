@@ -15,7 +15,8 @@ import { Link } from '../../navigation'
 import { Title, Subline } from '../Text'
 import {
   SearchInputComposer,
-  SearchResultsComposer
+  SearchResultsComposer,
+  SearchInputWithResultsComposer
 } from '../../containers/Search'
 
 const SearchInput = props => {
@@ -30,7 +31,7 @@ const SearchInput = props => {
         onBlur={e => {
           // @TODO find correct solution for onblur firing before on mouseup/click
           setTimeout(() => {
-            toggleSearchResults(true)
+            toggleSearchResults(true) //
           }, 250)
         }}
         placeholder={placeholder}
@@ -50,6 +51,16 @@ const SearchResults = props => {
         <ListItem podcast={item} setCurrentPodcast={setCurrentPodcast} />
       )}
     />
+  )
+}
+
+const SearchInputWithResults = props => {
+  const { toggleSearchResults, isHidden } = props
+  return (
+    <View style={styles.searchInput}>
+      <ComposedSearchInput toggleSearchResults={toggleSearchResults} />
+      <ComposedSearchResults style={styles.results} isHidden={isHidden} />
+    </View>
   )
 }
 
@@ -76,14 +87,32 @@ const ListItem = props => {
   )
 }
 
+const ComposedSearchInputWithResults = SearchInputWithResultsComposer(
+  SearchInputWithResults
+)
+
 const ComposedSearchInput = SearchInputComposer(SearchInput)
 const ComposedSearchResults = SearchResultsComposer(SearchResults)
 
-export { ComposedSearchInput, ComposedSearchResults }
+export {
+  ComposedSearchInput,
+  ComposedSearchResults,
+  ComposedSearchInputWithResults
+}
 
 const styles = StyleSheet.create({
   search: {
     margin: Platform.OS === 'web' ? 0 : 15
+  },
+  searchInput: {
+    width: '400px',
+    position: 'relative',
+    display: 'block',
+    overflow: 'visible'
+  },
+  results: {
+    backgroundColor: 'white',
+    width: '100%'
   },
   input: {
     fontSize: Platform.OS === 'web' ? 'inherit' : 48,

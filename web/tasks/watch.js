@@ -12,8 +12,9 @@ const compiler = webpack(dev)
 const options = {
   contentBase: path.resolve(__dirname, '..', config.publicDir),
   historyApiFallback: {
-    index: 'index.html'
+    index: 'index.dev.html'
   },
+  index: 'index.dev.html',
   hot: true,
   inline: true,
   stats: {

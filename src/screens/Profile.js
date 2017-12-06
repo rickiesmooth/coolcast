@@ -5,12 +5,12 @@ import { Button, FbLoginButton } from '../components/Buttons'
 import { observable, computed } from 'mobx'
 import { observer, inject } from 'mobx-react'
 
-@inject('userStore')
+@inject('currentStore')
 @observer
 export default class Profile extends React.Component {
   @computed
   get currentUser() {
-    return this.props.userStore.currentUser
+    return this.props.currentStore.currentUser
   }
 
   render() {
@@ -20,7 +20,7 @@ export default class Profile extends React.Component {
       return (
         <View style={styles.container}>
           <FbLoginButton
-            userStore={this.props.userStore}
+            currentStore={this.props.currentStore}
             title={'Login with Facebook'}
           />
         </View>
