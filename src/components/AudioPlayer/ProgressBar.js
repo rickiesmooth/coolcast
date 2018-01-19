@@ -6,21 +6,21 @@ import { Slider } from '../../utils'
 export const ProgressBar = props => {
   const {
     duration,
-    value,
-    _onSeekSliderValueChange,
-    _onSeekSliderSlidingComplete
+    progress,
+    onSeekSliderValueChange,
+    onSeekSliderSlidingComplete
   } = props
-  const dur = duration * 1000
+  const dur = duration / 1000
   return (
     <View style={styles.wrapper}>
       <View style={styles.text}>
-        <Text>{getReadableTime(value * dur)}</Text>
+        <Text>{getReadableTime(progress * dur)}</Text>
       </View>
       <View style={styles.slider}>
         <Slider
-          value={value || 0}
-          onValueChange={_onSeekSliderValueChange}
-          onSlidingComplete={_onSeekSliderSlidingComplete}
+          value={progress}
+          onValueChange={onSeekSliderValueChange}
+          onSlidingComplete={onSeekSliderSlidingComplete}
         />
       </View>
       <View style={styles.text}>

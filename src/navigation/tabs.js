@@ -30,12 +30,6 @@ const Colors = {
 }
 
 class TabBarWithMiniRemote extends React.Component {
-  constructor(props) {
-    super(props)
-    this.state = {
-      bounceValue: new Animated.Value(0)
-    }
-  }
   render() {
     return (
       <View>
@@ -52,24 +46,26 @@ const AppNavigator = StackNavigator(
     podcast: { screen: Podcast }
   },
   {
+    initialRouteName: 'Index',
     navigationOptions: ({ navigation }) => ({
       title: navigation.state.params && navigation.state.params.title,
-      tabBarOnPress: (tab, jumpToIndex) => {
-        if (tab.focused) {
-          if (tab.route.index !== 0) {
+      tabBarOnPress: ({ previousScene, scene, jumpToIndex }) => {
+        const { route, focused, index } = scene
+        if (focused) {
+          if (route.index !== 0) {
             navigation.dispatch(
               NavigationActions.reset({
                 index: 0,
                 actions: [
                   NavigationActions.navigate({
-                    routeName: tab.route.routes[0].routeName
+                    routeName: route.routes[0].routeName
                   })
                 ]
               })
             )
           }
         } else {
-          jumpToIndex(tab.index)
+          jumpToIndex(index)
         }
       }
     }),
@@ -122,13 +118,7 @@ const RootNavigation = TabNavigator(
     tabBarPosition: 'bottom',
     animationEnabled: false,
     headerMode: 'none',
-    swipeEnabled: false,
-    tabBarOptions: {
-      style: {
-        opacity: 1,
-        bottom: -50
-      }
-    }
+    swipeEnabled: false
   }
 )
 

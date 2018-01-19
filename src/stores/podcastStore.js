@@ -1,187 +1,136 @@
-import client from '../apollo'
-import gql from 'graphql-tag'
-import { observable, action, computed } from 'mobx'
-import PodcastModel from '../models/PodcastModel'
-import EpisodeModel from '../models/EpisodeModel'
-import { fromPromise } from 'mobx-utils'
+import { types, getParent, flow, getRoot } from 'mobx-state-tree'
 
 const API_URL = 'https://itunes.apple.com'
 const GET_FEED_URL =
   'https://us-central1-personal-180010.cloudfunctions.net/getFeed-1'
 
-const inString = (s, q) => s.toLowerCase().includes(q.toLowerCase())
-
-export default class PodcastStore {
-  @observable shows = {}
-  @observable episodes = {}
-  @observable results = []
-  @observable query = ''
-
-  @computed
-  get searchResults() {
-    return Object.keys(this.shows).filter(key =>
-      inString(this.shows[key].title, this.query)
-    )
-  }
-
-  @action
-  async searchPodcast(query) {
-    this.query = query
-
-    if (!query) {
-      this.results = []
-      return
+export const Episode = types
+  .model('Episode', {
+    id: types.identifier(),
+    title: types.string,
+    src: types.string,
+    progress: types.maybe(types.number),
+    showId: types.number,
+    duration: types.number,
+    sessionId: types.string,
+    liked: false
+  })
+  .actions(self => ({
+    getSessionId: flow(function* getSessionId() {
+      const root = getRoot(self)
+      const response = yield root.apolloStore.createPodcastPlay(self.id)
+      self.sessionId = response.data.AddPlay.id
+      console.log('✨calling getSessionId', self.sessionId)
+    }),
+    toggleLiked(liked) {
+      self.liked = liked
+    },
+    setProgress(progress) {
+      console.log('✨progress', progress)
+      self.progress = progress
     }
+  }))
 
-    const apiSearchResults = await fetch(
-      `${API_URL}/search?term=${encodeURIComponent(
-        query
-      )}&entity=podcast&limit=15`
-    ).then(response => response.json())
+export const Show = types.model('Show', {
+  id: types.identifier(),
+  title: types.string,
+  thumbLarge: types.string,
+  graphcoolShowId: types.string,
+  episodes: types.array(types.reference(Episode)),
+  feedUrl: types.maybe(types.string),
+  newPodcast: types.boolean
+})
 
-    apiSearchResults.results.forEach(item => {
-      const key = item.collectionId
-      if (!this.shows[key]) {
-        this.shows[key] = new PodcastModel(
-          this,
-          key,
-          item.trackName,
-          item.feedUrl,
-          item.artworkUrl100,
-          item.artworkUrl600
-        )
+export const PodcastStore = types
+  .model('PodcastStore', {
+    isLoading: true,
+    shows: types.map(Show),
+    episodes: types.map(Episode)
+  })
+  .views(self => ({
+    get root() {
+      return getRoot(self)
+    },
+    get sortedAvailableBooks() {
+      return sortBooks(self.shows.values())
+    }
+  }))
+  .actions(self => {
+    const addEpisode = episode => {
+      const result = self.episodes.get(episode.id)
+      if (!result) {
+        self.episodes.put(episode)
+      } else if (result && !result.sessionId && episode.sessionId) {
+        result.progress = episode.progress
+        result.sessionId = episode.sessionId
       }
+      return episode.id
+    }
+    const getShow = flow(function* addShow(showId, graphcoolShowId) {
+      if (!self.shows.get(showId)) {
+        // new Show
+        const [itunes, graphcool] = yield Promise.all([
+          fetch(`${API_URL}/lookup?id=${showId}`).then(res => res.json()),
+          !graphcoolShowId && self.root.apolloStore.getGraphCoolShow(showId)
+        ])
+        const { id, collectionName, artworkUrl600, feedUrl } = itunes.results[0]
+        const graphcoolRes = graphcool.data && graphcool.data.getPodcastId
+
+        self.shows.put({
+          id: showId,
+          title: collectionName,
+          feedUrl,
+          episodes: [],
+          thumbLarge: artworkUrl600,
+          newPodcast: graphcoolRes ? graphcoolRes.newPodcast : false,
+          graphcoolShowId: graphcoolShowId || graphcoolRes.graphcoolPodcastId
+        })
+      }
+      return showId
     })
-    this.results = this.searchResults.map(show => this.shows[show])
-  }
 
-  @action
-  async getPodcastById(key, graphcoolPodcastId) {
-    if (!this.shows[key]) {
-      const response = await fetch(
-        `${API_URL}/lookup?id=${key}`
-      ).then(response => response.json())
-      const podcast = response.results[0]
-      this.shows[key] = new PodcastModel(
-        this,
-        podcast.collectionId,
-        podcast.trackName,
-        podcast.feedUrl,
-        podcast.artworkUrl100,
-        podcast.artworkUrl600,
-        graphcoolPodcastId
-      )
-    }
-
-    return this.shows[key]
-  }
-
-  @action
-  getCurrentPodcast = async ({ key }) => {
-    //TODO check this
-    if (!this.shows[key] || !this.shows[key].graphcoolPodcastId) {
-      const result = await client.mutate({
-        mutation: GET_PODCAST_ID,
-        variables: {
-          showId: parseInt(key)
-        }
-      })
-      const data = result.data.getPodcastId
-      const podcast = await this.getPodcastById(key, data)
-      this.shows[key] = Object.assign(podcast, data)
-    }
-
-    return this.shows[key]
-  }
-  @action
-  async getPodcastEpisodes(key, history) {
-    const target = this.shows[key]
-    const newPodcast = target.newPodcast
-    if (target.graphcoolPodcastId) {
-      this.shows[key].episodes = newPodcast
-        ? await window
+    const getPodcastEpisodes = flow(function* getPodcastEpisodes(key) {
+      let show = self.shows.get(key)
+      if (!show) {
+        yield addShow(key)
+        show = self.shows.get(key)
+      }
+      const episodes = show.newPodcast
+        ? yield window
             .fetch(
-              `${GET_FEED_URL}?url=${target.feedUrl}&id=${target.graphcoolPodcastId}`
+              `${GET_FEED_URL}?url=${show.feedUrl}&id=${show.graphcoolShowId}`
             )
             .then(response => response.json())
-            .then(json => {
-              const data = Object.keys(json).map(key => json[key])
-              console.log('✨data', data)
-              return this.addEpisodesToState(data, key, history)
-            })
-        : await client // https://github.com/graphcool/framework/issues/743
-            .query({
-              query: SHOW_EPISODES,
-              variables: {
-                id: target.graphcoolPodcastId
-              }
-            })
-            .then(res =>
-              this.addEpisodesToState(res.data.Show.episodes, key, history)
-            )
-    } else {
-      console.warn(
-        'no graphcoolPodcastId weird, who calls getPodcastEpisodes without'
-      )
-    }
-    return this.shows[key].episodes
-  }
+            .then(json => Object.keys(json).map(key => json[key]))
+        : yield self.root.apolloStore
+            .getEpisodesFromGraphcool(show.graphcoolShowId)
+            .then(res => res.data.Show.episodes)
 
-  @action
-  async addEpisodesToState(target, showId, history) {
-    if (!this.shows[showId].episodes) {
-      this.shows[showId].episodes = []
-    }
-
-    return target.map(i => {
-      const episode = this.episodes[i.id]
-      if (!episode) {
-        this.shows[showId].episodes.push(i.id)
-        this.episodes[i.id] = new EpisodeModel(
-          this,
-          i.id,
-          i.title,
-          i.src,
-          i.description,
-          i.plays || (history && history[i.id] && history[i.id].plays)
-        )
-      }
-
-      return i.id
-    })
-  }
-
-  @action
-  currentUserHistory = async userHistory =>
-    await Promise.all(
-      Object.keys(userHistory).map(key => {
-        if (!this.shows[key]) {
-          this.shows[key] = this.getPodcastById(key, userHistory[key].id)
-          this.addEpisodesToState(userHistory[key].episodes, key)
-        }
-        return this.shows[key]
+      show.episodes = episodes.map(ep => {
+        const { id, title, src, description, duration } = ep
+        return addEpisode({
+          showId: parseInt(key),
+          sessionId: '',
+          duration: parseInt(duration),
+          progress: 0,
+          id,
+          title,
+          src,
+          description
+        })
       })
-    )
+      return show.episodes
+    })
+
+    return {
+      addEpisode,
+      getShow,
+      getPodcastEpisodes
+    }
+  })
+
+function sortBooks(books) {
+  return books
+    .filter(b => b.isAvailable)
+    .sort((a, b) => (a.name > b.name ? 1 : a.name === b.name ? 0 : -1))
 }
-
-const GET_PODCAST_ID = gql`
-  mutation GetPodcastIdandCheckIfNew($showId: Int!) {
-    getPodcastId(showId: $showId) {
-      graphcoolPodcastId
-      newPodcast
-    }
-  }
-`
-
-const SHOW_EPISODES = gql`
-  query ShowEpisodes($id: ID!) {
-    Show(id: $id) {
-      episodes {
-        id
-        src
-        description
-        title
-      }
-    }
-  }
-`

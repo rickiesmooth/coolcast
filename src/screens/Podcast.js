@@ -1,37 +1,59 @@
 import React, { Component } from 'react'
-import { computed } from 'mobx'
+import { computed, observable, action } from 'mobx'
 import { observer, inject } from 'mobx-react'
 import { Text, Platform } from 'react-native'
 import { ShowItem } from '../components/Podcast'
 import Header from '../components/Header'
+const WEB = Platform.OS === 'web'
 
-@inject('currentStore', 'podcastStore')
+@inject('viewStore', 'podcastStore')
 @observer
 export default class PodcastScreen extends Component {
   static navigationOptions = {
     tabBarLabel: 'Search'
   }
 
-  async componentWillMount() {
-    // for landing on podcast
-    // probably doesnt work for iOS
-    const { podcastStore, currentStore } = this.props
-    if (this.props.match) {
-      const key = this.props.match.params.id
-      currentStore.setCurrentPodcast({ key })
-    }
+  @observable showId = null
+  @observable episodes = []
+
+  @computed
+  get navigationKey() {
+    const { match, navigation } = this.props
+    return WEB ? match.params.id : navigation.state.params
+  }
+
+  @action
+  async prepareData(id) {
+    const podcastStore = this.props.podcastStore
+    this.showId = await podcastStore.getShow(id)
+    const episodes = await podcastStore.getPodcastEpisodes(id)
+    this.episodes = episodes.map(e => e.id)
+  }
+
+  componentWillReceiveProps({ match, navigation }) {
+    const id = WEB ? match.params.id : navigation.state.params
+    this.prepareData(id)
+  }
+
+  componentWillMount(props) {
+    this.prepareData(this.navigationKey)
   }
 
   render() {
-    const { podcastStore, currentStore } = this.props
-    if (Platform.OS === 'web') {
-      return <ShowItem showId={currentStore.currentPodcast} />
+    const { podcastStore, viewStore } = this.props
+    const root = podcastStore.root
+    if (this.showId) {
+      if (WEB) {
+        return <ShowItem showId={this.showId} episodes={this.episodes} />
+      } else {
+        return (
+          <Header title={root.currentShow.title}>
+            <ShowItem showId={this.showId} episodes={this.episodes} />
+          </Header>
+        )
+      }
     } else {
-      return (
-        <Header title={'podcast.title'}>
-          <ShowItem showId={currentStore.currentPodcast} />
-        </Header>
-      )
+      return <Text>Super long loading</Text>
     }
   }
 }

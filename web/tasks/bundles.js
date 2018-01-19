@@ -79,6 +79,7 @@ module.exports = {
         'webpack-dev-server/client?'
       ])
     },
+    devtool: 'source-map',
     output: {
       path: path.resolve('web', config.publicDir),
       publicPath: '/',

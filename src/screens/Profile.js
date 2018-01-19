@@ -1,26 +1,29 @@
 import React from 'react'
-import { View, TouchableOpacity, Image, Text, StyleSheet } from 'react-native'
+import {
+  View,
+  TouchableOpacity,
+  Image,
+  Text,
+  StyleSheet,
+  AsyncStorage
+} from 'react-native'
 import { Button, FbLoginButton } from '../components/Buttons'
 
 import { observable, computed } from 'mobx'
 import { observer, inject } from 'mobx-react'
 
-@inject('currentStore')
+@inject('userStore')
 @observer
 export default class Profile extends React.Component {
-  @computed
-  get currentUser() {
-    return this.props.currentStore.currentUser
-  }
-
   render() {
-    if (this.currentUser.id) {
-      return <LoggedInUser currentUser={this.currentUser} />
+    const { currentUser, logout } = this.props.userStore
+    if (currentUser) {
+      return <LoggedInUser currentUser={currentUser} logout={logout} />
     } else {
       return (
         <View style={styles.container}>
           <FbLoginButton
-            currentStore={this.props.currentStore}
+            userStore={this.props.userStore}
             title={'Login with Facebook'}
           />
         </View>
@@ -31,7 +34,9 @@ export default class Profile extends React.Component {
 
 class LoggedInUser extends React.Component {
   render() {
-    const { email, facebookUserId } = this.props.currentUser
+    const { logout, currentUser } = this.props
+    const { email, facebookUserId } = currentUser
+
     return (
       <View style={styles.container}>
         <Image
@@ -41,13 +46,7 @@ class LoggedInUser extends React.Component {
           }}
         />
         <Text>{email}</Text>
-        <Button
-          title={'Logout'}
-          action={() => {
-            global.localStorage.clear()
-            this.props.currentUser.id = false
-          }}
-        />
+        <Button title={'Logout'} action={logout} />
       </View>
     )
   }

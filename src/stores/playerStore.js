@@ -1,151 +1,118 @@
-import { observable, action, computed } from 'mobx'
-import client from '../apollo'
-import gql from 'graphql-tag'
+import { types, getRoot } from 'mobx-state-tree'
 
-export default class PlayerStore {
-  @observable isSeeking = false
-  @observable shouldPlayAtEndOfSeek = false
-  @observable
-  state = {
-    playbackInstancePosition: null,
-    playbackInstanceDuration: null,
-    shouldPlay: false,
-    isPlaying: false,
-    isBuffering: false,
-    isLoading: true,
-    thumb: null,
-    volume: 1.0,
-    rate: 1.0
-  }
+const PlaybackState = types.model({
+  playbackInstancePosition: types.number,
+  playbackInstanceDuration: types.number,
+  shouldPlay: types.boolean,
+  isPlaying: types.boolean,
+  isBuffering: types.boolean,
+  isLoading: types.boolean,
+  volume: types.number,
+  rate: types.number
+})
 
-  playbackInstance = null
-
-  playing = {}
-
-  _onPlayPausePressed = () => {
-    if (this.playbackInstance != null) {
-      if (this.state.isPlaying) {
-        this.playbackInstance.pauseAsync()
-      } else {
-        this.playbackInstance.playAsync()
-      }
-    }
-  }
-
-  _onSeekSliderSlidingComplete = async value => {
-    if (this.playbackInstance != null) {
-      this.isSeeking = false
-      const seekPosition = value * this.state.playbackInstanceDuration
-      if (this.shouldPlayAtEndOfSeek) {
-        this.playbackInstance.playFromPositionAsync(seekPosition)
-      } else {
-        this.playbackInstance.setPositionAsync(seekPosition)
-      }
-    }
-  }
-
-  _onSeekSliderSlidingComplete = async value => {
-    if (this.playbackInstance != null) {
-      this.isSeeking = false
-      const seekPosition = value * this.state.playbackInstanceDuration
-      if (this.shouldPlayAtEndOfSeek) {
-        this.playbackInstance.playFromPositionAsync(seekPosition)
-      } else {
-        this.playbackInstance.setPositionAsync(seekPosition)
-      }
-    }
-  }
-
-  _onSeekSliderValueChange = value => {
-    const {
-      playbackInstanceDuration,
-      playbackInstancePosition,
-      shouldPlay
-    } = this.state
-
-    const time = value * playbackInstanceDuration
-    this.state.playbackInstancePosition = time
-
-    if (this.playbackInstance != null && !this.isSeeking) {
-      this.isSeeking = true
-      this.shouldPlayAtEndOfSeek = shouldPlay
-      this.playbackInstance.pauseAsync()
-    }
-  }
-
-  _getProgressPercentage = () => {
-    if (
-      this.playbackInstance != null &&
-      this.state.playbackInstancePosition != null &&
-      this.state.playbackInstanceDuration != null
-    ) {
+export const PlayerStore = types
+  .model({
+    isSeeking: false,
+    shouldPlayAtendOfSeek: false,
+    state: PlaybackState
+  })
+  .views(self => ({
+    get root() {
+      return getRoot(self)
+    },
+    get progressPercentage() {
+      const state = self.state
       return (
-        this.state.playbackInstancePosition /
-        this.state.playbackInstanceDuration
+        state.playbackInstancePosition / state.playbackInstanceDuration || 0
       )
     }
-    return 0
-  }
-
-  @action
-  sendProgress = throttle(async progress => {
-    if (this.playing) {
-      this.playing.plays.progress = progress
-      console.log('✨this.playing.plays', this.playing.plays)
-      const result = await client.mutate({
-        mutation: UPDATE_PODCAST_PLAY,
-        variables: {
-          viewId: this.playing.plays.id,
-          progress
+    // get secondsFromPercentage() {
+    //   console.log(
+    //     '✨this.props.playerStore.state.durationMillis',
+    //     self.state.durationMillis
+    //   )
+    //   return self.state
+    // }
+  }))
+  .actions(self => ({
+    onPlayPausePressed() {
+      if (self.playbackInstance != null) {
+        if (self.state.isPlaying) {
+          self.playbackInstance.pauseAsync()
+        } else {
+          self.playbackInstance.playAsync()
         }
-      })
-    }
-  }, 10e3)
-
-  @action
-  _onPlaybackStatusUpdate = status => {
-    if (status.isLoaded) {
-      this.playing.plays.progress = status.positionMillis
-      this.state = {
-        playbackInstancePosition: status.positionMillis,
-        playbackInstanceDuration: status.durationMillis,
-        shouldPlay: status.shouldPlay,
-        isPlaying: status.isPlaying,
-        isBuffering: status.isBuffering,
-        rate: status.rate,
-        volume: status.volume
       }
-      this.sendProgress(status.positionMillis)
-      if (status.didJustFinish) {
-        this.playbackInstance.stopAsync()
+    },
+    onSeekSliderSlidingComplete(value) {
+      if (self.playbackInstance != null) {
+        self.isSeeking = false
+        const seekPosition = value * self.state.playbackInstanceDuration
+        if (self.shouldPlayAtEndOfSeek) {
+          self.playbackInstance.playFromPositionAsync(seekPosition)
+        } else {
+          self.playbackInstance.setPositionAsync(seekPosition)
+        }
       }
-    } else {
-      if (status.error) {
-        console.log(`FATAL PLAYER ERROR: ${status.error}`)
+    },
+    onSeekSliderValueChange(value) {
+      const {
+        playbackInstanceDuration,
+        playbackInstancePosition,
+        shouldPlay
+      } = self.state
+
+      const time = value * playbackInstanceDuration
+      self.state.playbackInstancePosition = time
+
+      if (self.playbackInstance != null && !self.isSeeking) {
+        self.isSeeking = true
+        self.shouldPlayAtEndOfSeek = shouldPlay
+        self.playbackInstance.pauseAsync()
+      }
+    },
+    sendProgress: throttle(progress => {
+      const { currentlyPlaying, apolloStore } = self.root
+      if (currentlyPlaying) {
+        apolloStore.updatePodcastPlay(progress, currentlyPlaying.sessionId)
+      }
+    }, 10e3),
+    onPlaybackStatusUpdate(status) {
+      if (status.isLoaded) {
+        self.state = {
+          playbackInstancePosition: status.positionMillis,
+          playbackInstanceDuration: status.durationMillis,
+          shouldPlay: status.shouldPlay,
+          isPlaying: status.isPlaying,
+          isLoading: !status.isBuffering,
+          isBuffering: status.isBuffering,
+          rate: status.rate,
+          volume: status.volume
+        }
+        const progressPercentage = self.progressPercentage
+        self.root.currentlyPlaying.setProgress(progressPercentage)
+        self.sendProgress(progressPercentage)
+        if (status.didJustFinish) {
+          self.playbackInstance.stopAsync()
+        }
+      } else {
+        if (status.error) {
+          console.log(`FATAL PLAYER ERROR: ${status.error}`)
+        }
+      }
+    },
+    updateScreenForLoading(isLoading) {
+      if (isLoading) {
+        self.state.isPlaying = false
+        self.state.playbackInstanceDuration = null
+        self.state.playbackInstancePosition = null
+        self.state.isLoading = true
+      } else {
+        self.state.isLoading = false
       }
     }
-  }
-
-  @action
-  _updateScreenForLoading(isLoading) {
-    if (isLoading) {
-      this.state.isPlaying = false
-      this.state.playbackInstanceDuration = null
-      this.state.playbackInstancePosition = null
-      this.state.isLoading = true
-    } else {
-      this.state.isLoading = false
-    }
-  }
-}
-
-const UPDATE_PODCAST_PLAY = gql`
-  mutation UpdatePodcastPlay($viewId: ID!, $progress: Float!) {
-    updatePodcastPlay(id: $viewId, progress: $progress) {
-      id
-    }
-  }
-`
+  }))
 
 function throttle(callback, wait, context = this) {
   let timeout = null

@@ -12,106 +12,55 @@ import { MaterialIcons } from '@expo/vector-icons'
 import { observer, inject } from 'mobx-react'
 import { computed } from 'mobx'
 import { PlayButton } from '../../../components/AudioPlayer/PlayButton'
+import AudioContainerComposer from '../../../containers/Audio'
 
 const DISABLED_OPACITY = 0.5
-
-@inject('playerStore', 'currentStore')
+@inject('playerStore', 'userStore')
 @observer
-export default class ExpandedMiniRemote extends React.Component {
-  get playerStoreState() {
-    return this.props.playerStore.state
-  }
-
-  get playerStore() {
-    return this.props.playerStore
-  }
-
-  get currentStore() {
-    return this.props.currentStore
-  }
-
-  _onSeekSliderValueChange = value => {
-    if (
-      this.playerStore.playbackInstance != null &&
-      !this.playerStore.isSeeking
-    ) {
-      this.playerStore.isSeeking = true
-      this.playerStore.shouldPlayAtEndOfSeek = this.playerStoreState.shouldPlay
-      this.playerStore.playbackInstance.pauseAsync()
-    }
-  }
-
-  _onSeekSliderSlidingComplete = async value => {
-    if (this.playerStore.playbackInstance != null) {
-      this.playerStore.isSeeking = false
-      const seekPosition =
-        value * this.playerStoreState.playbackInstanceDuration
-      if (this.playerStore.shouldPlayAtEndOfSeek) {
-        // millis
-        this.playerStore.playbackInstance.playFromPositionAsync(seekPosition)
-      } else {
-        this.playerStore.playbackInstance.setPositionAsync(seekPosition)
-      }
-    }
-  }
-
-  _getSeekSliderPosition() {
-    if (
-      this.props.playerStore.playbackInstance != null &&
-      this.playerStoreState.playbackInstancePosition != null &&
-      this.playerStoreState.playbackInstanceDuration != null
-    ) {
-      return (
-        this.playerStoreState.playbackInstancePosition /
-        this.playerStoreState.playbackInstanceDuration
-      )
-    }
-    return 0
-  }
-
+class ExpandedMiniRemote extends React.Component {
   render() {
+    const {
+      artist,
+      title,
+      progress,
+      isPlaying,
+      duration,
+      navigation,
+      onSeekSliderSlidingComplete,
+      onSeekSliderValueChange,
+      onPlayPausePressed
+    } = this.props
+
     return (
       <View style={styles.container}>
-        <Image
-          style={styles.thumb}
-          source={{
-            uri: this.props.currentStore.currentPodcastEpisodeMeta.thumbLarge
-          }}
-        />
-        <View
-          style={[
-            styles.playbackContainer,
-            {
-              opacity: this.playerStoreState.isLoading ? DISABLED_OPACITY : 1.0
-            }
-          ]}
-        >
+        <Image style={styles.thumb} source={{ uri: title }} />
+        <View style={[styles.playbackContainer]}>
           <Slider
             style={styles.playbackSlider}
             thumbImage={
-              this.playerStore.isSeeking
+              this.props.playerStore.isSeeking
                 ? require('./track.png')
                 : require('./thumb.png')
             }
-            value={this._getSeekSliderPosition()}
-            onValueChange={this._onSeekSliderValueChange}
-            onSlidingComplete={this._onSeekSliderSlidingComplete}
+            value={progress}
+            onValueChange={onSeekSliderValueChange}
+            onSlidingComplete={onSeekSliderSlidingComplete}
             minimumTrackTintColor="#4CCFF9"
-            disabled={this.playerStoreState.isLoading}
           />
         </View>
-        <Text style={{ textAlign: 'center' }}>
-          {this.currentStore.currentPlaying.title}
-        </Text>
-        <Text style={{ textAlign: 'center' }}>
-          {this.currentStore.currentPodcastEpisodeMeta.title}
-        </Text>
+        <Text style={{ textAlign: 'center' }}>{artist}</Text>
+        <Text style={{ textAlign: 'center' }}>{title}</Text>
 
-        <PlayButton playerStore={this.playerStore} />
+        <PlayButton
+          isPlaying={isPlaying}
+          onPlayPausePressed={onPlayPausePressed}
+        />
       </View>
     )
   }
 }
+
+export default AudioContainerComposer(ExpandedMiniRemote)
 
 const styles = StyleSheet.create({
   container: {
