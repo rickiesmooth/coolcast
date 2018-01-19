@@ -1,4 +1,0 @@
-targets:
-  dev: local/cj9povhq9000m0146e9ojtw0m
-  default: production
-  production: shared-eu-west-1/cj9pp24d42jst0145fvha64ct

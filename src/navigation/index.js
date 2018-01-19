@@ -53,13 +53,13 @@ export class Link extends React.Component {
   }
 
   onNavigate() {
+    const route = this.props.to.split('/')
     navigationStore.dispatch(
-      NavigationActions.navigate({ routeName: this.props.to.split('/')[1] })
+      NavigationActions.navigate({ routeName: route[1], params: route[2] })
     )
   }
 
   press() {
-    console.log('✨hooi')
     this.onNavigate()
     this.props.onClick && this.props.onClick()
     this.props.onMouseDown && this.props.onMouseDown()

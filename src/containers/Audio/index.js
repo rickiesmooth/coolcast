@@ -3,6 +3,7 @@ import AudioContainerComposer from './AudioContainer'
 import { Asset, Audio, Font } from 'expo'
 
 export default Player => {
+  const Container = AudioContainerComposer(Player)
   return class Enhanced extends React.Component {
     componentDidMount() {
       Audio.setAudioModeAsync({
@@ -15,32 +16,40 @@ export default Player => {
       this._loadNewPlaybackInstance(false)
     }
 
-    async _loadNewPlaybackInstance(src) {
-      if (this.playerStore.playbackInstance != null) {
-        await this.playerStore.playbackInstance.unloadAsync()
-        this.playerStore.playbackInstance.setOnPlaybackStatusUpdate(null)
-        this.playerStore.playbackInstance = null
+    async _loadNewPlaybackInstance(episode) {
+      const playerStore = this.playerStore
+
+      if (playerStore.playbackInstance != null) {
+        await playerStore.playbackInstance.unloadAsync()
+        playerStore.playbackInstance.setOnPlaybackStatusUpdate(null)
+        playerStore.playbackInstance = null
       }
-      const source = { uri: src || '' }
+
+      const source = { uri: episode.src || '' }
       const initialStatus = {
-        shouldPlay: !!src,
-        rate: this.playerStore.state.rate,
-        volume: this.playerStore.state.volume
+        shouldPlay: !!episode.src,
+        rate: playerStore.state.rate,
+        volume: playerStore.state.volume
       }
 
       const { sound, status } = await Audio.Sound.create(
         source,
         initialStatus,
-        this.playerStore._onPlaybackStatusUpdate
+        playerStore.onPlaybackStatusUpdate
       )
 
-      this.playerStore.playbackInstance = sound
+      playerStore.playbackInstance = sound
 
-      this.playerStore._updateScreenForLoading(false)
+      if (episode.progress) {
+        playerStore.playbackInstance.playFromPositionAsync(episode.progress)
+      } else {
+        playerStore.playbackInstance.playAsync()
+      }
+
+      playerStore._updateScreenForLoading(false)
     }
 
     render() {
-      const Container = AudioContainerComposer(Player)
       return (
         <Container
           {...this.props}

@@ -4,77 +4,78 @@ import { observable, computed, action } from 'mobx'
 import { observer, inject } from 'mobx-react'
 
 export const PodcastEpisodeComposer = Episode =>
-  @inject('currentStore', 'podcastStore')
+  @inject('viewStore', 'podcastStore', 'apolloStore')
   @observer
   class EnhancedEpisode extends React.Component {
     @computed
     get episode() {
       const { episodeId, podcastStore } = this.props
-      return podcastStore.episodes[episodeId]
+      return podcastStore.episodes.get(episodeId)
     }
 
     render() {
-      const { currentStore } = this.props
-      const { title, plays } = this.episode
-
+      const { viewStore, apolloStore } = this.props
+      const { title, progress, duration, liked, id, toggleLiked } = this.episode
       return (
         <Episode
           {...this.props}
           title={decodeURI(title)}
-          progress={plays && plays.progress}
-          setCurrentPlaying={() => currentStore.setCurrentPlaying(this.episode)}
+          progress={progress > 0 && progress}
+          duration={duration}
+          setCurrentPlaying={() => viewStore.setCurrentPlaying(this.episode.id)}
+          liked={liked}
+          likeApi={() => {
+            toggleLiked(!liked)
+            apolloStore.updateLike(liked, id)
+          }}
         />
       )
     }
   }
 
 export const PodcastShowComposer = Show =>
-  @inject('currentStore', 'podcastStore')
+  @inject('podcastStore', 'viewStore')
   @observer
   class EnhancedShow extends React.Component {
     @observable episodeList = null
-    @observable showMeta = null
 
     @computed
     get show() {
       const { showId, podcastStore } = this.props
-      const show = podcastStore.shows[showId]
-      !show && this.getPodcastShowMeta()
+      const show = podcastStore.shows.get(showId)
       return show
     }
 
     @computed
     get episodes() {
-      const { episodes } = this.props
-      !episodes && this.getPodcastEpisodes()
+      const { episodes, podcastStore } = this.props
       return episodes
-    }
-
-    @action
-    async getPodcastShowMeta() {
-      const { showId, podcastStore } = this.props
-      this.showMeta = await podcastStore.getCurrentPodcast({ key: showId })
+        ? episodes.map(ep => podcastStore.episodes.get(ep))
+        : this.episodeList
     }
 
     @action
     async getPodcastEpisodes() {
-      const { showId, podcastStore, currentStore } = this.props
-      const history = currentStore.currentUserHistory
-      this.episodeList = await podcastStore.getPodcastEpisodes(showId, history)
+      const { showId, podcastStore } = this.props
+      this.episodeList = await podcastStore.getPodcastEpisodes(showId)
+    }
+
+    componentWillMount() {
+      !this.episodes && this.getPodcastEpisodes()
     }
 
     render() {
-      const { showId, podcastStore } = this.props
-      const show = this.show || this.showMeta
+      const show = this.show
       if (show) {
-        const { title, episodes, thumbLarge } = show
+        const { showId } = this.props
+        const { title, thumbLarge } = show
         return (
           <Show
             {...this.props}
             title={title}
-            episodes={this.episodes || this.episodeList}
+            episodes={this.episodes}
             thumbLarge={thumbLarge}
-            showId={this.props.showId}
+            showId={showId}
           />
         )
       } else {

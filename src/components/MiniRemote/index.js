@@ -21,34 +21,36 @@ const MiniRemote = props => {
   const {
     artist,
     title,
-    value,
+    progress,
     isPlaying,
     duration,
     navigation,
-    _onSeekSliderSlidingComplete,
-    _onSeekSliderValueChange,
-    _onPlayPausePressed
+    onSeekSliderSlidingComplete,
+    onSeekSliderValueChange,
+    onPlayPausePressed
   } = props
   return (
     <View>
       {!notPhone && (
-        <View style={[{ width: `${value * 100}%` }, styles.progressBarPhone]} />
+        <View
+          style={[{ width: `${progress * 100}%` }, styles.progressBarPhone]}
+        />
       )}
       <View style={styles.container}>
         <View style={styles.playbackContainer}>
           <View style={styles.playButton}>
             <PlayButton
               isPlaying={isPlaying}
-              _onPlayPausePressed={_onPlayPausePressed}
+              onPlayPausePressed={onPlayPausePressed}
             />
           </View>
           {notPhone && (
             <View style={styles.progressBar}>
               <ProgressBar
-                value={value}
+                progress={progress}
                 duration={duration}
-                _onSeekSliderSlidingComplete={_onSeekSliderSlidingComplete}
-                _onSeekSliderValueChange={_onSeekSliderValueChange}
+                onSeekSliderSlidingComplete={onSeekSliderSlidingComplete}
+                onSeekSliderValueChange={onSeekSliderValueChange}
               />
             </View>
           )}
@@ -60,6 +62,7 @@ const MiniRemote = props => {
           </View>
         </Link>
       </View>
+      {props.children}
     </View>
   )
 }

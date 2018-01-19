@@ -3,10 +3,10 @@ import { StyleSheet, TouchableOpacity, View } from 'react-native'
 import { Icon } from '../Icons'
 
 export const PlayButton = props => {
-  const { isPlaying, size, color, isLoading, _onPlayPausePressed } = props
+  const { isPlaying, size, color, isLoading, onPlayPausePressed } = props
   return (
     <TouchableOpacity
-      onPress={_onPlayPausePressed}
+      onPress={onPlayPausePressed}
       disabled={isLoading}
       style={styles.wrapper}
     >

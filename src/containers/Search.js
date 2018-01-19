@@ -4,17 +4,17 @@ import { computed, action, observable } from 'mobx'
 import { observer, inject } from 'mobx-react'
 
 export const SearchInputComposer = SearchInput =>
-  @inject('currentStore', 'podcastStore')
+  @inject('podcastStore', 'searchStore')
   @observer
   class Enhanced extends React.Component {
-    onTextInputChange = value => this.props.podcastStore.searchPodcast(value)
+    onTextInputChange = value => this.props.searchStore.searchPodcast(value)
     render() {
       return (
         <SearchInput
           {...this.props}
-          _toggleSearchResults={this.props.toggleSearchResults}
+          toggleSearchResults={this.props.toggleSearchResults}
           onTextInputChange={this.onTextInputChange}
-          query={this.props.podcastStore.query}
+          query={this.props.searchStore.query}
           placeholder={'Search...'}
         />
       )
@@ -22,17 +22,17 @@ export const SearchInputComposer = SearchInput =>
   }
 
 export const SearchResultsComposer = SearchResults =>
-  @inject('currentStore', 'podcastStore')
+  @inject('searchStore', 'podcastStore')
   @observer
   class Enhanced extends React.Component {
     @computed
     get results() {
-      return this.props.podcastStore.results
+      return this.props.searchStore.searchResults
     }
     _setCurrentPodcast = async podcast => {
-      const { currentStore, podcastStore } = this.props
-      await podcastStore.getCurrentPodcast({ key: podcast.key })
-      currentStore.setCurrentPodcast(podcast)
+      console.log('✨podcast', podcast)
+      // const { userStore, podcastStore } = this.props
+      // viewStore.openShowPage({ key: podcast.key })
     }
     render() {
       return !this.results || this.props.isHidden ? null : (
@@ -46,7 +46,7 @@ export const SearchResultsComposer = SearchResults =>
   }
 
 export const SearchInputWithResultsComposer = SearchInputWithResults =>
-  @inject('currentStore', 'podcastStore')
+  @inject('userStore', 'podcastStore')
   @observer
   class Enhanced extends React.Component {
     @observable hidden = true

@@ -1,8 +1,0 @@
-type AddPlayPayload {
-  id: ID!
-  progress: Float
-}
-
-extend type Mutation {
-  AddPlay(episodeId: ID!): AddPlayPayload
-}

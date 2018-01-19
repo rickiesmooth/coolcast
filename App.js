@@ -5,9 +5,11 @@ import { Provider as MobxProvider } from 'mobx-react'
 
 import { RootNavigation } from './src/navigation'
 
-import stores from './src/stores'
-import client from './src/apollo'
-
+import RootStore from './src/stores'
+import { client } from './src/apollo'
+const stores = RootStore.create()
+//debug
+window.stores = stores
 class Coolcast extends React.Component {
   render() {
     return (

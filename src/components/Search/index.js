@@ -27,13 +27,17 @@ const SearchInput = props => {
         value={query}
         style={styles.input}
         onChangeText={onTextInputChange}
-        onFocus={() => toggleSearchResults(false)}
-        onBlur={e => {
-          // @TODO find correct solution for onblur firing before on mouseup/click
-          setTimeout(() => {
-            toggleSearchResults(true) //
-          }, 250)
-        }}
+        onFocus={toggleSearchResults ? () => toggleSearchResults(false) : null}
+        onBlur={
+          toggleSearchResults
+            ? e => {
+                // @TODO find correct solution for onblur firing before on mouseup/click
+                setTimeout(() => {
+                  toggleSearchResults(true) //
+                }, 250)
+              }
+            : null
+        }
         placeholder={placeholder}
       />
     </View>
@@ -46,7 +50,7 @@ const SearchResults = props => {
     <FlatList
       data={results}
       style={style}
-      keyExtractor={(item, index) => item.key}
+      keyExtractor={(item, index) => item.id}
       renderItem={({ item }) => (
         <ListItem podcast={item} setCurrentPodcast={setCurrentPodcast} />
       )}
@@ -68,10 +72,8 @@ const ListItem = props => {
   const { podcast, setCurrentPodcast } = props
   return (
     <Link
-      onClick={() => {
-        setCurrentPodcast(podcast)
-      }}
-      to={`/podcast/${podcast.key}`}
+      onClick={() => setCurrentPodcast(podcast)}
+      to={`/podcast/${podcast.id}`}
     >
       <View style={styles.container}>
         <Image style={styles.image} source={{ uri: podcast.thumb }} />

@@ -1,6 +1,6 @@
 {
   "expo": {
-    "sdkVersion": "22.0.0",
+    "sdkVersion": "24.0.0",
     "name": "Coolcast",
     "icon": "./logo.png",
     "version": "1.0.0",
@@ -13,6 +13,8 @@
     "android": {
       "package": "com.rickiesmooth.cool"
     },
+    "facebookAppId": "354324435015552",
+    "facebookDisplayName": "CoolCast",
     "facebookScheme": "fb354324435015552"
   }
 }

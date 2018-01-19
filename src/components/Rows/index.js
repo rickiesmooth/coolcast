@@ -7,50 +7,31 @@ import { observable, action, computed } from 'mobx'
 
 import { EpisodeItem, ShowItem } from '../Podcast'
 
-@inject('currentStore', 'podcastStore')
+@inject('userStore', 'podcastStore')
 @observer
 export class Row extends React.Component {
-  @observable history = []
-
-  @computed
-  get userHistory() {
-    const { podcastStore, currentStore, data } = this.props
-    const history = currentStore.currentUserHistory
-    return Object.keys(history).reduce((r, a) => {
-      const show = history[a].show
-      r[show.showId] = r[show.showId] || {}
-      r[show.showId].id = show.id
-      r[show.showId].episodes = r[show.showId].episodes || []
-      r[show.showId].episodes.push(history[a])
-      return r
-    }, {})
-  }
-
-  @action
-  async componentDidMount() {
-    const { podcastStore, data } = this.props
-    const history = await podcastStore.currentUserHistory(this.userHistory)
-    this.history = history
-  }
-
   render() {
-    return this.userHistory ? (
+    const { podcastStore, userStore, data } = this.props
+    const { groupedUserHistory, hasHistory } = userStore
+    return hasHistory ? (
       <View style={styles.container}>
         <Title text={'Continue listening'} size={'large'} />
         <FlatList
-          data={this.history}
+          data={Object.keys(groupedUserHistory)}
           style={styles.listView}
-          keyExtractor={(item, index) => item.key}
+          keyExtractor={item => item}
           horizontal
-          renderItem={({ item }) => (
-            <ShowItem
-              showId={item.key}
-              episodes={this.userHistory[item.key].episodes.map(ep => ep.id)}
-              style={{
-                width: 250
-              }}
-            />
-          )}
+          renderItem={({ item }) => {
+            return (
+              <ShowItem
+                showId={item}
+                episodes={groupedUserHistory[item].episodes.map(ep => ep)}
+                style={{
+                  width: 250
+                }}
+              />
+            )
+          }}
         />
       </View>
     ) : null
