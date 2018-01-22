@@ -1,12 +1,3 @@
-type Podcast {
-  id: ID! @unique
-  createdAt: DateTime!
-  updatedAt: DateTime!
-  isPublished: Boolean! @default(value: "false")
-  title: String!
-  showId: String! @unique
-}
-
 type User {
   id: ID! @unique
 
@@ -14,5 +5,24 @@ type User {
   updatedAt: DateTime!
 
   facebookUserId: String! @unique
-  email: String! @unique
+
+  email: String!
+
+}
+
+type Show {
+  id: ID! @unique
+  title: String!
+  showId: String! @unique
+  thumbLarge: String!
+  episodes: [Episode!]!
+}
+
+type Episode {
+  id: ID! @unique
+  title: String!
+  date: DateTime!
+  description: String!
+  src: String!
+  show: [Show!]!
 }

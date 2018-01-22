@@ -3,6 +3,8 @@ import { View, Text } from 'react-native'
 import { observable, computed, action } from 'mobx'
 import { observer, inject } from 'mobx-react'
 
+import { fromPromise } from 'mobx-utils'
+
 export const PodcastEpisodeComposer = Episode =>
   @inject('viewStore', 'podcastStore', 'apolloStore')
   @observer
@@ -37,49 +39,36 @@ export const PodcastShowComposer = Show =>
   @inject('podcastStore', 'viewStore')
   @observer
   class EnhancedShow extends React.Component {
-    @observable episodeList = null
-
     @computed
     get show() {
       const { showId, podcastStore } = this.props
-      const show = podcastStore.shows.get(showId)
-      return show
+      return fromPromise(podcastStore.getShow(showId))
     }
 
     @computed
     get episodes() {
       const { episodes, podcastStore } = this.props
-      return episodes
-        ? episodes.map(ep => podcastStore.episodes.get(ep))
-        : this.episodeList
-    }
-
-    @action
-    async getPodcastEpisodes() {
-      const { showId, podcastStore } = this.props
-      this.episodeList = await podcastStore.getPodcastEpisodes(showId)
-    }
-
-    componentWillMount() {
-      !this.episodes && this.getPodcastEpisodes()
+      return episodes ? episodes.map(ep => podcastStore.episodes.get(ep)) : null
     }
 
     render() {
       const show = this.show
-      if (show) {
-        const { showId } = this.props
-        const { title, thumbLarge } = show
-        return (
-          <Show
-            {...this.props}
-            title={title}
-            episodes={this.episodes}
-            thumbLarge={thumbLarge}
-            showId={showId}
-          />
-        )
-      } else {
-        return <Text>Loading..</Text>
+      const { showId } = this.props
+      switch (show.state) {
+        case 'pending':
+          return <Text>Loading..</Text>
+        case 'rejected':
+          return <Text>Error... {show.value}</Text>
+        case 'fulfilled':
+          return (
+            <Show
+              {...this.props}
+              title={show.value.title}
+              episodes={this.episodes || show.value.episodes}
+              thumbLarge={show.value.thumbLarge}
+              showId={showId}
+            />
+          )
       }
     }
   }

@@ -6,15 +6,12 @@ import { ShowItem } from '../components/Podcast'
 import Header from '../components/Header'
 const WEB = Platform.OS === 'web'
 
-@inject('viewStore', 'podcastStore')
+@inject('podcastStore')
 @observer
 export default class PodcastScreen extends Component {
   static navigationOptions = {
     tabBarLabel: 'Search'
   }
-
-  @observable showId = null
-  @observable episodes = []
 
   @computed
   get navigationKey() {
@@ -22,33 +19,15 @@ export default class PodcastScreen extends Component {
     return WEB ? match.params.id : navigation.state.params
   }
 
-  @action
-  async prepareData(id) {
-    const podcastStore = this.props.podcastStore
-    this.showId = await podcastStore.getShow(id)
-    const episodes = await podcastStore.getPodcastEpisodes(id)
-    this.episodes = episodes.map(e => e.id)
-  }
-
-  componentWillReceiveProps({ match, navigation }) {
-    const id = WEB ? match.params.id : navigation.state.params
-    this.prepareData(id)
-  }
-
-  componentWillMount(props) {
-    this.prepareData(this.navigationKey)
-  }
-
   render() {
-    const { podcastStore, viewStore } = this.props
-    const root = podcastStore.root
-    if (this.showId) {
+    const { podcastStore } = this.props
+    if (this.navigationKey) {
       if (WEB) {
-        return <ShowItem showId={this.showId} episodes={this.episodes} />
+        return <ShowItem showId={this.navigationKey} />
       } else {
         return (
           <Header title={root.currentShow.title}>
-            <ShowItem showId={this.showId} episodes={this.episodes} />
+            <ShowItem showId={this.navigationKey} />
           </Header>
         )
       }

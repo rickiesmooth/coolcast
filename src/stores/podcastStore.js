@@ -10,7 +10,7 @@ export const Episode = types
     title: types.string,
     src: types.string,
     progress: types.maybe(types.number),
-    showId: types.number,
+    showId: types.string,
     duration: types.number,
     sessionId: types.string,
     liked: false
@@ -36,9 +36,7 @@ export const Show = types.model('Show', {
   title: types.string,
   thumbLarge: types.string,
   graphcoolShowId: types.string,
-  episodes: types.array(types.reference(Episode)),
-  feedUrl: types.maybe(types.string),
-  newPodcast: types.boolean
+  episodes: types.array(types.reference(Episode))
 })
 
 export const PodcastStore = types
@@ -50,9 +48,6 @@ export const PodcastStore = types
   .views(self => ({
     get root() {
       return getRoot(self)
-    },
-    get sortedAvailableBooks() {
-      return sortBooks(self.shows.values())
     }
   }))
   .actions(self => {
@@ -66,59 +61,57 @@ export const PodcastStore = types
       }
       return episode.id
     }
-    const getShow = flow(function* addShow(showId, graphcoolShowId) {
+    const getShow = flow(function* addShow(showId) {
       if (!self.shows.get(showId)) {
-        // new Show
-        const [itunes, graphcool] = yield Promise.all([
-          fetch(`${API_URL}/lookup?id=${showId}`).then(res => res.json()),
-          !graphcoolShowId && self.root.apolloStore.getGraphCoolShow(showId)
-        ])
-        const { id, collectionName, artworkUrl600, feedUrl } = itunes.results[0]
-        const graphcoolRes = graphcool.data && graphcool.data.getPodcastId
-
+        const response = yield self.root.apolloStore.getGraphCoolShow(showId)
+        const { episodes, id, title, thumbLarge } = response.data.getPodcast
         self.shows.put({
           id: showId,
-          title: collectionName,
-          feedUrl,
-          episodes: [],
-          thumbLarge: artworkUrl600,
-          newPodcast: graphcoolRes ? graphcoolRes.newPodcast : false,
-          graphcoolShowId: graphcoolShowId || graphcoolRes.graphcoolPodcastId
+          title: decodeURI(title),
+          episodes: episodes.map(ep => {
+            addEpisode({
+              showId,
+              sessionId: '',
+              duration: parseInt(ep.duration),
+              progress: 0,
+              id: ep.id,
+              title: decodeURI(ep.title),
+              src: ep.src,
+              description: decodeURI(ep.description)
+            })
+            return ep.id
+          }),
+          thumbLarge,
+          graphcoolShowId: id
         })
       }
-      return showId
+      return self.shows.get(showId)
     })
 
     const getPodcastEpisodes = flow(function* getPodcastEpisodes(key) {
       let show = self.shows.get(key)
       if (!show) {
-        yield addShow(key)
+        yield getShow(key)
         show = self.shows.get(key)
       }
-      const episodes = show.newPodcast
-        ? yield window
-            .fetch(
-              `${GET_FEED_URL}?url=${show.feedUrl}&id=${show.graphcoolShowId}`
-            )
-            .then(response => response.json())
-            .then(json => Object.keys(json).map(key => json[key]))
-        : yield self.root.apolloStore
-            .getEpisodesFromGraphcool(show.graphcoolShowId)
-            .then(res => res.data.Show.episodes)
+      // const episodes = yield self.root.apolloStore
+      //   .getEpisodesFromGraphcool(show.graphcoolShowId)
+      //   .then(res => res.data.Show.episodes)
+      console.log('✨show', show)
+      // show.episodes = episodes.map(ep => {
+      //   const { id, title, src, description, duration } = ep
+      //   return addEpisode({
+      //     showId: parseInt(key),
+      //     sessionId: '',
+      //     duration: parseInt(duration),
+      //     progress: 0,
+      //     id,
+      //     title,
+      //     src,
+      //     description
+      //   })
+      // })
 
-      show.episodes = episodes.map(ep => {
-        const { id, title, src, description, duration } = ep
-        return addEpisode({
-          showId: parseInt(key),
-          sessionId: '',
-          duration: parseInt(duration),
-          progress: 0,
-          id,
-          title,
-          src,
-          description
-        })
-      })
       return show.episodes
     })
 
@@ -128,9 +121,3 @@ export const PodcastStore = types
       getPodcastEpisodes
     }
   })
-
-function sortBooks(books) {
-  return books
-    .filter(b => b.isAvailable)
-    .sort((a, b) => (a.name > b.name ? 1 : a.name === b.name ? 0 : -1))
-}

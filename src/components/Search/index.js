@@ -71,10 +71,7 @@ const SearchInputWithResults = props => {
 const ListItem = props => {
   const { podcast, setCurrentPodcast } = props
   return (
-    <Link
-      onClick={() => setCurrentPodcast(podcast)}
-      to={`/podcast/${podcast.id}`}
-    >
+    <Link to={`/podcast/${podcast.id}`}>
       <View style={styles.container}>
         <Image style={styles.image} source={{ uri: podcast.thumb }} />
         <Title

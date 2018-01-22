@@ -25,10 +25,10 @@ export const ApolloStore = types
   }))
   .actions(self => ({
     getGraphCoolShow: async key => {
-      client.mutate({
+      return client.mutate({
         mutation: GET_PODCAST,
         variables: {
-          showId: parseInt(key)
+          showId: key
         }
       })
     },
@@ -65,7 +65,7 @@ export const ApolloStore = types
 
 const LOGGED_IN_USER = gql`
   query {
-    user {
+    me {
       id
       email
       facebookUserId
@@ -106,13 +106,22 @@ const USER_HISTORY = gql`
 `
 
 const GET_PODCAST = gql`
-  mutation GetPodcastdandCheckIfNew($showId: Int!) {
+  mutation GetPodcast($showId: String!) {
     getPodcast(showId: $showId) {
-      graphcoolPodcastId
-      newPodcast
+      id
+      thumbLarge
+      title
+      episodes {
+        id
+        title
+        src
+      }
     }
   }
 `
+
+// graphcoolPodcastId
+// newPodcast
 
 const SHOW_EPISODES = gql`
   query ShowEpisodes($id: ID!) {

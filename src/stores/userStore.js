@@ -53,7 +53,8 @@ export const UserStore = types
     setCurrentUser: flow(function* setCurrentUser(user) {
       const shows = {}
       self.currentUser = User.create(user)
-      // const response = yield self.userHistory
+      // const response
+      //  = yield self.userHistory
       // const { history, likedEpisodes } = response.data.user
       // console.log('✨likedEpisodes', likedEpisodes)
       //
@@ -100,8 +101,9 @@ export const UserStore = types
       const token = await AsyncStorage.getItem('graphcoolToken')
       if (token) {
         const graphcoolResponse = await self.root.apolloStore.userFromToken
-        // const { email, facebookUserId, id } = graphcoolResponse.data.user
-        // self.setCurrentUser({ email, facebookUserId, id })
+        const { email, facebookUserId, id } = graphcoolResponse.data.me
+        console.log('✨', email, facebookUserId, id)
+        self.setCurrentUser({ email, facebookUserId, id })
       }
     },
     logout() {

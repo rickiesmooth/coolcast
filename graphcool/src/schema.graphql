@@ -1,17 +1,16 @@
-# import User, Podcast from "./generated/prisma.graphql"
+# import Show, User from "./generated/prisma.graphql"
 
 type Query {
-  feed: [Podcast!]!
-  drafts: [Podcast!]!
+  show(id: ID!): Show
   me: User
 }
 
 type Mutation {
-  signup(email: String!, password: String!, name: String!): AuthPayload!
-  login(email: String!, password: String!): AuthPayload!
+  createDraft(title: String!, text: String): Show
+  deletePost(id: ID!): Show
+  publish(id: ID!): Show
+  getPodcast(showId: String!): Show!
   authenticate(facebookToken: String!): AuthPayload!
-  createDraft(title: String!, text: String!): Podcast!
-  getPodcast(showId: String!): Podcast!
 }
 
 type AuthPayload {

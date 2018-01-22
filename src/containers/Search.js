@@ -22,17 +22,12 @@ export const SearchInputComposer = SearchInput =>
   }
 
 export const SearchResultsComposer = SearchResults =>
-  @inject('searchStore', 'podcastStore')
+  @inject('searchStore', 'podcastStore', 'apolloStore')
   @observer
   class Enhanced extends React.Component {
     @computed
     get results() {
       return this.props.searchStore.searchResults
-    }
-    _setCurrentPodcast = async podcast => {
-      console.log('✨podcast', podcast)
-      // const { userStore, podcastStore } = this.props
-      // viewStore.openShowPage({ key: podcast.key })
     }
     render() {
       return !this.results || this.props.isHidden ? null : (

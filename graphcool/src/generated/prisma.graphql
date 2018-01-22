@@ -5,13 +5,21 @@
 # Model Types
 #
 
-type Podcast implements Node {
+type Episode implements Node {
   id: ID!
-  createdAt: DateTime!
-  updatedAt: DateTime!
-  isPublished: Boolean!
+  title: String!
+  date: DateTime!
+  description: String!
+  src: String!
+  show(where: ShowWhereInput, orderBy: ShowOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Show!]
+}
+
+type Show implements Node {
+  id: ID!
   title: String!
   showId: String!
+  thumbLarge: String!
+  episodes(where: EpisodeWhereInput, orderBy: EpisodeOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Episode!]
 }
 
 type User implements Node {
@@ -27,7 +35,11 @@ type User implements Node {
 # Other Types
 #
 
-type AggregatePodcast {
+type AggregateEpisode {
+  count: Int!
+}
+
+type AggregateShow {
   count: Int!
 }
 
@@ -41,21 +53,211 @@ type BatchPayload {
 
 scalar DateTime
 
+type EpisodeConnection {
+  pageInfo: PageInfo!
+  edges: [EpisodeEdge]!
+  aggregate: AggregateEpisode!
+}
+
+input EpisodeCreateInput {
+  title: String!
+  date: DateTime!
+  description: String!
+  src: String!
+  show: ShowCreateManyWithoutEpisodesInput
+}
+
+input EpisodeCreateManyWithoutShowInput {
+  create: [EpisodeCreateWithoutShowInput!]
+  connect: [EpisodeWhereUniqueInput!]
+}
+
+input EpisodeCreateWithoutShowInput {
+  title: String!
+  date: DateTime!
+  description: String!
+  src: String!
+}
+
+type EpisodeEdge {
+  node: Episode!
+  cursor: String!
+}
+
+enum EpisodeOrderByInput {
+  id_ASC
+  id_DESC
+  title_ASC
+  title_DESC
+  date_ASC
+  date_DESC
+  description_ASC
+  description_DESC
+  src_ASC
+  src_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  createdAt_ASC
+  createdAt_DESC
+}
+
+type EpisodePreviousValues {
+  id: ID!
+  title: String!
+  date: DateTime!
+  description: String!
+  src: String!
+}
+
+type EpisodeSubscriptionPayload {
+  mutation: MutationType!
+  node: Episode
+  updatedFields: [String!]
+  previousValues: EpisodePreviousValues
+}
+
+input EpisodeSubscriptionWhereInput {
+  AND: [EpisodeSubscriptionWhereInput!]
+  OR: [EpisodeSubscriptionWhereInput!]
+  mutation_in: [MutationType!]
+  updatedFields_contains: String
+  updatedFields_contains_every: [String!]
+  updatedFields_contains_some: [String!]
+  node: EpisodeWhereInput
+}
+
+input EpisodeUpdateInput {
+  title: String
+  date: DateTime
+  description: String
+  src: String
+  show: ShowUpdateManyWithoutEpisodesInput
+}
+
+input EpisodeUpdateManyWithoutShowInput {
+  create: [EpisodeCreateWithoutShowInput!]
+  connect: [EpisodeWhereUniqueInput!]
+  disconnect: [EpisodeWhereUniqueInput!]
+  delete: [EpisodeWhereUniqueInput!]
+  update: [EpisodeUpdateWithoutShowInput!]
+  upsert: [EpisodeUpsertWithoutShowInput!]
+}
+
+input EpisodeUpdateWithoutShowDataInput {
+  title: String
+  date: DateTime
+  description: String
+  src: String
+}
+
+input EpisodeUpdateWithoutShowInput {
+  where: EpisodeWhereUniqueInput!
+  data: EpisodeUpdateWithoutShowDataInput!
+}
+
+input EpisodeUpsertWithoutShowInput {
+  where: EpisodeWhereUniqueInput!
+  update: EpisodeUpdateWithoutShowDataInput!
+  create: EpisodeCreateWithoutShowInput!
+}
+
+input EpisodeWhereInput {
+  AND: [EpisodeWhereInput!]
+  OR: [EpisodeWhereInput!]
+  id: ID
+  id_not: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  id_lt: ID
+  id_lte: ID
+  id_gt: ID
+  id_gte: ID
+  id_contains: ID
+  id_not_contains: ID
+  id_starts_with: ID
+  id_not_starts_with: ID
+  id_ends_with: ID
+  id_not_ends_with: ID
+  title: String
+  title_not: String
+  title_in: [String!]
+  title_not_in: [String!]
+  title_lt: String
+  title_lte: String
+  title_gt: String
+  title_gte: String
+  title_contains: String
+  title_not_contains: String
+  title_starts_with: String
+  title_not_starts_with: String
+  title_ends_with: String
+  title_not_ends_with: String
+  date: DateTime
+  date_not: DateTime
+  date_in: [DateTime!]
+  date_not_in: [DateTime!]
+  date_lt: DateTime
+  date_lte: DateTime
+  date_gt: DateTime
+  date_gte: DateTime
+  description: String
+  description_not: String
+  description_in: [String!]
+  description_not_in: [String!]
+  description_lt: String
+  description_lte: String
+  description_gt: String
+  description_gte: String
+  description_contains: String
+  description_not_contains: String
+  description_starts_with: String
+  description_not_starts_with: String
+  description_ends_with: String
+  description_not_ends_with: String
+  src: String
+  src_not: String
+  src_in: [String!]
+  src_not_in: [String!]
+  src_lt: String
+  src_lte: String
+  src_gt: String
+  src_gte: String
+  src_contains: String
+  src_not_contains: String
+  src_starts_with: String
+  src_not_starts_with: String
+  src_ends_with: String
+  src_not_ends_with: String
+  show_every: ShowWhereInput
+  show_some: ShowWhereInput
+  show_none: ShowWhereInput
+}
+
+input EpisodeWhereUniqueInput {
+  id: ID
+}
+
 scalar Long
 
 type Mutation {
-  createPodcast(data: PodcastCreateInput!): Podcast!
   createUser(data: UserCreateInput!): User!
-  updatePodcast(data: PodcastUpdateInput!, where: PodcastWhereUniqueInput!): Podcast
+  createShow(data: ShowCreateInput!): Show!
+  createEpisode(data: EpisodeCreateInput!): Episode!
   updateUser(data: UserUpdateInput!, where: UserWhereUniqueInput!): User
-  deletePodcast(where: PodcastWhereUniqueInput!): Podcast
+  updateShow(data: ShowUpdateInput!, where: ShowWhereUniqueInput!): Show
+  updateEpisode(data: EpisodeUpdateInput!, where: EpisodeWhereUniqueInput!): Episode
   deleteUser(where: UserWhereUniqueInput!): User
-  upsertPodcast(where: PodcastWhereUniqueInput!, create: PodcastCreateInput!, update: PodcastUpdateInput!): Podcast!
+  deleteShow(where: ShowWhereUniqueInput!): Show
+  deleteEpisode(where: EpisodeWhereUniqueInput!): Episode
   upsertUser(where: UserWhereUniqueInput!, create: UserCreateInput!, update: UserUpdateInput!): User!
-  updateManyPodcasts(data: PodcastUpdateInput!, where: PodcastWhereInput!): BatchPayload!
+  upsertShow(where: ShowWhereUniqueInput!, create: ShowCreateInput!, update: ShowUpdateInput!): Show!
+  upsertEpisode(where: EpisodeWhereUniqueInput!, create: EpisodeCreateInput!, update: EpisodeUpdateInput!): Episode!
   updateManyUsers(data: UserUpdateInput!, where: UserWhereInput!): BatchPayload!
-  deleteManyPodcasts(where: PodcastWhereInput!): BatchPayload!
+  updateManyShows(data: ShowUpdateInput!, where: ShowWhereInput!): BatchPayload!
+  updateManyEpisodes(data: EpisodeUpdateInput!, where: EpisodeWhereInput!): BatchPayload!
   deleteManyUsers(where: UserWhereInput!): BatchPayload!
+  deleteManyShows(where: ShowWhereInput!): BatchPayload!
+  deleteManyEpisodes(where: EpisodeWhereInput!): BatchPayload!
 }
 
 enum MutationType {
@@ -75,73 +277,123 @@ type PageInfo {
   endCursor: String
 }
 
-type PodcastConnection {
-  pageInfo: PageInfo!
-  edges: [PodcastEdge]!
-  aggregate: AggregatePodcast!
+type Query {
+  users(where: UserWhereInput, orderBy: UserOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [User]!
+  shows(where: ShowWhereInput, orderBy: ShowOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Show]!
+  episodes(where: EpisodeWhereInput, orderBy: EpisodeOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Episode]!
+  user(where: UserWhereUniqueInput!): User
+  show(where: ShowWhereUniqueInput!): Show
+  episode(where: EpisodeWhereUniqueInput!): Episode
+  usersConnection(where: UserWhereInput, orderBy: UserOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): UserConnection!
+  showsConnection(where: ShowWhereInput, orderBy: ShowOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): ShowConnection!
+  episodesConnection(where: EpisodeWhereInput, orderBy: EpisodeOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): EpisodeConnection!
+  node(id: ID!): Node
 }
 
-input PodcastCreateInput {
-  isPublished: Boolean
+type ShowConnection {
+  pageInfo: PageInfo!
+  edges: [ShowEdge]!
+  aggregate: AggregateShow!
+}
+
+input ShowCreateInput {
   title: String!
   showId: String!
+  thumbLarge: String!
+  episodes: EpisodeCreateManyWithoutShowInput
 }
 
-type PodcastEdge {
-  node: Podcast!
+input ShowCreateManyWithoutEpisodesInput {
+  create: [ShowCreateWithoutEpisodesInput!]
+  connect: [ShowWhereUniqueInput!]
+}
+
+input ShowCreateWithoutEpisodesInput {
+  title: String!
+  showId: String!
+  thumbLarge: String!
+}
+
+type ShowEdge {
+  node: Show!
   cursor: String!
 }
 
-enum PodcastOrderByInput {
+enum ShowOrderByInput {
   id_ASC
   id_DESC
-  createdAt_ASC
-  createdAt_DESC
-  updatedAt_ASC
-  updatedAt_DESC
-  isPublished_ASC
-  isPublished_DESC
   title_ASC
   title_DESC
   showId_ASC
   showId_DESC
+  thumbLarge_ASC
+  thumbLarge_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  createdAt_ASC
+  createdAt_DESC
 }
 
-type PodcastPreviousValues {
+type ShowPreviousValues {
   id: ID!
-  createdAt: DateTime!
-  updatedAt: DateTime!
-  isPublished: Boolean!
   title: String!
   showId: String!
+  thumbLarge: String!
 }
 
-type PodcastSubscriptionPayload {
+type ShowSubscriptionPayload {
   mutation: MutationType!
-  node: Podcast
+  node: Show
   updatedFields: [String!]
-  previousValues: PodcastPreviousValues
+  previousValues: ShowPreviousValues
 }
 
-input PodcastSubscriptionWhereInput {
-  AND: [PodcastSubscriptionWhereInput!]
-  OR: [PodcastSubscriptionWhereInput!]
+input ShowSubscriptionWhereInput {
+  AND: [ShowSubscriptionWhereInput!]
+  OR: [ShowSubscriptionWhereInput!]
   mutation_in: [MutationType!]
   updatedFields_contains: String
   updatedFields_contains_every: [String!]
   updatedFields_contains_some: [String!]
-  node: PodcastWhereInput
+  node: ShowWhereInput
 }
 
-input PodcastUpdateInput {
-  isPublished: Boolean
+input ShowUpdateInput {
   title: String
   showId: String
+  thumbLarge: String
+  episodes: EpisodeUpdateManyWithoutShowInput
 }
 
-input PodcastWhereInput {
-  AND: [PodcastWhereInput!]
-  OR: [PodcastWhereInput!]
+input ShowUpdateManyWithoutEpisodesInput {
+  create: [ShowCreateWithoutEpisodesInput!]
+  connect: [ShowWhereUniqueInput!]
+  disconnect: [ShowWhereUniqueInput!]
+  delete: [ShowWhereUniqueInput!]
+  update: [ShowUpdateWithoutEpisodesInput!]
+  upsert: [ShowUpsertWithoutEpisodesInput!]
+}
+
+input ShowUpdateWithoutEpisodesDataInput {
+  title: String
+  showId: String
+  thumbLarge: String
+}
+
+input ShowUpdateWithoutEpisodesInput {
+  where: ShowWhereUniqueInput!
+  data: ShowUpdateWithoutEpisodesDataInput!
+}
+
+input ShowUpsertWithoutEpisodesInput {
+  where: ShowWhereUniqueInput!
+  update: ShowUpdateWithoutEpisodesDataInput!
+  create: ShowCreateWithoutEpisodesInput!
+}
+
+input ShowWhereInput {
+  AND: [ShowWhereInput!]
+  OR: [ShowWhereInput!]
   id: ID
   id_not: ID
   id_in: [ID!]
@@ -156,24 +408,6 @@ input PodcastWhereInput {
   id_not_starts_with: ID
   id_ends_with: ID
   id_not_ends_with: ID
-  createdAt: DateTime
-  createdAt_not: DateTime
-  createdAt_in: [DateTime!]
-  createdAt_not_in: [DateTime!]
-  createdAt_lt: DateTime
-  createdAt_lte: DateTime
-  createdAt_gt: DateTime
-  createdAt_gte: DateTime
-  updatedAt: DateTime
-  updatedAt_not: DateTime
-  updatedAt_in: [DateTime!]
-  updatedAt_not_in: [DateTime!]
-  updatedAt_lt: DateTime
-  updatedAt_lte: DateTime
-  updatedAt_gt: DateTime
-  updatedAt_gte: DateTime
-  isPublished: Boolean
-  isPublished_not: Boolean
   title: String
   title_not: String
   title_in: [String!]
@@ -202,26 +436,34 @@ input PodcastWhereInput {
   showId_not_starts_with: String
   showId_ends_with: String
   showId_not_ends_with: String
+  thumbLarge: String
+  thumbLarge_not: String
+  thumbLarge_in: [String!]
+  thumbLarge_not_in: [String!]
+  thumbLarge_lt: String
+  thumbLarge_lte: String
+  thumbLarge_gt: String
+  thumbLarge_gte: String
+  thumbLarge_contains: String
+  thumbLarge_not_contains: String
+  thumbLarge_starts_with: String
+  thumbLarge_not_starts_with: String
+  thumbLarge_ends_with: String
+  thumbLarge_not_ends_with: String
+  episodes_every: EpisodeWhereInput
+  episodes_some: EpisodeWhereInput
+  episodes_none: EpisodeWhereInput
 }
 
-input PodcastWhereUniqueInput {
+input ShowWhereUniqueInput {
   id: ID
   showId: String
 }
 
-type Query {
-  podcasts(where: PodcastWhereInput, orderBy: PodcastOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Podcast]!
-  users(where: UserWhereInput, orderBy: UserOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [User]!
-  podcast(where: PodcastWhereUniqueInput!): Podcast
-  user(where: UserWhereUniqueInput!): User
-  podcastsConnection(where: PodcastWhereInput, orderBy: PodcastOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): PodcastConnection!
-  usersConnection(where: UserWhereInput, orderBy: UserOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): UserConnection!
-  node(id: ID!): Node
-}
-
 type Subscription {
-  podcast(where: PodcastSubscriptionWhereInput): PodcastSubscriptionPayload
   user(where: UserSubscriptionWhereInput): UserSubscriptionPayload
+  show(where: ShowSubscriptionWhereInput): ShowSubscriptionPayload
+  episode(where: EpisodeSubscriptionWhereInput): EpisodeSubscriptionPayload
 }
 
 type UserConnection {
@@ -349,5 +591,4 @@ input UserWhereInput {
 input UserWhereUniqueInput {
   id: ID
   facebookUserId: String
-  email: String
 }
