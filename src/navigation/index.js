@@ -10,7 +10,6 @@ import {
 
 import { observable, action } from 'mobx'
 import { observer, inject } from 'mobx-react'
-import { Ionicons } from '@expo/vector-icons'
 import MainTabNavigator from './tabs'
 
 class NavigationStore {
@@ -53,10 +52,18 @@ export class Link extends React.Component {
   }
 
   onNavigate() {
-    const route = this.props.to.split('/')
-    navigationStore.dispatch(
-      NavigationActions.navigate({ routeName: route[1], params: route[2] })
-    )
+    if (this.props.to.state && this.props.to.state.modal) {
+      const { modal, ...rest } = this.props.to.state
+      const route = this.props.to.pathname.split('/')
+      navigationStore.dispatch(
+        NavigationActions.navigate({ routeName: route[2], params: rest })
+      )
+    } else {
+      const route = this.props.to.split('/')
+      navigationStore.dispatch(
+        NavigationActions.navigate({ routeName: route[1], params: route[2] })
+      )
+    }
   }
 
   press() {

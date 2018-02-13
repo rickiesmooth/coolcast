@@ -9,34 +9,27 @@ import {
   lineHeight
 } from '../styles/typography'
 
-export class Title extends React.Component {
-  render() {
-    const { text, size, style, numberOfLines } = this.props
-    return (
-      <Text
-        numberOfLines={numberOfLines}
-        style={[styles.Title, styles[size], style]}
-      >
-        {text}
-      </Text>
-    )
-  }
+export const Title = ({ text, size, style, numberOfLines }) => {
+  return (
+    <Text
+      numberOfLines={numberOfLines}
+      style={[styles.Title, styles[size], style]}
+    >
+      {text}
+    </Text>
+  )
 }
 
-export class Subline extends React.Component {
-  render() {
-    const { text, size, style, numberOfLines } = this.props
-    return (
-      <Text
-        numberOfLines={numberOfLines}
-        style={[styles.Subline, styles[size], style]}
-      >
-        {text}
-      </Text>
-    )
-  }
+export const Subline = ({ text, size, style, numberOfLines }) => {
+  return (
+    <Text
+      numberOfLines={numberOfLines}
+      style={[styles.Subline, styles[size], style]}
+    >
+      {text}
+    </Text>
+  )
 }
-
 const styles = StyleSheet.create({
   Subline: {
     color: 'rgba(162,164,181,.8)',

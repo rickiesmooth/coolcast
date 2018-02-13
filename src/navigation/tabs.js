@@ -7,7 +7,7 @@ import {
   Text,
   TouchableOpacity
 } from 'react-native'
-import { Ionicons } from '@expo/vector-icons'
+import { MaterialIcons } from '@expo/vector-icons'
 import {
   StackNavigator,
   TabNavigator,
@@ -16,11 +16,15 @@ import {
 } from 'react-navigation'
 
 import Profile from '../screens/Profile'
-import Home from '../screens/Home'
+import History from '../screens/History'
+import Playlists from '../screens/Playlists'
 import Podcast from '../screens/Podcast'
 import Search from '../screens/Search'
 import MiniRemote from '../components/MiniRemote'
-
+import {
+  CreatePlaylistContent,
+  AddToPlaylistContent
+} from '../screens/Modals/Playlists'
 import ExpandedMiniRemote from '../screens/Modals/ExpandedMiniRemote'
 
 const Colors = {
@@ -42,33 +46,33 @@ class TabBarWithMiniRemote extends React.Component {
 
 const AppNavigator = StackNavigator(
   {
-    Index: { screen: Home },
+    Home: { screen: History },
+    podcast: { screen: Podcast }
+  },
+  {
+    initialRouteName: 'Home',
+    headerMode: 'none'
+  }
+)
+
+const PlaylistNavigator = StackNavigator(
+  {
+    Playlists: { screen: Playlists },
+    podcast: { screen: Podcast }
+  },
+  {
+    initialRouteName: 'Playlists',
+    headerMode: 'none'
+  }
+)
+
+const SearchNavigator = StackNavigator(
+  {
+    Index: { screen: Search },
     podcast: { screen: Podcast }
   },
   {
     initialRouteName: 'Index',
-    navigationOptions: ({ navigation }) => ({
-      title: navigation.state.params && navigation.state.params.title,
-      tabBarOnPress: ({ previousScene, scene, jumpToIndex }) => {
-        const { route, focused, index } = scene
-        if (focused) {
-          if (route.index !== 0) {
-            navigation.dispatch(
-              NavigationActions.reset({
-                index: 0,
-                actions: [
-                  NavigationActions.navigate({
-                    routeName: route.routes[0].routeName
-                  })
-                ]
-              })
-            )
-          }
-        } else {
-          jumpToIndex(index)
-        }
-      }
-    }),
     headerMode: 'none'
   }
 )
@@ -76,7 +80,8 @@ const AppNavigator = StackNavigator(
 const RootNavigation = TabNavigator(
   {
     App: { screen: AppNavigator },
-    Search: { screen: Search },
+    Playlists: { screen: PlaylistNavigator },
+    Search: { screen: SearchNavigator },
     Profile: { screen: Profile }
   },
   {
@@ -86,26 +91,21 @@ const RootNavigation = TabNavigator(
         let iconName
         switch (routeName) {
           case 'App':
-            iconName =
-              Platform.OS === 'ios'
-                ? `ios-home${focused ? '' : '-outline'}`
-                : 'md-home'
+            iconName = 'history'
+            break
+          case 'Playlists':
+            iconName = 'list'
             break
           case 'Search':
-            iconName =
-              Platform.OS === 'ios'
-                ? `ios-search${focused ? '' : '-outline'}`
-                : 'md-search'
+            iconName = 'search'
             break
           case 'Profile':
-            iconName =
-              Platform.OS === 'ios'
-                ? `ios-person${focused ? '' : '-outline'}`
-                : 'md-person'
+            iconName = 'person'
             break
         }
+        console.log('✨iconName', iconName)
         return (
-          <Ionicons
+          <MaterialIcons
             name={iconName}
             size={28}
             style={{ marginBottom: -3 }}
@@ -125,11 +125,20 @@ const RootNavigation = TabNavigator(
 export default StackNavigator(
   {
     MainCardNavigator: { screen: RootNavigation },
-    ExpandedMiniRemote: { screen: ExpandedMiniRemote }
+    ExpandedMiniRemote: { screen: ExpandedMiniRemote },
+    CreatePlaylist: { screen: CreatePlaylistContent },
+    AddToPlaylist: { screen: AddToPlaylistContent }
   },
   {
-    mode: 'modal',
-    headerMode: 'none'
+    screenBackgroundColor: 'transparent',
+    modalPresentationStyle: 'overFullScreen',
+    cardStyle: {
+      opacity: 1
+    },
+    navigationOptions: {
+      header: null
+    },
+    mode: 'modal'
   }
 )
 

@@ -87,6 +87,26 @@ const resolvers = {
         token,
         user
       }
+    },
+    addPlay(parent, { episodeId }, ctx, info) {
+      const userId = getUserId(ctx)
+      return ctx.db.mutation.createPodcastPlay(
+        {
+          data: {
+            user: {
+              connect: {
+                id: userId
+              }
+            },
+            episode: {
+              connect: {
+                id: episodeId
+              }
+            }
+          }
+        },
+        info
+      )
     }
   }
 }
@@ -110,7 +130,8 @@ const server = new GraphQLServer({
     ...req,
     db: new Prisma({
       typeDefs: 'src/generated/prisma.graphql',
-      endpoint: 'http://localhost:4466/graphcool/dev', // the endpoint of the Prisma DB service
+      // endpoint: 'http://localhost:4466/graphcool/dev', // the endpoint of the Prisma DB service
+      endpoint: 'https://eu1.prisma.sh/rick/graphcool/dev', // the endpoint of the Prisma DB service
       secret: 'mysecret123', // specified in database/prisma.yml
       debug: true // log all GraphQL queryies & mutations
     })

@@ -55,7 +55,13 @@ const MiniRemote = props => {
             </View>
           )}
         </View>
-        <Link to={'/ExpandedMiniRemote'} style={{ color: 'inherit' }}>
+        <Link
+          to={{
+            pathname: '/modal/ExpandedMiniRemote',
+            state: { modal: true }
+          }}
+          style={{ color: 'inherit' }}
+        >
           <View style={styles.detailsContainer}>
             <Title text={artist} size={'small'} numberOfLines={1} />
             <Subline text={title} size={'small'} numberOfLines={1} />

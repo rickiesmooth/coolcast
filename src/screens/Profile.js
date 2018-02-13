@@ -12,7 +12,7 @@ import { Button, FbLoginButton } from '../components/Buttons'
 import { observable, computed } from 'mobx'
 import { observer, inject } from 'mobx-react'
 
-@inject('userStore')
+@inject('userStore', 'apolloStore')
 @observer
 export default class Profile extends React.Component {
   render() {
@@ -23,6 +23,7 @@ export default class Profile extends React.Component {
       return (
         <View style={styles.container}>
           <FbLoginButton
+            apolloStore={this.props.apolloStore}
             userStore={this.props.userStore}
             title={'Login with Facebook'}
           />
@@ -35,18 +36,18 @@ export default class Profile extends React.Component {
 class LoggedInUser extends React.Component {
   render() {
     const { logout, currentUser } = this.props
-    const { email, facebookUserId } = currentUser
+    const { email, fbid } = currentUser
 
     return (
       <View style={styles.container}>
         <Image
           style={styles.thumb}
           source={{
-            uri: `https://graph.facebook.com/${facebookUserId}/picture?type=large`
+            uri: `https://graph.facebook.com/${fbid}/picture?type=large`
           }}
         />
         <Text>{email}</Text>
-        <Button title={'Logout'} action={logout} />
+        <Button title={'Logout'} onPress={logout} />
       </View>
     )
   }

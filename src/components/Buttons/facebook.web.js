@@ -12,9 +12,6 @@ export default Button =>
         const res = await this.props.authenticateUserWithGraphCool(
           facebookToken
         )
-        console.log('✨res', res.data.authenticate)
-        this.props.userStore.setCurrentUser(res.data.authenticate.user)
-        AsyncStorage.setItem('graphcoolToken', res.data.authenticate.token)
       } else {
         console.warn(`User did not authorize the Facebook application.`)
       }
@@ -53,6 +50,6 @@ export default Button =>
     }
 
     render() {
-      return <Button {...this.props} action={() => this.handleFBLogin()} />
+      return <Button {...this.props} onPress={() => this.handleFBLogin()} />
     }
   }

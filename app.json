@@ -1,6 +1,6 @@
 {
   "expo": {
-    "sdkVersion": "24.0.0",
+    "sdkVersion": "25.0.0",
     "name": "Coolcast",
     "icon": "./logo.png",
     "version": "1.0.0",

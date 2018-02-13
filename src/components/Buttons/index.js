@@ -1,13 +1,11 @@
 import React from 'react'
 import { View, TouchableOpacity, Text, StyleSheet } from 'react-native'
 import FbLoginApi from './facebook'
-import gql from 'graphql-tag'
-import { graphql } from 'react-apollo'
 
 export const Button = props => {
-  const { textColor, fontSize, action, title, style } = props
+  const { textColor, fontSize, title, style, onPress } = props
   return (
-    <TouchableOpacity onPress={action} style={[style, styles.content]}>
+    <TouchableOpacity onPress={onPress} style={[style, styles.content]}>
       <Text style={{ color: textColor, fontSize }}>{title}</Text>
     </TouchableOpacity>
   )
@@ -16,9 +14,9 @@ export const Button = props => {
 export const LikeButton = props => {
   return (
     <Button
-      style={[styles.button, props.liked ? styles.active : styles.inactive]}
+      {...props}
+      style={[props.liked ? styles.active : styles.inactive]}
       title={props.liked ? 'Unlike' : 'Like'}
-      action={props.api}
     />
   )
 }
@@ -33,26 +31,11 @@ export const FbLoginButton = props => {
         {...props}
         textColor={'#FFF'}
         fontSize={18}
-        authenticateUserWithGraphCool={props.userStore.authenticate}
+        authenticateUserWithGraphCool={props.userStore.login}
       />
     </View>
   )
 }
-
-const AUTHENTICATE_FACEBOOK_USER = gql`
-  mutation authenticate($facebookToken: String!) {
-    authenticateUser(facebookToken: $facebookToken) {
-      facebookUserId
-      id
-      token
-      email
-    }
-  }
-`
-
-// export const FbLoginButton = graphql(AUTHENTICATE_FACEBOOK_USER, {
-//   name: 'authenticateUserWithGraphCool'
-// })(FacebookLogin)
 
 const styles = StyleSheet.create({
   facebook: {
@@ -63,9 +46,9 @@ const styles = StyleSheet.create({
     borderRadius: 5
   },
   active: {
-    backgroundColor: 'green'
+    color: 'green'
   },
   inactive: {
-    backgroundColor: 'red'
+    color: 'red'
   }
 })

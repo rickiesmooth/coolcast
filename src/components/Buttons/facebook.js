@@ -5,6 +5,7 @@ import { AsyncStorage } from 'react-native'
 export default Button =>
   class extends React.Component {
     async handleFBLogin() {
+      console.log('✨going')
       const {
         type,
         token
@@ -14,12 +15,10 @@ export default Button =>
       })
       if (type === 'success') {
         const res = await this.props.authenticateUserWithGraphCool(token)
-        this.props.userStore.setCurrentUser(res.data.authenticateUser)
-        AsyncStorage.setItem('graphcoolToken', res.data.authenticateUser.token)
       }
     }
 
     render() {
-      return <Button {...this.props} action={() => this.handleFBLogin()} />
+      return <Button {...this.props} onPress={() => this.handleFBLogin()} />
     }
   }

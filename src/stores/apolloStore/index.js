@@ -11,20 +11,32 @@ export const ApolloStore = types
     get root() {
       return getRoot(self)
     },
-    get userHistory() {
-      return client.query({
-        query: USER_HISTORY
-      })
-    },
     get userFromToken() {
       return client.query({
         query: LOGGED_IN_USER,
         fetchPolicy: 'network-only'
       })
+    },
+    get userHistory() {
+      return client.query({
+        query: USER_HISTORY,
+        fetchPolicy: 'network-only'
+      })
     }
   }))
   .actions(self => ({
+    getEpisodes: id =>
+      client.query({
+        query: SHOW_EPISODES,
+        variables: { id }
+      }),
+    addToPlaylist: (playlistId, episodeId) =>
+      client.mutate({
+        mutation: UPDATE_PLAYLIST,
+        variables: { playlistId, episodeId }
+      }),
     getGraphCoolShow: async key => {
+      console.log('✨key', key)
       return client.mutate({
         mutation: GET_PODCAST,
         variables: {
@@ -32,35 +44,36 @@ export const ApolloStore = types
         }
       })
     },
-    // https://github.com/graphcool/framework/issues/743
-    getEpisodesFromGraphcool: id =>
-      client.query({
-        query: SHOW_EPISODES,
-        variables: { showId }
+    addPlaylist: ({ name }) =>
+      client.mutate({
+        mutation: ADD_PLAYLIST,
+        variables: { name }
+      }),
+    removePlaylist: id =>
+      client.mutate({
+        mutation: REMOVE_PLAYLIST,
+        variables: { id }
       }),
     createPodcastPlay: episodeId =>
       client.mutate({
-        mutation: CREATE_PODCAST_PLAY,
+        mutation: CREATE_PLAY,
         variables: { episodeId }
       }),
-    updatePodcastPlay: (progress, viewId) =>
+    updatePodcastPlay: (progress, sessionId) =>
       client.mutate({
-        mutation: UPDATE_PODCAST_PLAY,
-        variables: { viewId, progress }
+        mutation: UPDATE_PLAY,
+        variables: { sessionId, progress }
       }),
-    updateLike: (liked, episodeId) => {
-      console.log('✨e', episodeId, self.root.userStore.currentUser)
-      return client.mutate({
-        mutation: CREATE_PODCAST_PLAY,
-        variables: { episodeId, liked }
-      })
-    },
-    userFromFBToken: facebookToken => {
-      return client.mutate({
+    updateLike: (episodeId, likeId) =>
+      client.mutate({
+        mutation: UPDATE_LIKE,
+        variables: { episodeId, likeId }
+      }),
+    userFromFBToken: facebookToken =>
+      client.mutate({
         mutation: LOGIN_OR_SIGNUP,
         variables: { facebookToken }
       })
-    }
   }))
 
 const LOGGED_IN_USER = gql`
@@ -68,38 +81,52 @@ const LOGGED_IN_USER = gql`
     me {
       id
       email
-      facebookUserId
-    }
-  }
-`
-
-const USER_HISTORY = gql`
-  query {
-    user {
-      id
-      likedEpisodes {
-        title
+      fbid
+      name
+      likes {
         id
-        src
-        duration
-        show {
+        episode {
           id
-          showId
+          show {
+            showId
+          }
+        }
+      }
+      playlists {
+        id
+        name
+        episodes {
+          id
         }
       }
       history {
         id
         progress
         episode {
-          title
           id
-          src
-          duration
           show {
-            id
             showId
           }
         }
+      }
+    }
+  }
+`
+
+const USER_HISTORY = gql`
+  query {
+    userHistoryShows {
+      showId
+      title
+      thumbLarge
+      id
+    }
+    userHistoryEpisodes {
+      id
+      title
+      src
+      show {
+        showId
       }
     }
   }
@@ -124,43 +151,61 @@ const GET_PODCAST = gql`
 // newPodcast
 
 const SHOW_EPISODES = gql`
-  query ShowEpisodes($id: ID!) {
-    Show(id: $id) {
+  query GetPodcast($id: ID!) {
+    shows(id: $id) {
+      id
+      thumbLarge
+      title
       episodes {
         id
-        src
-        description
-        duration
         title
+        src
       }
     }
   }
 `
+const ADD_PLAYLIST = gql`
+  mutation AddPlaylist($name: String!) {
+    addPlaylist(name: $name) {
+      id
+    }
+  }
+`
+const UPDATE_PLAYLIST = gql`
+  mutation UpdatePlaylist($playlistId: ID!, $episodeId: ID!) {
+    updatePlaylist(playlistId: $playlistId, episodeId: $episodeId) {
+      id
+    }
+  }
+`
 
+REMOVE_PLAYLIST = gql`
+  mutation RemovePlaylist($id: ID!) {
+    removePlaylist(id: $id) {
+      id
+    }
+  }
+`
+
+const CREATE_PLAY = gql`
+  mutation CreatePodcastPlay($episodeId: ID!) {
+    addPlay(episodeId: $episodeId) {
+      id
+      progress
+    }
+  }
+`
+const UPDATE_PLAY = gql`
+  mutation updatePlay($sessionId: ID!, $progress: Float!) {
+    updatePlay(sessionId: $sessionId, progress: $progress) {
+      id
+    }
+  }
+`
 const UPDATE_LIKE = gql`
-  mutation CreateLikeMutation($episodeId: ID!) {
-    addToLikedEpisodes(likedEpisodesEpisodeId: $episodeId) {
-      likedEpisodesEpisode {
-        id
-      }
-    }
-  }
-`
-
-const CREATE_PODCAST_PLAY = gql`
-  mutation CreatePodcastPlay($episodeId: ID!) {
-    AddPlay(episodeId: $episodeId) {
+  mutation UpdatePodcastLike($episodeId: ID!, $likeId: ID) {
+    updateLike(episodeId: $episodeId, likeId: $likeId) {
       id
-      progress
-    }
-  }
-`
-
-const CREATE_PODCAST_LIKE = gql`
-  mutation CreatePodcastPlay($episodeId: ID!) {
-    AddLike(episodeId: $episodeId) {
-      id
-      progress
     }
   }
 `
@@ -171,7 +216,7 @@ const LOGIN_OR_SIGNUP = gql`
       user {
         id
         email
-        facebookUserId
+        fbid
       }
       token
     }

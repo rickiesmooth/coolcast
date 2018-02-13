@@ -2,20 +2,24 @@ import { types, getEnv } from 'mobx-state-tree'
 import { PodcastStore } from './podcastStore'
 import { PlayerStore } from './playerStore'
 import { UserStore } from './userStore'
-import { ViewStore } from './viewStore'
+import { NavigationStore } from './navigationStore'
 import { ApolloStore } from './apolloStore'
 import { SearchStore } from './searchStore'
-
+import { PlaylistStore } from './playlistStore'
+console.log('✨NavigationStore', NavigationStore)
 const RootStore = types
   .model('RootStore', {
     podcastStore: types.optional(PodcastStore, {
       shows: {},
       episodes: {}
     }),
+    playlistStore: types.optional(PlaylistStore, {
+      playlists: {}
+    }),
     userStore: types.optional(UserStore, {
       currentUser: null
     }),
-    viewStore: types.optional(ViewStore, {
+    navigationStore: types.optional(NavigationStore, {
       page: ''
     }),
     searchStore: types.optional(SearchStore, {
@@ -44,15 +48,21 @@ const RootStore = types
       return getEnv(self).fetch
     },
     get currentlyPlaying() {
-      return self.podcastStore.episodes.get(self.viewStore.episodePlaying)
+      console.log(
+        '✨self.navigationStore.episodePlaying',
+        self.navigationStore.episodePlaying,
+        self.podcastStore.episodes.get(self.navigationStore.episodePlaying)
+      )
+      return self.podcastStore.episodes.get(self.navigationStore.episodePlaying)
     },
     get currentShow() {
-      return self.podcastStore.shows.get(self.viewStore.selectedShowId)
+      return self.podcastStore.shows.get(self.navigationStore.selectedShowId)
     }
   }))
   .actions(self => ({
     afterCreate() {
       if (typeof window !== 'undefined') {
+        window.store = self
         self.userStore.readFromLocalStorage()
       }
     }

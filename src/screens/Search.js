@@ -4,7 +4,7 @@ import {
   ComposedSearchInput,
   ComposedSearchResults
 } from '../components/Search'
-
+import { RowContainer, Container } from '../components/Views'
 export default class Search extends React.Component {
   static navigationOptions = {
     tabBarLabel: 'Search'
@@ -12,10 +12,10 @@ export default class Search extends React.Component {
 
   render() {
     return (
-      <View>
+      <RowContainer>
         <ComposedSearchInput />
         <ComposedSearchResults />
-      </View>
+      </RowContainer>
     )
   }
 }

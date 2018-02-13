@@ -5,7 +5,6 @@ service: graphcool
 stage: dev
 
 # to disable authentication:
-# disableAuth: true
 secret: mysecret123
 
 # the file path pointing to your data model
@@ -15,4 +14,5 @@ datamodel: datamodel.graphql
 # seed:
 #   import: seed.graphql
 
+# cluster: rick/prisma-eu1
 cluster: local

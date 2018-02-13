@@ -7,3 +7,5 @@ export { MaterialIcons } from '@expo/vector-icons'
 export const Html = props => {
   return <HTMLView value={props.value} />
 }
+
+export { Modal as default } from 'react-native'

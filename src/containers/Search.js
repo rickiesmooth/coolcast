@@ -31,11 +31,7 @@ export const SearchResultsComposer = SearchResults =>
     }
     render() {
       return !this.results || this.props.isHidden ? null : (
-        <SearchResults
-          {...this.props}
-          results={this.results}
-          setCurrentPodcast={this._setCurrentPodcast}
-        />
+        <SearchResults {...this.props} results={this.results} />
       )
     }
   }

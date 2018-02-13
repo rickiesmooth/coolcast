@@ -3,10 +3,8 @@ import { View, Text } from 'react-native'
 import { observable, computed, action } from 'mobx'
 import { observer, inject } from 'mobx-react'
 
-import { fromPromise } from 'mobx-utils'
-
 export const PodcastEpisodeComposer = Episode =>
-  @inject('viewStore', 'podcastStore', 'apolloStore')
+  @inject('navigationStore', 'playlistStore', 'podcastStore', 'apolloStore')
   @observer
   class EnhancedEpisode extends React.Component {
     @computed
@@ -15,60 +13,83 @@ export const PodcastEpisodeComposer = Episode =>
       return podcastStore.episodes.get(episodeId)
     }
 
+    addToPlaylist = () => {
+      console.log('✨adding tp playlist')
+      this.props.playlistStore.addToPlaylist(this.episode.id)
+    }
+
     render() {
-      const { viewStore, apolloStore } = this.props
-      const { title, progress, duration, liked, id, toggleLiked } = this.episode
+      const { navigationStore, apolloStore } = this.props
+      const {
+        title,
+        progress,
+        duration,
+        likeId,
+        id,
+        toggleLiked
+      } = this.episode
       return (
         <Episode
           {...this.props}
           title={decodeURI(title)}
+          id={id}
           progress={progress > 0 && progress}
           duration={duration}
-          setCurrentPlaying={() => viewStore.setCurrentPlaying(this.episode.id)}
-          liked={liked}
-          likeApi={() => {
-            toggleLiked(!liked)
-            apolloStore.updateLike(liked, id)
-          }}
+          setCurrentPlaying={() =>
+            navigationStore.setCurrentPlaying(this.episode.id)}
+          liked={likeId}
+          likeApi={() => toggleLiked(likeId)}
+          playlistApi={this.addToPlaylist}
         />
       )
     }
   }
 
 export const PodcastShowComposer = Show =>
-  @inject('podcastStore', 'viewStore')
+  @inject('podcastStore')
   @observer
   class EnhancedShow extends React.Component {
     @computed
     get show() {
       const { showId, podcastStore } = this.props
-      return fromPromise(podcastStore.getShow(showId))
+      return podcastStore.shows.get(showId)
     }
 
     @computed
     get episodes() {
-      const { episodes, podcastStore } = this.props
-      return episodes ? episodes.map(ep => podcastStore.episodes.get(ep)) : null
+      const { episodes, podcastStore, showId } = this.props
+
+      return episodes
+        ? episodes.map(ep => podcastStore.episodes.get(ep))
+        : this.show && this.show.episodes
+    }
+
+    componentDidMount() {
+      const { showId, podcastStore, episodes } = this.props
+      if (!episodes) {
+        // the episodes are not yet added from history > not on homepage
+        if (!this.show) {
+          // there is no show yet > when landing
+          podcastStore.getShow(showId)
+        } else if (this.show && !this.show.episodes) {
+          // there is a show but no episodes yet > when navigation from home
+          podcastStore.getEpisodes(this.show)
+        }
+      }
     }
 
     render() {
       const show = this.show
       const { showId } = this.props
-      switch (show.state) {
-        case 'pending':
-          return <Text>Loading..</Text>
-        case 'rejected':
-          return <Text>Error... {show.value}</Text>
-        case 'fulfilled':
-          return (
-            <Show
-              {...this.props}
-              title={show.value.title}
-              episodes={this.episodes || show.value.episodes}
-              thumbLarge={show.value.thumbLarge}
-              showId={showId}
-            />
-          )
-      }
+      return (
+        <Show
+          {...this.props}
+          title={(show && show.title) || ''}
+          episodes={this.episodes || []}
+          thumbLarge={(show && show.thumbLarge) || ''}
+          showId={showId}
+          loading={!show}
+        />
+      )
     }
   }

@@ -1,7 +1,3 @@
-import {
-  PodcastEpisodeComposer,
-  PodcastShowComposer
-} from '../../containers/Podcast'
 import React from 'react'
 import {
   Text,
@@ -14,17 +10,47 @@ import {
 import { FlatList } from '../../utils'
 import { Link } from '../../navigation'
 import { Title } from '../Text'
-import { LikeButton } from '../Buttons'
+import { AddToPlaylistButton } from '../Playlist'
+import { ItemHeaderContainer } from '../Views'
+import {
+  PodcastEpisodeComposer,
+  PodcastShowComposer
+} from '../../containers/Podcast'
 
-const Episode = props => {
-  const { title, progress, duration, setCurrentPlaying, liked, likeApi } = props
+const Episode = ({
+  title,
+  progress,
+  duration,
+  setCurrentPlaying,
+  liked,
+  likeApi,
+  id
+}) => {
   return (
-    <View>
-      <TouchableOpacity onPress={setCurrentPlaying}>
-        <Text>{title}</Text>
-        {progress && <Text>{progress}</Text>}
-      </TouchableOpacity>
-      <LikeButton liked={liked} api={likeApi} />
+    <View style={{ marginHorizontal: 15 }}>
+      <View style={{ flexDirection: 'row' }}>
+        <TouchableOpacity onPress={setCurrentPlaying} style={styles.left}>
+          <Text numberOfLines={1}>{title}</Text>
+        </TouchableOpacity>
+        <AddToPlaylistButton episodeId={id} />
+      </View>
+      <View
+        style={{
+          width: '100%',
+          marginVertical: 15,
+          backgroundColor: 'grey',
+          borderRadius: 50
+        }}
+      >
+        <View
+          style={{
+            width: `${progress * 100}%`,
+            backgroundColor: 'blue',
+            height: 5,
+            borderRadius: 60
+          }}
+        />
+      </View>
     </View>
   )
 }
@@ -33,39 +59,49 @@ const EpisodeItem = PodcastEpisodeComposer(Episode)
 
 export { EpisodeItem }
 
-const Header = props => {
-  const { thumbLarge, title, showId, setCurrentPodcast } = props
-  return (
-    <Link onClick={setCurrentPodcast} to={`/podcast/${showId}`}>
-      <Title text={title} size={'medium'} numberOfLines={1} />
+const Header = ({ thumbLarge, title, showId, setCurrentPodcast }) => (
+  <Link onClick={setCurrentPodcast} to={`/podcast/${showId}`}>
+    <ItemHeaderContainer>
+      <Title
+        style={{
+          alignSelf: 'center'
+        }}
+        text={title}
+        size={'medium'}
+        numberOfLines={2}
+      />
       <Image
         source={{ uri: thumbLarge }}
         style={{
           height: 50,
-          width: 50
+          width: 50,
+          marginLeft: 'auto'
         }}
       />
-    </Link>
-  )
-}
+    </ItemHeaderContainer>
+  </Link>
+)
 
-const Show = props => {
-  const { title, episodes, thumbLarge, showId, style } = props
+const Show = ({ title, loading, episodes, thumbLarge, showId, style }) => {
   return (
     <View style={[style, styles.content]}>
-      <FlatList
-        data={episodes || []}
-        keyExtractor={(id, index) => id}
-        renderItem={({ item }) => <EpisodeItem episodeId={item.id} />}
-        ListHeaderComponent={() => (
-          <View>
-            <Header title={title} showId={showId} thumbLarge={thumbLarge} />
-            {(!episodes || episodes.length < 1) && (
-                <ActivityIndicator size={'large'} />
-              )}
-          </View>
-        )}
-      />
+      {loading || !episodes ? (
+        <ActivityIndicator style={styles.horizontal} size={'large'} />
+      ) : (
+        <FlatList
+          data={episodes}
+          keyExtractor={(id, index) => id}
+          renderItem={({ item }) => <EpisodeItem episodeId={item.id} />}
+          ListHeaderComponent={() => (
+            <View>
+              <Header title={title} showId={showId} thumbLarge={thumbLarge} />
+              {(!episodes || episodes.length < 1) && (
+                  <ActivityIndicator style={styles.horizontal} size={'large'} />
+                )}
+            </View>
+          )}
+        />
+      )}
     </View>
   )
 }
@@ -74,8 +110,11 @@ export const ShowItem = PodcastShowComposer(Show)
 
 const styles = StyleSheet.create({
   horizontal: {
-    alignItems: 'center',
-    flexDirection: 'row'
+    flex: 1
+  },
+  left: {
+    flex: 1,
+    marginRight: 'auto'
   },
   content: {
     flex: 1,

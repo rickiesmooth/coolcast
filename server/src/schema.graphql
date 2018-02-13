@@ -1,0 +1,34 @@
+# import Show, Episode, PodcastPlay, PodcastLike, Playlist from "./generated/prisma.graphql"
+
+type Query {
+  me: User!
+  shows(id: ID!): [Show!]
+  userHistoryEpisodes: [Episode!]
+  userHistoryShows: [Show!]
+}
+
+type Mutation {
+  authenticate(facebookToken: String!): AuthPayload!
+  getPodcast(showId: String!): Show!
+  addPlay(episodeId: ID!): PodcastPlay!
+  addPlaylist(name: String!): Playlist!
+  updatePlaylist(playlistId: ID!, episodeId: ID!): Playlist!
+  removePlaylist(id: ID!): Playlist!
+  updatePlay(sessionId: ID!, progress: Float!): PodcastPlay!
+  updateLike(episodeId: ID!, likeId: ID): PodcastLike!
+}
+
+type AuthPayload {
+  token: String
+  user: User
+}
+
+type User {
+  id: ID!
+  name: String!
+  email: String!
+  fbid: String!
+  history: [PodcastPlay!]
+  likes: [PodcastLike!]
+  playlists: [Playlist!]
+}

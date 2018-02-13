@@ -5,7 +5,10 @@ import { ApolloLink } from 'apollo-link'
 
 const DEPLOYED = 'https://api.graph.cool/simple/v1/cj9pp24d42jst0145fvha64ct'
 
-const httpLink = new HttpLink({ uri: 'http://localhost:4000' })
+const httpLink = new HttpLink({
+  // uri: 'https://eu1.prisma.sh/rick/graphcool/dev'
+  uri: 'https://hackernews-graphql-js-reobcepmfo.now.sh'
+})
 
 const authLink = setContext(async (req, { headers }) => {
   const token = await AsyncStorage.getItem('graphcoolToken')

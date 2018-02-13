@@ -24,5 +24,14 @@ type Episode {
   date: DateTime!
   description: String!
   src: String!
+  ha: String!
+  plays: [PodcastPlay!]!
   show: [Show!]!
+}
+
+type PodcastPlay {
+  id: ID! @unique
+  user: User!
+  progress: Float
+  episode: Episode!
 }

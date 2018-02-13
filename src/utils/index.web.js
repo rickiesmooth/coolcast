@@ -23,22 +23,27 @@ export const FlatList = function(props) {
     style
   } = props
   return (
-    <ScrollView
-      contentContainerStyle={contentContainerStyle}
-      style={style}
-      horizontal={horizontal}
-    >
-      {ListHeaderComponent && <ListHeaderComponent />}
-      {data.map((item, index) => (
-        <View key={keyExtractor ? keyExtractor(item) : index}>
-          {renderItem({ index, item })}
+    <View style={{ flex: 1 }}>
+      {horizontal && ListHeaderComponent && <ListHeaderComponent />}
+      <ScrollView
+        contentContainerStyle={contentContainerStyle}
+        style={style}
+        horizontal={horizontal}
+      >
+        {!horizontal && ListHeaderComponent && <ListHeaderComponent />}
+        {data.map((item, index) => {
+          return (
+            <View key={keyExtractor ? keyExtractor(item) : index}>
+              {renderItem({ index, item })}
 
-          {ItemSeparatorComponent &&
-            index < data.length - 1 && <ItemSeparatorComponent />}
-        </View>
-      ))}
-      {ListFooterComponent && <ListFooterComponent />}
-    </ScrollView>
+              {ItemSeparatorComponent &&
+                index < data.length - 1 && <ItemSeparatorComponent />}
+            </View>
+          )
+        })}
+        {ListFooterComponent && <ListFooterComponent />}
+      </ScrollView>
+    </View>
   )
 }
 

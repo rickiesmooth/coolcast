@@ -18,7 +18,7 @@ export default Player => {
 
     async _loadNewPlaybackInstance(episode) {
       const playerStore = this.playerStore
-
+      const progress = episode.progress
       if (playerStore.playbackInstance != null) {
         await playerStore.playbackInstance.unloadAsync()
         playerStore.playbackInstance.setOnPlaybackStatusUpdate(null)
@@ -40,8 +40,10 @@ export default Player => {
 
       playerStore.playbackInstance = sound
 
-      if (episode.progress) {
-        playerStore.playbackInstance.playFromPositionAsync(episode.progress)
+      if (progress) {
+        playerStore.playbackInstance.playFromPositionAsync(
+          progress * playerStore.state.playbackInstanceDuration
+        )
       } else {
         playerStore.playbackInstance.playAsync()
       }
