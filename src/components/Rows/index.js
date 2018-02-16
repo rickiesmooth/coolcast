@@ -20,7 +20,7 @@ import { HistoryRowComposer, PlaylistRowComposer } from '../../containers/Row'
 
 const HistoryComponent = props => {
   const { hasHistory, title, shows, episodes, horizontal } = props
-  console.log('✨horizontal', horizontal)
+  console.log('✨shows', shows)
   return hasHistory ? (
     <View
       style={[
@@ -29,25 +29,27 @@ const HistoryComponent = props => {
       ]}
     >
       <FlatList
-        data={Object.keys(shows)}
+        data={shows}
         style={styles.listView}
-        keyExtractor={item => item}
+        keyExtractor={item => item.id}
         horizontal={horizontal}
         ListHeaderComponent={() => (
           <Container style={styles.header}>
             <Title text={title} size={'large'} numberOfLines={1} />
           </Container>
         )}
-        renderItem={({ item, index }) => (
-          <ShowItem
-            showId={item}
-            episodes={shows[item].episodes}
-            style={[
-              horizontal ? styles.horizontalItem : styles.verticalItem,
-              horizontal && index === 0 && styles.firstRowItem
-            ]}
-          />
-        )}
+        renderItem={({ item, index }) => {
+          return (
+            <ShowItem
+              showId={item.id}
+              episodes={item.history}
+              style={[
+                horizontal ? styles.horizontalItem : styles.verticalItem,
+                horizontal && index === 0 && styles.firstRowItem
+              ]}
+            />
+          )
+        }}
       />
     </View>
   ) : (
@@ -59,6 +61,7 @@ export const HistoryRow = HistoryRowComposer(HistoryComponent)
 
 const PlaylistComponent = props => {
   const { hasPlaylists, title, playlists, createPlaylist, horizontal } = props
+  console.log('✨playlists', playlists)
   return hasPlaylists ? (
     <View
       style={[

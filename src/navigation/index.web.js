@@ -6,6 +6,7 @@ import { observer } from 'mobx-react'
 import Profile from '../screens/Profile'
 import Home from '../screens/Home'
 import Podcast from '../screens/Podcast'
+import Playlist from '../screens/Playlist'
 
 import MiniRemote from '../components/MiniRemote'
 import Header from '../components/Header'
@@ -47,6 +48,7 @@ class RootSwitch extends React.Component {
           <Route exact path="/" component={Home} />
           <Route path="/profile" component={Profile} />
           <Route path="/podcast/:id" component={Podcast} />
+          <Route path="/playlist/:id" component={Playlist} />
         </Switch>
         <ModalRoute isModal={isModal} path={`/modal/:id`} />
         <MiniRemote />

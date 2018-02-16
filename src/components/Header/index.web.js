@@ -38,8 +38,8 @@ const styles = StyleSheet.create({
   },
   header: {
     width: '100%',
-    position: 'relative',
     zIndex: 1,
+    position: 'relative',
     height: 48,
     backgroundColor: 'rgba(0,0,0,0.8)'
   }

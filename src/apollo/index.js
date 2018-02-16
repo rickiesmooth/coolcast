@@ -6,8 +6,8 @@ import { ApolloLink } from 'apollo-link'
 const DEPLOYED = 'https://api.graph.cool/simple/v1/cj9pp24d42jst0145fvha64ct'
 
 const httpLink = new HttpLink({
-  // uri: 'https://eu1.prisma.sh/rick/graphcool/dev'
-  uri: 'https://hackernews-graphql-js-reobcepmfo.now.sh'
+  // uri: 'https://hackernews-graphql-js-vfniydlffh.now.sh'
+  uri: 'http://localhost:4000'
 })
 
 const authLink = setContext(async (req, { headers }) => {

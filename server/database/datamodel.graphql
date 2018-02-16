@@ -23,22 +23,14 @@ type PodcastPlay {
   episode: Episode!
 }
 
-type PodcastLike {
-  id: ID! @unique
-  user: User!
-  liked: Boolean! @default(value: "false")
-  episode: Episode!
-}
-
 type UserHistory {
   id: ID! @unique
-  user: User!
-  Shows: [UserHistoryShow!]!
+  shows: [UserHistoryShow!]!
+  user: User! @relation(name: "UserHistoryCollection")
 }
 
 type UserHistoryShow {
   id: ID! @unique
-  user: User!
   show: Show!
   plays: [PodcastPlay!]!
 }
@@ -55,7 +47,7 @@ type User {
   name: String!
   email: String! @unique
   fbid: String! @unique
-  history: [PodcastPlay!]!
-  likes: [PodcastLike!]!
+  history: UserHistory @relation(name: "UserHistoryCollection")
+  plays: [PodcastPlay!]!
   playlists: [Playlist!]!
 }

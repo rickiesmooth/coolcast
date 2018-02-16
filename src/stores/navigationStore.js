@@ -3,7 +3,7 @@ import { types, getRoot } from 'mobx-state-tree'
 export const NavigationStore = types
   .model({
     page: 'home',
-    selectedShowId: '',
+    selectedShowId: types.maybe(types.number),
     episodePlaying: types.maybe(types.string)
   })
   .views(self => ({
@@ -12,6 +12,10 @@ export const NavigationStore = types
     }
   }))
   .actions(self => ({
+    updateSelectedShow(show) {
+      console.log('✨showId', show)
+      self.selectedShowId = show.id
+    },
     setCurrentPlaying(id) {
       self.episodePlaying = id
     }

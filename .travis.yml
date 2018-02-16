@@ -1,0 +1,16 @@
+language: node_js
+node_js:
+    - "node"
+
+branches:
+  only:
+    - master
+
+before_script:
+  - yarn global add firebase-tools
+
+script:
+  - yarn run build-web
+
+after_success:
+  - firebase deploy --project $FIREBASE_PROJECT --token $FIREBASE_TOKEN --non-interactive

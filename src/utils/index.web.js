@@ -23,7 +23,7 @@ export const FlatList = function(props) {
     style
   } = props
   return (
-    <View style={{ flex: 1 }}>
+    <View style={{ flex: 1, flexDirection: !horizontal ? 'row' : 'column' }}>
       {horizontal && ListHeaderComponent && <ListHeaderComponent />}
       <ScrollView
         contentContainerStyle={contentContainerStyle}

@@ -6,7 +6,7 @@ import { NavigationStore } from './navigationStore'
 import { ApolloStore } from './apolloStore'
 import { SearchStore } from './searchStore'
 import { PlaylistStore } from './playlistStore'
-console.log('✨NavigationStore', NavigationStore)
+
 const RootStore = types
   .model('RootStore', {
     podcastStore: types.optional(PodcastStore, {
@@ -46,14 +46,6 @@ const RootStore = types
   .views(self => ({
     get fetch() {
       return getEnv(self).fetch
-    },
-    get currentlyPlaying() {
-      console.log(
-        '✨self.navigationStore.episodePlaying',
-        self.navigationStore.episodePlaying,
-        self.podcastStore.episodes.get(self.navigationStore.episodePlaying)
-      )
-      return self.podcastStore.episodes.get(self.navigationStore.episodePlaying)
     },
     get currentShow() {
       return self.podcastStore.shows.get(self.navigationStore.selectedShowId)

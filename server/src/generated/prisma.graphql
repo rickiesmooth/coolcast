@@ -22,13 +22,6 @@ type Playlist implements Node {
   episodes(where: EpisodeWhereInput, orderBy: EpisodeOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Episode!]
 }
 
-type PodcastLike implements Node {
-  id: ID!
-  user(where: UserWhereInput): User!
-  liked: Boolean!
-  episode(where: EpisodeWhereInput): Episode!
-}
-
 type PodcastPlay implements Node {
   id: ID!
   user(where: UserWhereInput): User!
@@ -49,9 +42,21 @@ type User implements Node {
   name: String!
   email: String!
   fbid: String!
-  history(where: PodcastPlayWhereInput, orderBy: PodcastPlayOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [PodcastPlay!]
-  likes(where: PodcastLikeWhereInput, orderBy: PodcastLikeOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [PodcastLike!]
+  history(where: UserHistoryWhereInput): UserHistory
+  plays(where: PodcastPlayWhereInput, orderBy: PodcastPlayOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [PodcastPlay!]
   playlists(where: PlaylistWhereInput, orderBy: PlaylistOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Playlist!]
+}
+
+type UserHistory implements Node {
+  id: ID!
+  shows(where: UserHistoryShowWhereInput, orderBy: UserHistoryShowOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [UserHistoryShow!]
+  user(where: UserWhereInput): User!
+}
+
+type UserHistoryShow implements Node {
+  id: ID!
+  show(where: ShowWhereInput): Show!
+  plays(where: PodcastPlayWhereInput, orderBy: PodcastPlayOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [PodcastPlay!]
 }
 
 
@@ -67,10 +72,6 @@ type AggregatePlaylist {
   count: Int!
 }
 
-type AggregatePodcastLike {
-  count: Int!
-}
-
 type AggregatePodcastPlay {
   count: Int!
 }
@@ -80,6 +81,14 @@ type AggregateShow {
 }
 
 type AggregateUser {
+  count: Int!
+}
+
+type AggregateUserHistory {
+  count: Int!
+}
+
+type AggregateUserHistoryShow {
   count: Int!
 }
 
@@ -112,11 +121,6 @@ input EpisodeCreateManyInput {
 input EpisodeCreateManyWithoutShowInput {
   create: [EpisodeCreateWithoutShowInput!]
   connect: [EpisodeWhereUniqueInput!]
-}
-
-input EpisodeCreateOneInput {
-  create: EpisodeCreateInput
-  connect: EpisodeWhereUniqueInput
 }
 
 input EpisodeCreateOneWithoutPlaysInput {
@@ -210,13 +214,6 @@ input EpisodeUpdateManyWithoutShowInput {
   delete: [EpisodeWhereUniqueInput!]
   update: [EpisodeUpdateWithoutShowInput!]
   upsert: [EpisodeUpsertWithoutShowInput!]
-}
-
-input EpisodeUpdateOneInput {
-  create: EpisodeCreateInput
-  connect: EpisodeWhereUniqueInput
-  disconnect: EpisodeWhereUniqueInput
-  delete: EpisodeWhereUniqueInput
 }
 
 input EpisodeUpdateOneWithoutPlaysInput {
@@ -351,37 +348,43 @@ type Mutation {
   createShow(data: ShowCreateInput!): Show!
   createEpisode(data: EpisodeCreateInput!): Episode!
   createPodcastPlay(data: PodcastPlayCreateInput!): PodcastPlay!
-  createPodcastLike(data: PodcastLikeCreateInput!): PodcastLike!
+  createUserHistory(data: UserHistoryCreateInput!): UserHistory!
+  createUserHistoryShow(data: UserHistoryShowCreateInput!): UserHistoryShow!
   createPlaylist(data: PlaylistCreateInput!): Playlist!
   createUser(data: UserCreateInput!): User!
   updateShow(data: ShowUpdateInput!, where: ShowWhereUniqueInput!): Show
   updateEpisode(data: EpisodeUpdateInput!, where: EpisodeWhereUniqueInput!): Episode
   updatePodcastPlay(data: PodcastPlayUpdateInput!, where: PodcastPlayWhereUniqueInput!): PodcastPlay
-  updatePodcastLike(data: PodcastLikeUpdateInput!, where: PodcastLikeWhereUniqueInput!): PodcastLike
+  updateUserHistory(data: UserHistoryUpdateInput!, where: UserHistoryWhereUniqueInput!): UserHistory
+  updateUserHistoryShow(data: UserHistoryShowUpdateInput!, where: UserHistoryShowWhereUniqueInput!): UserHistoryShow
   updatePlaylist(data: PlaylistUpdateInput!, where: PlaylistWhereUniqueInput!): Playlist
   updateUser(data: UserUpdateInput!, where: UserWhereUniqueInput!): User
   deleteShow(where: ShowWhereUniqueInput!): Show
   deleteEpisode(where: EpisodeWhereUniqueInput!): Episode
   deletePodcastPlay(where: PodcastPlayWhereUniqueInput!): PodcastPlay
-  deletePodcastLike(where: PodcastLikeWhereUniqueInput!): PodcastLike
+  deleteUserHistory(where: UserHistoryWhereUniqueInput!): UserHistory
+  deleteUserHistoryShow(where: UserHistoryShowWhereUniqueInput!): UserHistoryShow
   deletePlaylist(where: PlaylistWhereUniqueInput!): Playlist
   deleteUser(where: UserWhereUniqueInput!): User
   upsertShow(where: ShowWhereUniqueInput!, create: ShowCreateInput!, update: ShowUpdateInput!): Show!
   upsertEpisode(where: EpisodeWhereUniqueInput!, create: EpisodeCreateInput!, update: EpisodeUpdateInput!): Episode!
   upsertPodcastPlay(where: PodcastPlayWhereUniqueInput!, create: PodcastPlayCreateInput!, update: PodcastPlayUpdateInput!): PodcastPlay!
-  upsertPodcastLike(where: PodcastLikeWhereUniqueInput!, create: PodcastLikeCreateInput!, update: PodcastLikeUpdateInput!): PodcastLike!
+  upsertUserHistory(where: UserHistoryWhereUniqueInput!, create: UserHistoryCreateInput!, update: UserHistoryUpdateInput!): UserHistory!
+  upsertUserHistoryShow(where: UserHistoryShowWhereUniqueInput!, create: UserHistoryShowCreateInput!, update: UserHistoryShowUpdateInput!): UserHistoryShow!
   upsertPlaylist(where: PlaylistWhereUniqueInput!, create: PlaylistCreateInput!, update: PlaylistUpdateInput!): Playlist!
   upsertUser(where: UserWhereUniqueInput!, create: UserCreateInput!, update: UserUpdateInput!): User!
   updateManyShows(data: ShowUpdateInput!, where: ShowWhereInput!): BatchPayload!
   updateManyEpisodes(data: EpisodeUpdateInput!, where: EpisodeWhereInput!): BatchPayload!
   updateManyPodcastPlays(data: PodcastPlayUpdateInput!, where: PodcastPlayWhereInput!): BatchPayload!
-  updateManyPodcastLikes(data: PodcastLikeUpdateInput!, where: PodcastLikeWhereInput!): BatchPayload!
+  updateManyUserHistories(data: UserHistoryUpdateInput!, where: UserHistoryWhereInput!): BatchPayload!
+  updateManyUserHistoryShows(data: UserHistoryShowUpdateInput!, where: UserHistoryShowWhereInput!): BatchPayload!
   updateManyPlaylists(data: PlaylistUpdateInput!, where: PlaylistWhereInput!): BatchPayload!
   updateManyUsers(data: UserUpdateInput!, where: UserWhereInput!): BatchPayload!
   deleteManyShows(where: ShowWhereInput!): BatchPayload!
   deleteManyEpisodes(where: EpisodeWhereInput!): BatchPayload!
   deleteManyPodcastPlays(where: PodcastPlayWhereInput!): BatchPayload!
-  deleteManyPodcastLikes(where: PodcastLikeWhereInput!): BatchPayload!
+  deleteManyUserHistories(where: UserHistoryWhereInput!): BatchPayload!
+  deleteManyUserHistoryShows(where: UserHistoryShowWhereInput!): BatchPayload!
   deleteManyPlaylists(where: PlaylistWhereInput!): BatchPayload!
   deleteManyUsers(where: UserWhereInput!): BatchPayload!
 }
@@ -535,124 +538,6 @@ input PlaylistWhereUniqueInput {
   id: ID
 }
 
-type PodcastLikeConnection {
-  pageInfo: PageInfo!
-  edges: [PodcastLikeEdge]!
-  aggregate: AggregatePodcastLike!
-}
-
-input PodcastLikeCreateInput {
-  liked: Boolean
-  user: UserCreateOneWithoutLikesInput!
-  episode: EpisodeCreateOneInput!
-}
-
-input PodcastLikeCreateManyWithoutUserInput {
-  create: [PodcastLikeCreateWithoutUserInput!]
-  connect: [PodcastLikeWhereUniqueInput!]
-}
-
-input PodcastLikeCreateWithoutUserInput {
-  liked: Boolean
-  episode: EpisodeCreateOneInput!
-}
-
-type PodcastLikeEdge {
-  node: PodcastLike!
-  cursor: String!
-}
-
-enum PodcastLikeOrderByInput {
-  id_ASC
-  id_DESC
-  liked_ASC
-  liked_DESC
-  updatedAt_ASC
-  updatedAt_DESC
-  createdAt_ASC
-  createdAt_DESC
-}
-
-type PodcastLikePreviousValues {
-  id: ID!
-  liked: Boolean!
-}
-
-type PodcastLikeSubscriptionPayload {
-  mutation: MutationType!
-  node: PodcastLike
-  updatedFields: [String!]
-  previousValues: PodcastLikePreviousValues
-}
-
-input PodcastLikeSubscriptionWhereInput {
-  AND: [PodcastLikeSubscriptionWhereInput!]
-  OR: [PodcastLikeSubscriptionWhereInput!]
-  mutation_in: [MutationType!]
-  updatedFields_contains: String
-  updatedFields_contains_every: [String!]
-  updatedFields_contains_some: [String!]
-  node: PodcastLikeWhereInput
-}
-
-input PodcastLikeUpdateInput {
-  liked: Boolean
-  user: UserUpdateOneWithoutLikesInput
-  episode: EpisodeUpdateOneInput
-}
-
-input PodcastLikeUpdateManyWithoutUserInput {
-  create: [PodcastLikeCreateWithoutUserInput!]
-  connect: [PodcastLikeWhereUniqueInput!]
-  disconnect: [PodcastLikeWhereUniqueInput!]
-  delete: [PodcastLikeWhereUniqueInput!]
-  update: [PodcastLikeUpdateWithoutUserInput!]
-  upsert: [PodcastLikeUpsertWithoutUserInput!]
-}
-
-input PodcastLikeUpdateWithoutUserDataInput {
-  liked: Boolean
-  episode: EpisodeUpdateOneInput
-}
-
-input PodcastLikeUpdateWithoutUserInput {
-  where: PodcastLikeWhereUniqueInput!
-  data: PodcastLikeUpdateWithoutUserDataInput!
-}
-
-input PodcastLikeUpsertWithoutUserInput {
-  where: PodcastLikeWhereUniqueInput!
-  update: PodcastLikeUpdateWithoutUserDataInput!
-  create: PodcastLikeCreateWithoutUserInput!
-}
-
-input PodcastLikeWhereInput {
-  AND: [PodcastLikeWhereInput!]
-  OR: [PodcastLikeWhereInput!]
-  id: ID
-  id_not: ID
-  id_in: [ID!]
-  id_not_in: [ID!]
-  id_lt: ID
-  id_lte: ID
-  id_gt: ID
-  id_gte: ID
-  id_contains: ID
-  id_not_contains: ID
-  id_starts_with: ID
-  id_not_starts_with: ID
-  id_ends_with: ID
-  id_not_ends_with: ID
-  liked: Boolean
-  liked_not: Boolean
-  user: UserWhereInput
-  episode: EpisodeWhereInput
-}
-
-input PodcastLikeWhereUniqueInput {
-  id: ID
-}
-
 type PodcastPlayConnection {
   pageInfo: PageInfo!
   edges: [PodcastPlayEdge]!
@@ -661,8 +546,13 @@ type PodcastPlayConnection {
 
 input PodcastPlayCreateInput {
   progress: Float
-  user: UserCreateOneWithoutHistoryInput!
+  user: UserCreateOneWithoutPlaysInput!
   episode: EpisodeCreateOneWithoutPlaysInput!
+}
+
+input PodcastPlayCreateManyInput {
+  create: [PodcastPlayCreateInput!]
+  connect: [PodcastPlayWhereUniqueInput!]
 }
 
 input PodcastPlayCreateManyWithoutEpisodeInput {
@@ -677,7 +567,7 @@ input PodcastPlayCreateManyWithoutUserInput {
 
 input PodcastPlayCreateWithoutEpisodeInput {
   progress: Float
-  user: UserCreateOneWithoutHistoryInput!
+  user: UserCreateOneWithoutPlaysInput!
 }
 
 input PodcastPlayCreateWithoutUserInput {
@@ -725,8 +615,15 @@ input PodcastPlaySubscriptionWhereInput {
 
 input PodcastPlayUpdateInput {
   progress: Float
-  user: UserUpdateOneWithoutHistoryInput
+  user: UserUpdateOneWithoutPlaysInput
   episode: EpisodeUpdateOneWithoutPlaysInput
+}
+
+input PodcastPlayUpdateManyInput {
+  create: [PodcastPlayCreateInput!]
+  connect: [PodcastPlayWhereUniqueInput!]
+  disconnect: [PodcastPlayWhereUniqueInput!]
+  delete: [PodcastPlayWhereUniqueInput!]
 }
 
 input PodcastPlayUpdateManyWithoutEpisodeInput {
@@ -749,7 +646,7 @@ input PodcastPlayUpdateManyWithoutUserInput {
 
 input PodcastPlayUpdateWithoutEpisodeDataInput {
   progress: Float
-  user: UserUpdateOneWithoutHistoryInput
+  user: UserUpdateOneWithoutPlaysInput
 }
 
 input PodcastPlayUpdateWithoutEpisodeInput {
@@ -816,19 +713,22 @@ type Query {
   shows(where: ShowWhereInput, orderBy: ShowOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Show]!
   episodes(where: EpisodeWhereInput, orderBy: EpisodeOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Episode]!
   podcastPlays(where: PodcastPlayWhereInput, orderBy: PodcastPlayOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [PodcastPlay]!
-  podcastLikes(where: PodcastLikeWhereInput, orderBy: PodcastLikeOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [PodcastLike]!
+  userHistories(where: UserHistoryWhereInput, orderBy: UserHistoryOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [UserHistory]!
+  userHistoryShows(where: UserHistoryShowWhereInput, orderBy: UserHistoryShowOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [UserHistoryShow]!
   playlists(where: PlaylistWhereInput, orderBy: PlaylistOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Playlist]!
   users(where: UserWhereInput, orderBy: UserOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [User]!
   show(where: ShowWhereUniqueInput!): Show
   episode(where: EpisodeWhereUniqueInput!): Episode
   podcastPlay(where: PodcastPlayWhereUniqueInput!): PodcastPlay
-  podcastLike(where: PodcastLikeWhereUniqueInput!): PodcastLike
+  userHistory(where: UserHistoryWhereUniqueInput!): UserHistory
+  userHistoryShow(where: UserHistoryShowWhereUniqueInput!): UserHistoryShow
   playlist(where: PlaylistWhereUniqueInput!): Playlist
   user(where: UserWhereUniqueInput!): User
   showsConnection(where: ShowWhereInput, orderBy: ShowOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): ShowConnection!
   episodesConnection(where: EpisodeWhereInput, orderBy: EpisodeOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): EpisodeConnection!
   podcastPlaysConnection(where: PodcastPlayWhereInput, orderBy: PodcastPlayOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): PodcastPlayConnection!
-  podcastLikesConnection(where: PodcastLikeWhereInput, orderBy: PodcastLikeOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): PodcastLikeConnection!
+  userHistoriesConnection(where: UserHistoryWhereInput, orderBy: UserHistoryOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): UserHistoryConnection!
+  userHistoryShowsConnection(where: UserHistoryShowWhereInput, orderBy: UserHistoryShowOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): UserHistoryShowConnection!
   playlistsConnection(where: PlaylistWhereInput, orderBy: PlaylistOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): PlaylistConnection!
   usersConnection(where: UserWhereInput, orderBy: UserOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): UserConnection!
   node(id: ID!): Node
@@ -850,6 +750,11 @@ input ShowCreateInput {
 input ShowCreateManyWithoutEpisodesInput {
   create: [ShowCreateWithoutEpisodesInput!]
   connect: [ShowWhereUniqueInput!]
+}
+
+input ShowCreateOneInput {
+  create: ShowCreateInput
+  connect: ShowWhereUniqueInput
 }
 
 input ShowCreateWithoutEpisodesInput {
@@ -916,6 +821,13 @@ input ShowUpdateManyWithoutEpisodesInput {
   delete: [ShowWhereUniqueInput!]
   update: [ShowUpdateWithoutEpisodesInput!]
   upsert: [ShowUpsertWithoutEpisodesInput!]
+}
+
+input ShowUpdateOneInput {
+  create: ShowCreateInput
+  connect: ShowWhereUniqueInput
+  disconnect: ShowWhereUniqueInput
+  delete: ShowWhereUniqueInput
 }
 
 input ShowUpdateWithoutEpisodesDataInput {
@@ -1008,7 +920,8 @@ type Subscription {
   show(where: ShowSubscriptionWhereInput): ShowSubscriptionPayload
   episode(where: EpisodeSubscriptionWhereInput): EpisodeSubscriptionPayload
   podcastPlay(where: PodcastPlaySubscriptionWhereInput): PodcastPlaySubscriptionPayload
-  podcastLike(where: PodcastLikeSubscriptionWhereInput): PodcastLikeSubscriptionPayload
+  userHistory(where: UserHistorySubscriptionWhereInput): UserHistorySubscriptionPayload
+  userHistoryShow(where: UserHistoryShowSubscriptionWhereInput): UserHistoryShowSubscriptionPayload
   playlist(where: PlaylistSubscriptionWhereInput): PlaylistSubscriptionPayload
   user(where: UserSubscriptionWhereInput): UserSubscriptionPayload
 }
@@ -1023,8 +936,8 @@ input UserCreateInput {
   name: String!
   email: String!
   fbid: String!
-  history: PodcastPlayCreateManyWithoutUserInput
-  likes: PodcastLikeCreateManyWithoutUserInput
+  history: UserHistoryCreateOneWithoutUserInput
+  plays: PodcastPlayCreateManyWithoutUserInput
   playlists: PlaylistCreateManyWithoutUserInput
 }
 
@@ -1033,13 +946,13 @@ input UserCreateOneWithoutHistoryInput {
   connect: UserWhereUniqueInput
 }
 
-input UserCreateOneWithoutLikesInput {
-  create: UserCreateWithoutLikesInput
+input UserCreateOneWithoutPlaylistsInput {
+  create: UserCreateWithoutPlaylistsInput
   connect: UserWhereUniqueInput
 }
 
-input UserCreateOneWithoutPlaylistsInput {
-  create: UserCreateWithoutPlaylistsInput
+input UserCreateOneWithoutPlaysInput {
+  create: UserCreateWithoutPlaysInput
   connect: UserWhereUniqueInput
 }
 
@@ -1047,15 +960,7 @@ input UserCreateWithoutHistoryInput {
   name: String!
   email: String!
   fbid: String!
-  likes: PodcastLikeCreateManyWithoutUserInput
-  playlists: PlaylistCreateManyWithoutUserInput
-}
-
-input UserCreateWithoutLikesInput {
-  name: String!
-  email: String!
-  fbid: String!
-  history: PodcastPlayCreateManyWithoutUserInput
+  plays: PodcastPlayCreateManyWithoutUserInput
   playlists: PlaylistCreateManyWithoutUserInput
 }
 
@@ -1063,13 +968,222 @@ input UserCreateWithoutPlaylistsInput {
   name: String!
   email: String!
   fbid: String!
-  history: PodcastPlayCreateManyWithoutUserInput
-  likes: PodcastLikeCreateManyWithoutUserInput
+  history: UserHistoryCreateOneWithoutUserInput
+  plays: PodcastPlayCreateManyWithoutUserInput
+}
+
+input UserCreateWithoutPlaysInput {
+  name: String!
+  email: String!
+  fbid: String!
+  history: UserHistoryCreateOneWithoutUserInput
+  playlists: PlaylistCreateManyWithoutUserInput
 }
 
 type UserEdge {
   node: User!
   cursor: String!
+}
+
+type UserHistoryConnection {
+  pageInfo: PageInfo!
+  edges: [UserHistoryEdge]!
+  aggregate: AggregateUserHistory!
+}
+
+input UserHistoryCreateInput {
+  shows: UserHistoryShowCreateManyInput
+  user: UserCreateOneWithoutHistoryInput!
+}
+
+input UserHistoryCreateOneWithoutUserInput {
+  create: UserHistoryCreateWithoutUserInput
+  connect: UserHistoryWhereUniqueInput
+}
+
+input UserHistoryCreateWithoutUserInput {
+  shows: UserHistoryShowCreateManyInput
+}
+
+type UserHistoryEdge {
+  node: UserHistory!
+  cursor: String!
+}
+
+enum UserHistoryOrderByInput {
+  id_ASC
+  id_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  createdAt_ASC
+  createdAt_DESC
+}
+
+type UserHistoryPreviousValues {
+  id: ID!
+}
+
+type UserHistoryShowConnection {
+  pageInfo: PageInfo!
+  edges: [UserHistoryShowEdge]!
+  aggregate: AggregateUserHistoryShow!
+}
+
+input UserHistoryShowCreateInput {
+  show: ShowCreateOneInput!
+  plays: PodcastPlayCreateManyInput
+}
+
+input UserHistoryShowCreateManyInput {
+  create: [UserHistoryShowCreateInput!]
+  connect: [UserHistoryShowWhereUniqueInput!]
+}
+
+type UserHistoryShowEdge {
+  node: UserHistoryShow!
+  cursor: String!
+}
+
+enum UserHistoryShowOrderByInput {
+  id_ASC
+  id_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  createdAt_ASC
+  createdAt_DESC
+}
+
+type UserHistoryShowPreviousValues {
+  id: ID!
+}
+
+type UserHistoryShowSubscriptionPayload {
+  mutation: MutationType!
+  node: UserHistoryShow
+  updatedFields: [String!]
+  previousValues: UserHistoryShowPreviousValues
+}
+
+input UserHistoryShowSubscriptionWhereInput {
+  AND: [UserHistoryShowSubscriptionWhereInput!]
+  OR: [UserHistoryShowSubscriptionWhereInput!]
+  mutation_in: [MutationType!]
+  updatedFields_contains: String
+  updatedFields_contains_every: [String!]
+  updatedFields_contains_some: [String!]
+  node: UserHistoryShowWhereInput
+}
+
+input UserHistoryShowUpdateInput {
+  show: ShowUpdateOneInput
+  plays: PodcastPlayUpdateManyInput
+}
+
+input UserHistoryShowUpdateManyInput {
+  create: [UserHistoryShowCreateInput!]
+  connect: [UserHistoryShowWhereUniqueInput!]
+  disconnect: [UserHistoryShowWhereUniqueInput!]
+  delete: [UserHistoryShowWhereUniqueInput!]
+}
+
+input UserHistoryShowWhereInput {
+  AND: [UserHistoryShowWhereInput!]
+  OR: [UserHistoryShowWhereInput!]
+  id: ID
+  id_not: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  id_lt: ID
+  id_lte: ID
+  id_gt: ID
+  id_gte: ID
+  id_contains: ID
+  id_not_contains: ID
+  id_starts_with: ID
+  id_not_starts_with: ID
+  id_ends_with: ID
+  id_not_ends_with: ID
+  show: ShowWhereInput
+  plays_every: PodcastPlayWhereInput
+  plays_some: PodcastPlayWhereInput
+  plays_none: PodcastPlayWhereInput
+}
+
+input UserHistoryShowWhereUniqueInput {
+  id: ID
+}
+
+type UserHistorySubscriptionPayload {
+  mutation: MutationType!
+  node: UserHistory
+  updatedFields: [String!]
+  previousValues: UserHistoryPreviousValues
+}
+
+input UserHistorySubscriptionWhereInput {
+  AND: [UserHistorySubscriptionWhereInput!]
+  OR: [UserHistorySubscriptionWhereInput!]
+  mutation_in: [MutationType!]
+  updatedFields_contains: String
+  updatedFields_contains_every: [String!]
+  updatedFields_contains_some: [String!]
+  node: UserHistoryWhereInput
+}
+
+input UserHistoryUpdateInput {
+  shows: UserHistoryShowUpdateManyInput
+  user: UserUpdateOneWithoutHistoryInput
+}
+
+input UserHistoryUpdateOneWithoutUserInput {
+  create: UserHistoryCreateWithoutUserInput
+  connect: UserHistoryWhereUniqueInput
+  disconnect: UserHistoryWhereUniqueInput
+  delete: UserHistoryWhereUniqueInput
+  update: UserHistoryUpdateWithoutUserInput
+  upsert: UserHistoryUpsertWithoutUserInput
+}
+
+input UserHistoryUpdateWithoutUserDataInput {
+  shows: UserHistoryShowUpdateManyInput
+}
+
+input UserHistoryUpdateWithoutUserInput {
+  where: UserHistoryWhereUniqueInput!
+  data: UserHistoryUpdateWithoutUserDataInput!
+}
+
+input UserHistoryUpsertWithoutUserInput {
+  where: UserHistoryWhereUniqueInput!
+  update: UserHistoryUpdateWithoutUserDataInput!
+  create: UserHistoryCreateWithoutUserInput!
+}
+
+input UserHistoryWhereInput {
+  AND: [UserHistoryWhereInput!]
+  OR: [UserHistoryWhereInput!]
+  id: ID
+  id_not: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  id_lt: ID
+  id_lte: ID
+  id_gt: ID
+  id_gte: ID
+  id_contains: ID
+  id_not_contains: ID
+  id_starts_with: ID
+  id_not_starts_with: ID
+  id_ends_with: ID
+  id_not_ends_with: ID
+  shows_every: UserHistoryShowWhereInput
+  shows_some: UserHistoryShowWhereInput
+  shows_none: UserHistoryShowWhereInput
+  user: UserWhereInput
+}
+
+input UserHistoryWhereUniqueInput {
+  id: ID
 }
 
 enum UserOrderByInput {
@@ -1115,8 +1229,8 @@ input UserUpdateInput {
   name: String
   email: String
   fbid: String
-  history: PodcastPlayUpdateManyWithoutUserInput
-  likes: PodcastLikeUpdateManyWithoutUserInput
+  history: UserHistoryUpdateOneWithoutUserInput
+  plays: PodcastPlayUpdateManyWithoutUserInput
   playlists: PlaylistUpdateManyWithoutUserInput
 }
 
@@ -1129,15 +1243,6 @@ input UserUpdateOneWithoutHistoryInput {
   upsert: UserUpsertWithoutHistoryInput
 }
 
-input UserUpdateOneWithoutLikesInput {
-  create: UserCreateWithoutLikesInput
-  connect: UserWhereUniqueInput
-  disconnect: UserWhereUniqueInput
-  delete: UserWhereUniqueInput
-  update: UserUpdateWithoutLikesInput
-  upsert: UserUpsertWithoutLikesInput
-}
-
 input UserUpdateOneWithoutPlaylistsInput {
   create: UserCreateWithoutPlaylistsInput
   connect: UserWhereUniqueInput
@@ -1147,11 +1252,20 @@ input UserUpdateOneWithoutPlaylistsInput {
   upsert: UserUpsertWithoutPlaylistsInput
 }
 
+input UserUpdateOneWithoutPlaysInput {
+  create: UserCreateWithoutPlaysInput
+  connect: UserWhereUniqueInput
+  disconnect: UserWhereUniqueInput
+  delete: UserWhereUniqueInput
+  update: UserUpdateWithoutPlaysInput
+  upsert: UserUpsertWithoutPlaysInput
+}
+
 input UserUpdateWithoutHistoryDataInput {
   name: String
   email: String
   fbid: String
-  likes: PodcastLikeUpdateManyWithoutUserInput
+  plays: PodcastPlayUpdateManyWithoutUserInput
   playlists: PlaylistUpdateManyWithoutUserInput
 }
 
@@ -1160,30 +1274,30 @@ input UserUpdateWithoutHistoryInput {
   data: UserUpdateWithoutHistoryDataInput!
 }
 
-input UserUpdateWithoutLikesDataInput {
-  name: String
-  email: String
-  fbid: String
-  history: PodcastPlayUpdateManyWithoutUserInput
-  playlists: PlaylistUpdateManyWithoutUserInput
-}
-
-input UserUpdateWithoutLikesInput {
-  where: UserWhereUniqueInput!
-  data: UserUpdateWithoutLikesDataInput!
-}
-
 input UserUpdateWithoutPlaylistsDataInput {
   name: String
   email: String
   fbid: String
-  history: PodcastPlayUpdateManyWithoutUserInput
-  likes: PodcastLikeUpdateManyWithoutUserInput
+  history: UserHistoryUpdateOneWithoutUserInput
+  plays: PodcastPlayUpdateManyWithoutUserInput
 }
 
 input UserUpdateWithoutPlaylistsInput {
   where: UserWhereUniqueInput!
   data: UserUpdateWithoutPlaylistsDataInput!
+}
+
+input UserUpdateWithoutPlaysDataInput {
+  name: String
+  email: String
+  fbid: String
+  history: UserHistoryUpdateOneWithoutUserInput
+  playlists: PlaylistUpdateManyWithoutUserInput
+}
+
+input UserUpdateWithoutPlaysInput {
+  where: UserWhereUniqueInput!
+  data: UserUpdateWithoutPlaysDataInput!
 }
 
 input UserUpsertWithoutHistoryInput {
@@ -1192,16 +1306,16 @@ input UserUpsertWithoutHistoryInput {
   create: UserCreateWithoutHistoryInput!
 }
 
-input UserUpsertWithoutLikesInput {
-  where: UserWhereUniqueInput!
-  update: UserUpdateWithoutLikesDataInput!
-  create: UserCreateWithoutLikesInput!
-}
-
 input UserUpsertWithoutPlaylistsInput {
   where: UserWhereUniqueInput!
   update: UserUpdateWithoutPlaylistsDataInput!
   create: UserCreateWithoutPlaylistsInput!
+}
+
+input UserUpsertWithoutPlaysInput {
+  where: UserWhereUniqueInput!
+  update: UserUpdateWithoutPlaysDataInput!
+  create: UserCreateWithoutPlaysInput!
 }
 
 input UserWhereInput {
@@ -1263,12 +1377,10 @@ input UserWhereInput {
   fbid_not_starts_with: String
   fbid_ends_with: String
   fbid_not_ends_with: String
-  history_every: PodcastPlayWhereInput
-  history_some: PodcastPlayWhereInput
-  history_none: PodcastPlayWhereInput
-  likes_every: PodcastLikeWhereInput
-  likes_some: PodcastLikeWhereInput
-  likes_none: PodcastLikeWhereInput
+  history: UserHistoryWhereInput
+  plays_every: PodcastPlayWhereInput
+  plays_some: PodcastPlayWhereInput
+  plays_none: PodcastPlayWhereInput
   playlists_every: PlaylistWhereInput
   playlists_some: PlaylistWhereInput
   playlists_none: PlaylistWhereInput

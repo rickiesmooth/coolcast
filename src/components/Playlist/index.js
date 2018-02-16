@@ -34,7 +34,7 @@ const Playlist = props => {
   return (
     <View style={[style, styles.content]}>
       <FlatList
-        data={episodes}
+        data={episodes || []}
         keyExtractor={({ id }) => id}
         renderItem={({ item }) => <EpisodeItem episodeId={item.id} />}
         ListHeaderComponent={() => (
@@ -85,7 +85,7 @@ export const AddToPlaylistComponent = ({
         style={{
           backgroundColor: 'red'
         }}
-        data={playlists}
+        data={playlists.values()}
         keyExtractor={({ id }) => id}
         renderItem={({ item }) => {
           return (

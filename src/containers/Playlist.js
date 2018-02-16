@@ -4,14 +4,14 @@ import { observer, inject } from 'mobx-react'
 export const PlaylistItemComposer = PlaylistItem =>
   @inject('playlistStore')
   @observer
-  class EnhancedButton extends React.Component {
+  class EnhancedPlaylistItem extends React.Component {
     removePlaylist = e => {
       this.props.playlistStore.removePlaylist(this.props.id)
     }
 
     render() {
-      const { viewStore, apolloStore } = this.props
-
+      // for rerender
+      this.props.episodes.length
       return (
         <PlaylistItem {...this.props} removePlaylist={this.removePlaylist} />
       )
@@ -54,22 +54,19 @@ export const AddToPlaylistComposer = AddToPlaylistComponent =>
   @inject('playlistStore', 'apolloStore')
   @observer
   class EnhancedButton extends React.Component {
-    get playlists() {
-      return this.props.playlistStore.playlists.values()
-    }
-
     addToPlaylist = (playlistId, episodeId) => {
       this.props.playlistStore.addToPlaylist(playlistId, episodeId)
+      this.props.close()
     }
 
     render() {
-      const { viewStore, apolloStore, ...rest } = this.props
+      const { viewStore, apolloStore, playlistStore, ...rest } = this.props
 
       return (
         <AddToPlaylistComponent
           {...rest}
           name={'Create Playlist'}
-          playlists={this.playlists}
+          playlists={playlistStore.playlists}
           addToPlaylist={this.addToPlaylist}
         />
       )

@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, Platform } from 'react-native'
 import { observer, inject } from 'mobx-react'
 import { HistoryRow, PlayListRow } from '../components/Rows'
 
-import { RowContainer, Container } from '../components/Containers'
+import { RowContainer, Container } from '../components/Views'
 const WEB = Platform.OS === 'web'
 
 // style={{

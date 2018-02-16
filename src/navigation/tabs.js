@@ -19,6 +19,7 @@ import Profile from '../screens/Profile'
 import History from '../screens/History'
 import Playlists from '../screens/Playlists'
 import Podcast from '../screens/Podcast'
+import Playlist from '../screens/Playlist'
 import Search from '../screens/Search'
 import MiniRemote from '../components/MiniRemote'
 import {
@@ -44,10 +45,33 @@ class TabBarWithMiniRemote extends React.Component {
   }
 }
 
+const ScreenComposer = Screen => {
+  return class EnhancedEpisode extends React.Component {
+    static navigationOptions = ({ navigation }) => ({
+      tabBarOnPress: ({ previousScene, scene, jumpToIndex }) => {
+        const { route, focused, index } = scene
+        if (focused) {
+          if (route.index !== 0) {
+            navigation.dispatch(NavigationActions.back())
+          }
+        } else {
+          jumpToIndex(index)
+        }
+      }
+    })
+    render() {
+      return <Screen {...this.props} />
+    }
+  }
+}
+
+const ComposedPodcastScreen = ScreenComposer(Podcast)
+const ComposedPlaylistScreen = ScreenComposer(Playlist)
+
 const AppNavigator = StackNavigator(
   {
     Home: { screen: History },
-    podcast: { screen: Podcast }
+    podcast: { screen: ComposedPodcastScreen }
   },
   {
     initialRouteName: 'Home',
@@ -58,7 +82,8 @@ const AppNavigator = StackNavigator(
 const PlaylistNavigator = StackNavigator(
   {
     Playlists: { screen: Playlists },
-    podcast: { screen: Podcast }
+    podcast: { screen: ComposedPodcastScreen },
+    playlist: { screen: ComposedPlaylistScreen }
   },
   {
     initialRouteName: 'Playlists',
@@ -69,7 +94,7 @@ const PlaylistNavigator = StackNavigator(
 const SearchNavigator = StackNavigator(
   {
     Index: { screen: Search },
-    podcast: { screen: Podcast }
+    podcast: { screen: ComposedPodcastScreen }
   },
   {
     initialRouteName: 'Index',
@@ -103,7 +128,6 @@ const RootNavigation = TabNavigator(
             iconName = 'person'
             break
         }
-        console.log('✨iconName', iconName)
         return (
           <MaterialIcons
             name={iconName}

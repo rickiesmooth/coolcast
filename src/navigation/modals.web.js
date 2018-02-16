@@ -17,7 +17,7 @@ export class ModalComponent extends React.Component {
     }).start()
   }
   back = e => {
-    e.stopPropagation()
+    e && e.stopPropagation()
     Animated.timing(this.state.fadeAnim, {
       toValue: 0,
       duration: 500
@@ -65,14 +65,7 @@ export const ModalContent = ({ content, ...rest }) => {
 }
 
 export const ModalRoute = ({ isModal, ...rest }) => {
-  console.log('✨...reset', ...rest)
   return isModal ? (
-    <Route
-      {...rest}
-      render={props => {
-        console.log('✨props', props)
-        return <ModalComponent {...props} />
-      }}
-    />
+    <Route {...rest} render={props => <ModalComponent {...props} />} />
   ) : null
 }

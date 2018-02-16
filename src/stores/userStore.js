@@ -15,7 +15,7 @@ export const User = types.model('User', {
   id: types.identifier(),
   email: types.string,
   fbid: types.string,
-  history: types.maybe(types.array(types.reference(Episode))),
+  history: types.maybe(types.array(types.reference(Show))),
   playlists: types.maybe(types.array(types.reference(Playlist)))
 })
 
@@ -28,6 +28,7 @@ export const UserStore = types
       return getRoot(self)
     },
     get hasHistory() {
+      console.log('✨checking')
       return (
         self.currentUser &&
         self.currentUser.history &&
@@ -46,44 +47,40 @@ export const UserStore = types
       return apolloStore.userHistory
     },
     get groupedUserHistory() {
-      return self.currentUser.history.reduce((r, episode) => {
-        r[episode.showId] = r[episode.showId] || {}
-        r[episode.showId].episodes = r[episode.showId].episodes || []
-        r[episode.showId].episodes.push(episode.id)
-        return r
-      }, {})
+      return self.currentUser.history
     }
   }))
   .actions(self => ({
     setCurrentUser: flow(function*({ me }) {
-      const { id, email, fbid, name, history, likes, playlists } = me
+      const { id, email, fbid, name, history, playlists } = me
+      const podcastStore = self.root.podcastStore
       const userInfo = {
         id,
         email,
         fbid,
         name,
-        history: history.map(({ id, episode, progress }) => {
-          const podcastStore = self.root.podcastStore
-          podcastStore.addEpisode({
-            id: episode.id,
-            sessionId: id,
-            progress,
-            showId: episode.show[0].showId
+        history: history.shows.map(({ show, plays }) => {
+          const addedShow = self.root.podcastStore.addShow({
+            id: show.showId,
+            title: decodeURI(show.title),
+            thumbLarge: show.thumbLarge,
+            graphcoolShowId: show.id,
+            history: plays.map(play => {
+              console.log('✨play.id', play.id)
+              self.root.podcastStore.addEpisode({
+                id: play.episode.id,
+                title: play.episode.title,
+                sessionId: play.id,
+                progress: play.progress,
+                showId: show.showId
+              })
+              return play.episode.id
+            })
           })
-          return episode.id
-        }),
-        likes: likes.map(({ id, episode }) => {
-          const podcastStore = self.root.podcastStore
-          podcastStore.addEpisode({
-            id: episode.id,
-            likeId: id,
-            showId: episode.show[0].showId
-          })
-          return episode.id
+          return addedShow.id
         }),
         playlists: playlists.map(({ id, name, episodes }) => {
-          const playlistStore = self.root.playlistStore
-          playlistStore.addPlaylist({
+          self.root.playlistStore.addPlaylist({
             id,
             name,
             episodes: episodes.map(ep => ep.id)
@@ -93,32 +90,6 @@ export const UserStore = types
       }
 
       self.currentUser = User.create(userInfo)
-
-      if (history.length > 0 || likes.length > 0) {
-        const userHistory = yield self.root.apolloStore.userHistory
-        const { userHistoryEpisodes, userHistoryShows } = userHistory.data
-
-        userHistoryShows.forEach(({ showId, title, thumbLarge, id }) => {
-          self.root.podcastStore.addShow({
-            id: showId,
-            title: decodeURI(title),
-            thumbLarge,
-            graphcoolShowId: id
-          })
-        })
-        userHistoryEpisodes.forEach(episode => {
-          const podcastStore = self.root.podcastStore
-          const show = episode.show[0]
-          const storeEpisode = podcastStore.episodes.get(episode.id)
-          return podcastStore.addEpisode({
-            id: episode.id,
-            title: episode.title,
-            src: episode.src,
-            showId: show.showId,
-            description: episode.description
-          })
-        })
-      }
     }),
     async readFromLocalStorage() {
       const token = await AsyncStorage.getItem('graphcoolToken')
@@ -140,8 +111,15 @@ export const UserStore = types
       self.setCurrentUser(userHistory.data)
       return graphcoolResponse
     },
-    updateHistory(id) {
-      self.currentUser.history.push(id)
+    updateHistory({ showId, id }) {
+      const show = self.root.podcastStore.shows.get(showId)
+      if (!self.currentUser.history.find(ep => ep.id === showId)) {
+        self.currentUser.history.push(showId)
+        show.updateHistory(id)
+      }
+      if (show.history && !show.history.find(ep => ep.id === id)) {
+        show.updateHistory(id)
+      }
     },
     updatePlaylists(id) {
       self.currentUser.playlists.push(id)

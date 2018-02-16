@@ -4,7 +4,7 @@ import { observable, computed, action } from 'mobx'
 import { observer, inject } from 'mobx-react'
 
 export const PodcastEpisodeComposer = Episode =>
-  @inject('navigationStore', 'playlistStore', 'podcastStore', 'apolloStore')
+  @inject('playerStore', 'playlistStore', 'podcastStore', 'apolloStore')
   @observer
   class EnhancedEpisode extends React.Component {
     @computed
@@ -19,7 +19,7 @@ export const PodcastEpisodeComposer = Episode =>
     }
 
     render() {
-      const { navigationStore, apolloStore } = this.props
+      const { playerStore, apolloStore } = this.props
       const {
         title,
         progress,
@@ -35,8 +35,7 @@ export const PodcastEpisodeComposer = Episode =>
           id={id}
           progress={progress > 0 && progress}
           duration={duration}
-          setCurrentPlaying={() =>
-            navigationStore.setCurrentPlaying(this.episode.id)}
+          setCurrentPlaying={() => playerStore.setCurrentPlaying(this.episode)}
           liked={likeId}
           likeApi={() => toggleLiked(likeId)}
           playlistApi={this.addToPlaylist}
@@ -58,10 +57,7 @@ export const PodcastShowComposer = Show =>
     @computed
     get episodes() {
       const { episodes, podcastStore, showId } = this.props
-
-      return episodes
-        ? episodes.map(ep => podcastStore.episodes.get(ep))
-        : this.show && this.show.episodes
+      return episodes ? episodes : this.show && this.show.episodes
     }
 
     componentDidMount() {

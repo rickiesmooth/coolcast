@@ -12,11 +12,10 @@ const AudioContainerComposer = Player =>
   @observer
   class AudioContainer extends React.Component {
     disposer = reaction(
-      () => this.props.navigationStore.episodePlaying,
+      () => this.props.playerStore.currentPlaying,
       episode => {
-        !this.currentlyPlaying.sessionId && this.currentlyPlaying.getSessionId()
-        console.log('✨this.currentlyPlaying', this.currentlyPlaying)
-        this.props._loadNewPlaybackInstance(this.currentlyPlaying)
+        episode.getSessionId()
+        this.props._loadNewPlaybackInstance(episode)
       }
     )
 
@@ -26,12 +25,12 @@ const AudioContainerComposer = Player =>
 
     @computed
     get show() {
-      return this.props.podcastStore.shows.get(this.currentlyPlaying.showId)
+      return this.props.podcastStore.shows.get(this.currentPlaying.showId)
     }
 
     @computed
-    get currentlyPlaying() {
-      return this.props.podcastStore.root.currentlyPlaying
+    get currentPlaying() {
+      return this.props.playerStore.currentPlaying
     }
 
     render() {
@@ -44,11 +43,11 @@ const AudioContainerComposer = Player =>
         root
       } = this.props.playerStore
       const { playbackInstanceDuration, isLoading, isPlaying } = state
-      const currentlyPlaying = root.currentlyPlaying
-      return currentlyPlaying ? (
+      const currentPlaying = this.currentPlaying
+      return currentPlaying ? (
         <Player
           artist={this.show.title}
-          title={decodeURI(currentlyPlaying.title)}
+          title={decodeURI(currentPlaying.title)}
           progress={progressPercentage}
           duration={playbackInstanceDuration}
           isLoading={isLoading}

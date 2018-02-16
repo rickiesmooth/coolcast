@@ -5,7 +5,6 @@ type User {
   updatedAt: DateTime!
 
   facebookUserId: String! @unique
-
   email: String!
 
 }
@@ -24,7 +23,6 @@ type Episode {
   date: DateTime!
   description: String!
   src: String!
-  ha: String!
   plays: [PodcastPlay!]!
   show: [Show!]!
 }

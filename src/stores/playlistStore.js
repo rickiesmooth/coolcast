@@ -21,6 +21,7 @@ export const PlaylistStore = types
     const removePlaylist = id => {
       const playlist = self.playlists.get(id)
       self.root.apolloStore.removePlaylist(id)
+      console.log('✨playlist', playlist)
       return destroy(playlist)
     }
     const addToPlaylist = (playlistId, episodeId) => {
@@ -30,7 +31,7 @@ export const PlaylistStore = types
       playlist.episodes.push(episodeId)
       return playlist
     }
-    const addPlaylist = flow(function*({ id, name, episodes }) {
+    const addPlaylist = flow(function*({ id, name, episodes = [] }) {
       console.log('✨episodes', episodes)
       if (!id) {
         const response = yield self.root.apolloStore.addPlaylist({ name })

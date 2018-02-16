@@ -8,7 +8,6 @@ export const Episode = types
     src: types.maybe(types.string),
     progress: types.maybe(types.number),
     showId: types.maybe(types.string),
-    likeId: types.maybe(types.string),
     duration: types.maybe(types.number),
     sessionId: types.maybe(types.string)
   })
@@ -20,32 +19,39 @@ export const Episode = types
   .actions(self => ({
     getSessionId: flow(function* getSessionId() {
       const { userStore, apolloStore } = self.root
-      const response = yield apolloStore.createPodcastPlay(self.id)
-      self.sessionId = response.data.addPlay.id
-      userStore.updateHistory(self.id)
-      console.log('✨calling getSessionId', self.sessionId)
-    }),
-    toggleLiked: flow(function*(likeId) {
-      const id = yield self.root.apolloStore.updateLike(self.id, likeId)
-      if (self.likeId) {
-        self.likeId = null
-      } else {
-        self.likeId = id.data.updateLike.id
-      }
+      const show = self.root.podcastStore.shows.get(self.showId)
+      console.log('✨self.sessionId', self.sessionId)
+      const response = yield apolloStore.createPodcastPlay({
+        episodeId: self.id,
+        showId: show.graphcoolShowId,
+        sessionId: self.sessionId
+      })
+      console.log('✨response', response)
+      const { id, episode } = response.data.addPlay
+      self.sessionId = id
+      self.src = episode.src
+      userStore.updateHistory(self)
     }),
     setProgress(progress) {
       self.progress = progress
     }
   }))
 
-export const Show = types.model('Show', {
-  id: types.identifier(),
-  title: types.maybe(types.string),
-  thumbLarge: types.maybe(types.string),
-  graphcoolShowId: types.maybe(types.string),
-  episodes: types.maybe(types.array(types.reference(Episode)))
-})
-
+export const Show = types
+  .model('Show', {
+    id: types.identifier(),
+    title: types.maybe(types.string),
+    thumbLarge: types.maybe(types.string),
+    graphcoolShowId: types.maybe(types.string),
+    episodes: types.maybe(types.array(types.reference(Episode))),
+    history: types.maybe(types.array(types.reference(Episode)))
+  })
+  .actions(self => ({
+    updateHistory(episode) {
+      !self.history ? (self.history = [episode]) : self.history.push(episode)
+    }
+  }))
+const getting = []
 export const PodcastStore = types
   .model('PodcastStore', {
     isLoading: true,
@@ -82,9 +88,11 @@ export const PodcastStore = types
     }
     const getShow = flow(function*(showId) {
       const result = self.shows.get(showId)
-      if (!result) {
+      if (!result && !getting.find(id => id === showId)) {
+        getting.push(showId)
+        console.log(`✨no result ${showId}`)
         const response = yield self.root.apolloStore.getGraphCoolShow(showId)
-        console.log('✨result', response)
+        console.log('✨response', response)
         const { episodes, id, title, thumbLarge } = response.data.getPodcast
         self.shows.put({
           id: showId,
@@ -96,7 +104,6 @@ export const PodcastStore = types
               showId,
               id: ep.id,
               title: decodeURI(ep.title),
-              src: ep.src,
               description: decodeURI(ep.description)
             })
             return ep.id
@@ -107,7 +114,7 @@ export const PodcastStore = types
     })
     const getEpisodes = flow(function* getEpisodes(show) {
       const episodes = yield self.root.apolloStore
-        .getEpisodes(show.graphcoolShowId)
+        .getEpisodes(show.id)
         .then(res => res.data.shows[0].episodes)
       show.episodes = episodes.map(ep => {
         const { id, title, src, description } = ep
@@ -115,12 +122,11 @@ export const PodcastStore = types
           showId: show.id,
           id,
           title,
-          src,
           description
         })
         return episode.id
       })
-
+      console.log('✨show.episodes', show.episodes)
       return show.episodes
     })
 
@@ -131,3 +137,5 @@ export const PodcastStore = types
       getEpisodes
     }
   })
+
+//cjdn61i3n3qgi01581r833mbz

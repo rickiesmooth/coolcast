@@ -16,12 +16,6 @@ export const ApolloStore = types
         query: LOGGED_IN_USER,
         fetchPolicy: 'network-only'
       })
-    },
-    get userHistory() {
-      return client.query({
-        query: USER_HISTORY,
-        fetchPolicy: 'network-only'
-      })
     }
   }))
   .actions(self => ({
@@ -36,7 +30,7 @@ export const ApolloStore = types
         variables: { playlistId, episodeId }
       }),
     getGraphCoolShow: async key => {
-      console.log('✨key', key)
+      console.log('✨getGraphCoolShow key', key)
       return client.mutate({
         mutation: GET_PODCAST,
         variables: {
@@ -54,16 +48,18 @@ export const ApolloStore = types
         mutation: REMOVE_PLAYLIST,
         variables: { id }
       }),
-    createPodcastPlay: episodeId =>
+    createPodcastPlay: ({ episodeId, showId, sessionId }) =>
       client.mutate({
         mutation: CREATE_PLAY,
-        variables: { episodeId }
+        variables: { episodeId, showId, sessionId }
       }),
-    updatePodcastPlay: (progress, sessionId) =>
-      client.mutate({
+    updatePodcastPlay: (progress, sessionId) => {
+      console.log('✨progress, sessionId', progress, sessionId)
+      return client.mutate({
         mutation: UPDATE_PLAY,
         variables: { sessionId, progress }
-      }),
+      })
+    },
     updateLike: (episodeId, likeId) =>
       client.mutate({
         mutation: UPDATE_LIKE,
@@ -75,7 +71,7 @@ export const ApolloStore = types
         variables: { facebookToken }
       })
   }))
-
+// ;('cjdn4owjt3k0w0158r6ccg4l7')
 const LOGGED_IN_USER = gql`
   query {
     me {
@@ -83,15 +79,6 @@ const LOGGED_IN_USER = gql`
       email
       fbid
       name
-      likes {
-        id
-        episode {
-          id
-          show {
-            showId
-          }
-        }
-      }
       playlists {
         id
         name
@@ -100,33 +87,22 @@ const LOGGED_IN_USER = gql`
         }
       }
       history {
-        id
-        progress
-        episode {
-          id
+        shows {
           show {
+            id
+            title
+            thumbLarge
             showId
           }
+          plays {
+            id
+            progress
+            episode {
+              id
+              title
+            }
+          }
         }
-      }
-    }
-  }
-`
-
-const USER_HISTORY = gql`
-  query {
-    userHistoryShows {
-      showId
-      title
-      thumbLarge
-      id
-    }
-    userHistoryEpisodes {
-      id
-      title
-      src
-      show {
-        showId
       }
     }
   }
@@ -141,14 +117,10 @@ const GET_PODCAST = gql`
       episodes {
         id
         title
-        src
       }
     }
   }
 `
-
-// graphcoolPodcastId
-// newPodcast
 
 const SHOW_EPISODES = gql`
   query GetPodcast($id: ID!) {
@@ -159,7 +131,6 @@ const SHOW_EPISODES = gql`
       episodes {
         id
         title
-        src
       }
     }
   }
@@ -188,10 +159,14 @@ REMOVE_PLAYLIST = gql`
 `
 
 const CREATE_PLAY = gql`
-  mutation CreatePodcastPlay($episodeId: ID!) {
-    addPlay(episodeId: $episodeId) {
+  mutation CreatePodcastPlay($episodeId: ID!, $showId: ID!, $sessionId: ID) {
+    addPlay(episodeId: $episodeId, showId: $showId, sessionId: $sessionId) {
       id
       progress
+      episode {
+        id
+        src
+      }
     }
   }
 `

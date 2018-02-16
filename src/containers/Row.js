@@ -27,7 +27,7 @@ export const HistoryRowComposer = HistoryRow =>
     }
   }
 
-export const PlaylistRowComposer = HistoryRow =>
+export const PlaylistRowComposer = PlaylistRow =>
   @inject('playlistStore', 'userStore')
   @observer
   class Enhanced extends React.Component {
@@ -40,18 +40,13 @@ export const PlaylistRowComposer = HistoryRow =>
       return this.props.playlistStore.playlists.values()
     }
 
-    openModal() {
-      this.setState({ modalVisible: true })
-    }
-
     render() {
-      console.log('✨this.hasPlaylists', this.hasPlaylists)
       return (
-        <HistoryRow
+        <PlaylistRow
           {...this.props}
           hasPlaylists={this.hasPlaylists}
           title={'Continue listenling'}
-          playlists={this.hasPlaylists && this.playlists}
+          playlists={this.playlists}
         />
       )
     }

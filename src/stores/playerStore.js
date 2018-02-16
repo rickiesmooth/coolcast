@@ -1,4 +1,5 @@
-import { types, getRoot } from 'mobx-state-tree'
+import { types, getRoot, flow } from 'mobx-state-tree'
+import { Episode } from './podcastStore'
 
 const PlaybackState = types.model({
   playbackInstancePosition: types.number,
@@ -15,7 +16,8 @@ export const PlayerStore = types
   .model({
     isSeeking: false,
     shouldPlayAtendOfSeek: false,
-    state: PlaybackState
+    state: PlaybackState,
+    currentPlaying: types.maybe(types.reference(Episode))
   })
   .views(self => ({
     get root() {
@@ -36,6 +38,30 @@ export const PlayerStore = types
     // }
   }))
   .actions(self => ({
+    setCurrentPlaying: flow(function*(props) {
+      const { id, showId, sessionId, src } = props
+      const { userStore, apolloStore, podcastStore } = self.root
+      if (!sessionId || !src) {
+        console.log('✨props', props)
+        const show = self.root.podcastStore.shows.get(showId)
+        // console.log('✨self.sessionId', sessionId)
+        const response = yield apolloStore.createPodcastPlay({
+          episodeId: id,
+          showId: show.graphcoolShowId,
+          sessionId: sessionId
+        })
+        console.log('✨id', response.data.addPlay.episode.id, id)
+        podcastStore.addEpisode({
+          id: id,
+          src: response.data.addPlay.episode.src,
+          sessionId: response.data.addPlay.id
+        })
+      }
+      // self.sessionId = id
+      // self.src = episode.src
+      // userStore.updateHistory(props)
+      self.currentPlaying = id
+    }),
     onPlayPausePressed() {
       if (self.playbackInstance != null) {
         if (self.state.isPlaying) {
@@ -73,9 +99,9 @@ export const PlayerStore = types
       }
     },
     sendProgress: throttle(progress => {
-      const { currentlyPlaying, apolloStore } = self.root
-      if (currentlyPlaying) {
-        apolloStore.updatePodcastPlay(progress, currentlyPlaying.sessionId)
+      const { apolloStore } = self.root
+      if (self.currentPlaying && self.currentPlaying.sessionId) {
+        apolloStore.updatePodcastPlay(progress, self.currentPlaying.sessionId)
       }
     }, 10e3),
     onPlaybackStatusUpdate(status) {
@@ -91,7 +117,8 @@ export const PlayerStore = types
           volume: status.volume
         }
         const progressPercentage = self.progressPercentage
-        self.root.currentlyPlaying.setProgress(progressPercentage)
+
+        self.currentPlaying.setProgress(progressPercentage)
         self.sendProgress(progressPercentage)
         if (status.didJustFinish) {
           self.playbackInstance.stopAsync()

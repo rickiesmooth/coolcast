@@ -5,6 +5,7 @@ import {
   TextInput,
   Platform,
   Image,
+  TouchableOpacity,
   Text
 } from 'react-native'
 import { computed, action, when } from 'mobx'
@@ -71,18 +72,21 @@ const SearchInputWithResults = props => {
 const ListItem = props => {
   const { podcast, setCurrentPodcast } = props
   return (
-    <Link to={`/podcast/${podcast.id}`}>
-      <View style={styles.container}>
-        <Image style={styles.image} source={{ uri: podcast.thumb }} />
-        <Title
-          text={podcast.title}
-          size={'small'}
-          style={{
-            color: 'black'
-          }}
-        />
-      </View>
-    </Link>
+    // @TODO fix navigation
+    <TouchableOpacity onPress={() => setCurrentPodcast(podcast)}>
+      <Link to={`/podcast/${podcast.id}`}>
+        <View style={styles.container}>
+          <Image style={styles.image} source={{ uri: podcast.thumb }} />
+          <Title
+            text={podcast.title}
+            size={'small'}
+            style={{
+              color: 'black'
+            }}
+          />
+        </View>
+      </Link>
+    </TouchableOpacity>
   )
 }
 

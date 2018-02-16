@@ -1,7 +1,7 @@
 import React from 'react'
 import { View, StyleSheet, Platform } from 'react-native'
 const IS_IOS = Platform.OS === 'ios'
-console.log('✨Platform', IS_IOS)
+
 export const Container = ({ style, children }) => (
   <View style={[styles.Container, style]}>{children}</View>
 )

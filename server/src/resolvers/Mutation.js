@@ -11,7 +11,6 @@ function getPrismaUser(ctx, fbid) {
 }
 
 async function createPrismaUser(ctx, facebookUser) {
-  console.log('✨facebookUser', facebookUser)
   const user = await ctx.db.mutation.createUser({
     data: {
       fbid: facebookUser.id,
@@ -19,6 +18,14 @@ async function createPrismaUser(ctx, facebookUser) {
       name: facebookUser.name
     }
   })
+
+  ctx.db.mutation.createUserHistory({
+    data: {
+      user: { connect: { id: user.id } },
+      shows: []
+    }
+  })
+
   return user
 }
 
@@ -58,7 +65,7 @@ async function getPodcast(parent, { showId }, ctx, info) {
       .fetch(`${GET_FEED_URL}?url=${results[0].feedUrl}`)
       .then(res => res.json())
       .catch(error => console.error('Error:', error))
-    console.log('✨episodes', episodes)
+    console.log('✨episodes', episodes.length)
     return ctx.db.mutation.createShow(
       {
         data: {
@@ -72,14 +79,22 @@ async function getPodcast(parent, { showId }, ctx, info) {
       },
       info
     )
+  } else if (show.episodes.length < 1) {
+    console.log('✨ no episodes?????')
   } else {
     return show
   }
 }
 
-function addPlay(parent, { episodeId }, ctx, info) {
+async function addPlay(parent, { episodeId, showId, sessionId }, ctx, info) {
   const userId = getUserId(ctx)
-  return ctx.db.mutation.createPodcastPlay(
+
+  if (sessionId) {
+    // for src
+    return ctx.db.query.podcastPlay({ where: { id: sessionId } }, info)
+  }
+
+  const play = await ctx.db.mutation.createPodcastPlay(
     {
       data: {
         user: { connect: { id: userId } },
@@ -88,6 +103,42 @@ function addPlay(parent, { episodeId }, ctx, info) {
     },
     info
   )
+
+  const user = await ctx.db.query.user(
+    { where: { id: userId } },
+    '{ history {id shows {id show {id}}} }'
+  )
+  const inHistory = user.history.shows.find(e => e.show.id === showId)
+
+  if (!inHistory) {
+    // not in history
+    ctx.db.mutation.updateUserHistory(
+      {
+        where: { id: user.history.id },
+        data: {
+          shows: {
+            create: {
+              show: { connect: { id: showId } },
+              plays: { connect: { id: play.id } }
+            }
+          }
+        }
+      },
+      info
+    )
+  } else {
+    ctx.db.mutation.updateUserHistoryShow(
+      {
+        where: { id: inHistory.id },
+        data: {
+          plays: { connect: { id: play.id } }
+        }
+      },
+      info
+    )
+    // update userhistory show
+  }
+  return play
 }
 
 function addPlaylist(parent, { name }, ctx, info) {
@@ -133,31 +184,9 @@ function updatePlaylist(parent, { playlistId, episodeId }, ctx, info) {
   )
 }
 
-async function updateLike(parent, { episodeId, likeId }, ctx, info) {
-  const userId = getUserId(ctx)
-  console.log('✨userId, episodeId', likeId)
-  if (likeId) {
-    return ctx.db.mutation.deletePodcastLike(
-      { where: { id: likeId } },
-      '{ id }'
-    )
-  } else {
-    return ctx.db.mutation.createPodcastLike(
-      {
-        data: {
-          user: { connect: { id: userId } },
-          episode: { connect: { id: episodeId } }
-        }
-      },
-      info
-    )
-  }
-}
-
 module.exports = {
   authenticate,
   getPodcast,
-  updateLike,
   addPlay,
   addPlaylist,
   updatePlaylist,
