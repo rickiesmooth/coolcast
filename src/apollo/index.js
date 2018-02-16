@@ -3,11 +3,10 @@ import { ApolloClient, HttpLink, InMemoryCache } from 'apollo-client-preset'
 import { setContext } from 'apollo-link-context'
 import { ApolloLink } from 'apollo-link'
 
-const DEPLOYED = 'https://api.graph.cool/simple/v1/cj9pp24d42jst0145fvha64ct'
+const URL = process.env.SERVER_URL || 'http://localhost:4000'
 
 const httpLink = new HttpLink({
-  // uri: 'https://hackernews-graphql-js-vfniydlffh.now.sh'
-  uri: 'http://localhost:4000'
+  uri: URL
 })
 
 const authLink = setContext(async (req, { headers }) => {
