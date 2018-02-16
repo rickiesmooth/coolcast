@@ -4,9 +4,9 @@ import { setContext } from 'apollo-link-context'
 import { ApolloLink } from 'apollo-link'
 
 const URL =
-  process.env.SERVER_URL || 'https://hackernews-graphql-js-bdakwrikmg.now.sh'
+  process.env.SERVER_URL || 'https://hackernews-graphql-js-joxjdduyog.now.sh'
 
-console.log('✨URL', URL)
+console.log('✨URL', process.env.SERVER_URL, URL)
 
 const httpLink = new HttpLink({
   uri: URL
