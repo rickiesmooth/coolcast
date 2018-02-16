@@ -150,7 +150,7 @@ const UPDATE_PLAYLIST = gql`
   }
 `
 
-REMOVE_PLAYLIST = gql`
+const REMOVE_PLAYLIST = gql`
   mutation RemovePlaylist($id: ID!) {
     removePlaylist(id: $id) {
       id
