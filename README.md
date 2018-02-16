@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/rickiesmooth/coolcast.svg?branch=master)](https://travis-ci.org/rickiesmooth/coolcast)
+
 Repo for personal podcast project using React Native in combination with React Native Web. Using Gitlab for CD (after PR merged it deploys it to firebase) and will be available on https://coolcast.ricksm.it. Deployment to Apple's Testflight is manual after ejecting.
 
 *I'm currently in the process of refactoring the backend so the deployed version will not work at the moment*
@@ -47,4 +49,3 @@ This will start the process of "ejecting" from Create React Native App's build s
 #### `npm run watch-web`
 
 This will start webpack and bundles the javascript for web and it will reload if you save edits to your files.
-
