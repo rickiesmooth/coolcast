@@ -43,7 +43,7 @@ export const PlaylistStore = types
         const response = yield self.root.apolloStore.addPlaylist({ name })
         const playlistId = response.data.addPlaylist.id
         self.playlists.put({ id: playlistId, author, name, episodes })
-        self.root.userStore.updatePlaylists(playlistId)
+        // self.root.userStore.updatePlaylists(playlistId)
       } else {
         console.log('✨add id', id)
         self.playlists.put({ id, name, episodes, author })
