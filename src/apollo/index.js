@@ -4,12 +4,12 @@ import { setContext } from 'apollo-link-context'
 import { ApolloLink } from 'apollo-link'
 
 const URL =
-  process.env.SERVER_URL || 'https://hackernews-graphql-js-joxjdduyog.now.sh'
+  process.env.SERVER_URL || 'https://hackernews-graphql-js-wypfehbtjp.now.sh'
 
 console.log('✨URL', process.env.SERVER_URL, URL)
 
 const httpLink = new HttpLink({
-  uri: URL
+  uri: 'https://hackernews-graphql-js-wypfehbtjp.now.sh'
 })
 
 const authLink = setContext(async (req, { headers }) => {

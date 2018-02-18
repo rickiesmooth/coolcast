@@ -61,7 +61,6 @@ export const HistoryRow = HistoryRowComposer(HistoryComponent)
 
 const PlaylistComponent = props => {
   const { hasPlaylists, title, playlists, createPlaylist, horizontal } = props
-  console.log('✨playlists', playlists)
   return hasPlaylists ? (
     <View
       style={[
@@ -91,10 +90,12 @@ const PlaylistComponent = props => {
           </Container>
         )}
         renderItem={({ item, index }) => {
+          console.log('✨item', item)
           return (
             <PlaylistItem
               name={item.name}
               id={item.id}
+              author={item.author}
               episodes={item.episodes}
               style={[
                 horizontal ? styles.horizontalItem : styles.verticalItem,

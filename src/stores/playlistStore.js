@@ -1,20 +1,26 @@
 import { types, getParent, flow, getRoot, destroy } from 'mobx-state-tree'
 import { Episode } from './podcastStore'
+import { User } from './userStore'
+
+console.log('✨User', User)
+
 export const Playlist = types.model('Playlist', {
   id: types.identifier(),
   name: types.string,
+  author: types.reference(User),
   episodes: types.maybe(types.array(types.reference(Episode)))
 })
 
 export const PlaylistStore = types
   .model('PlaylistStore', {
-    creatingPlaylist: false,
-    addingToPlaylist: false,
     playlists: types.map(Playlist)
   })
   .views(self => ({
     get root() {
       return getRoot(self)
+    },
+    get hasPlaylists() {
+      return self.playlists && self.playlists.values().length > 0
     }
   }))
   .actions(self => {
@@ -31,16 +37,16 @@ export const PlaylistStore = types
       playlist.episodes.push(episodeId)
       return playlist
     }
-    const addPlaylist = flow(function*({ id, name, episodes = [] }) {
-      console.log('✨episodes', episodes)
+    const addPlaylist = flow(function*({ id, author, name, episodes = [] }) {
+      console.log('✨episodes', author)
       if (!id) {
         const response = yield self.root.apolloStore.addPlaylist({ name })
         const playlistId = response.data.addPlaylist.id
-        self.playlists.put({ id: playlistId, name, episodes })
+        self.playlists.put({ id: playlistId, author, name, episodes })
         self.root.userStore.updatePlaylists(playlistId)
       } else {
         console.log('✨add id', id)
-        self.playlists.put({ id, name, episodes })
+        self.playlists.put({ id, name, episodes, author })
       }
     })
 

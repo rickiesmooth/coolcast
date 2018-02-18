@@ -1,11 +1,11 @@
 import { types, getEnv } from 'mobx-state-tree'
 import { PodcastStore } from './podcastStore'
 import { PlayerStore } from './playerStore'
+import { PlaylistStore } from './playlistStore'
 import { UserStore } from './userStore'
 import { NavigationStore } from './navigationStore'
 import { ApolloStore } from './apolloStore'
 import { SearchStore } from './searchStore'
-import { PlaylistStore } from './playlistStore'
 
 const RootStore = types
   .model('RootStore', {

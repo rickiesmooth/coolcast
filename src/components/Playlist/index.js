@@ -10,12 +10,12 @@ import {
   View,
   StyleSheet,
   Image,
-  Button,
   ActivityIndicator
 } from 'react-native'
 import { FlatList, Modal } from '../../utils'
 import { Link } from '../../navigation'
 import { Title } from '../Text'
+import { Button } from '../Buttons'
 import { ItemHeaderContainer } from '../Views'
 import {
   PlaylistItemComposer,
@@ -30,7 +30,17 @@ const RemovePlaylistButton = ({ playlistId, removePlaylistApi }) => {
 }
 
 const Playlist = props => {
-  const { name, removePlaylist, episodes, style, id } = props
+  const {
+    name,
+    removePlaylist,
+    editPlaylist,
+    episodes,
+    style,
+    id,
+    author,
+    editing
+  } = props
+
   return (
     <View style={[style, styles.content]}>
       <FlatList
@@ -39,16 +49,28 @@ const Playlist = props => {
         renderItem={({ item }) => <EpisodeItem episodeId={item.id} />}
         ListHeaderComponent={() => (
           <ItemHeaderContainer>
-            <Link to={`/playlist/${id}`}>
-              <Title text={name} size={'medium'} numberOfLines={1} />
-            </Link>
+            <View>
+              <Link to={`/playlist/${id}`}>
+                <Title text={name} size={'medium'} numberOfLines={1} />
+              </Link>
+              <Link to={`/user/${author.id}`}>{author.name}</Link>
+            </View>
+            <Button
+              title={editing ? 'Done' : 'Edit'}
+              onPress={editPlaylist}
+              style={{
+                marginLeft: 'auto'
+              }}
+            />
           </ItemHeaderContainer>
         )}
       />
-      <RemovePlaylistButton
-        playlistId={id}
-        removePlaylistApi={removePlaylist}
-      />
+      {editing && (
+        <RemovePlaylistButton
+          playlistId={id}
+          removePlaylistApi={removePlaylist}
+        />
+      )}
     </View>
   )
 }

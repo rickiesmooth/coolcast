@@ -22,7 +22,7 @@ export default class PodcastScreen extends React.Component {
       return WEB ? (
         <ShowItem showId={this.navigationKey} />
       ) : (
-        <Header title={currentShow.title}>
+        <Header title={currentShow ? currentShow.title : ''}>
           <ShowItem showId={this.navigationKey} />
         </Header>
       )

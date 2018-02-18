@@ -106,9 +106,9 @@ async function addPlay(parent, { episodeId, showId, sessionId }, ctx, info) {
 
   const user = await ctx.db.query.user(
     { where: { id: userId } },
-    '{ history {id shows {id show {id}}} }'
+    '{ history { id shows { id show { showId } } } }'
   )
-  const inHistory = user.history.shows.find(e => e.show.id === showId)
+  const inHistory = user.history.shows.find(e => e.show.showId === showId)
 
   if (!inHistory) {
     // not in history
@@ -118,7 +118,7 @@ async function addPlay(parent, { episodeId, showId, sessionId }, ctx, info) {
         data: {
           shows: {
             create: {
-              show: { connect: { id: showId } },
+              show: { connect: { showId: showId } },
               plays: { connect: { id: play.id } }
             }
           }

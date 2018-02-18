@@ -84,6 +84,10 @@ const LOGGED_IN_USER = gql`
         name
         episodes {
           id
+          title
+          show {
+            showId
+          }
         }
       }
       history {
@@ -159,7 +163,11 @@ const REMOVE_PLAYLIST = gql`
 `
 
 const CREATE_PLAY = gql`
-  mutation CreatePodcastPlay($episodeId: ID!, $showId: ID!, $sessionId: ID) {
+  mutation CreatePodcastPlay(
+    $episodeId: ID!
+    $showId: String!
+    $sessionId: ID
+  ) {
     addPlay(episodeId: $episodeId, showId: $showId, sessionId: $sessionId) {
       id
       progress

@@ -36,7 +36,7 @@ export default class Profile extends React.Component {
 class LoggedInUser extends React.Component {
   render() {
     const { logout, currentUser } = this.props
-    const { email, fbid } = currentUser
+    const { email, fbid, name } = currentUser
 
     return (
       <View style={styles.container}>
@@ -46,6 +46,7 @@ class LoggedInUser extends React.Component {
             uri: `https://graph.facebook.com/${fbid}/picture?type=large`
           }}
         />
+        <Text>{name}</Text>
         <Text>{email}</Text>
         <Button title={'Logout'} onPress={logout} />
       </View>
@@ -63,8 +64,6 @@ const styles = StyleSheet.create({
   thumb: {
     height: 100,
     width: 100,
-    borderRadius: 50,
-    borderWidth: 1,
-    borderColor: 'blue'
+    borderRadius: 50
   }
 })

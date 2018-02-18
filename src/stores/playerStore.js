@@ -41,25 +41,21 @@ export const PlayerStore = types
     setCurrentPlaying: flow(function*(props) {
       const { id, showId, sessionId, src } = props
       const { userStore, apolloStore, podcastStore } = self.root
+
       if (!sessionId || !src) {
-        console.log('✨props', props)
-        const show = self.root.podcastStore.shows.get(showId)
-        // console.log('✨self.sessionId', sessionId)
         const response = yield apolloStore.createPodcastPlay({
           episodeId: id,
-          showId: show.graphcoolShowId,
+          showId,
           sessionId: sessionId
         })
-        console.log('✨id', response.data.addPlay.episode.id, id)
         podcastStore.addEpisode({
           id: id,
           src: response.data.addPlay.episode.src,
           sessionId: response.data.addPlay.id
         })
       }
-      // self.sessionId = id
-      // self.src = episode.src
-      // userStore.updateHistory(props)
+      userStore.updateHistory(props)
+      console.log('✨id', id)
       self.currentPlaying = id
     }),
     onPlayPausePressed() {
@@ -117,7 +113,7 @@ export const PlayerStore = types
           volume: status.volume
         }
         const progressPercentage = self.progressPercentage
-
+        // console.log('✨self.curre', self)
         self.currentPlaying.setProgress(progressPercentage)
         self.sendProgress(progressPercentage)
         if (status.didJustFinish) {

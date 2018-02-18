@@ -17,21 +17,20 @@ export const Episode = types
     }
   }))
   .actions(self => ({
-    getSessionId: flow(function* getSessionId() {
-      const { userStore, apolloStore } = self.root
-      const show = self.root.podcastStore.shows.get(self.showId)
-      console.log('✨self.sessionId', self.sessionId)
-      const response = yield apolloStore.createPodcastPlay({
-        episodeId: self.id,
-        showId: show.graphcoolShowId,
-        sessionId: self.sessionId
-      })
-      console.log('✨response', response)
-      const { id, episode } = response.data.addPlay
-      self.sessionId = id
-      self.src = episode.src
-      userStore.updateHistory(self)
-    }),
+    // getSessionId: flow(function* getSessionId() {
+    //   const { userStore, apolloStore } = self.root
+    //   const show = self.root.podcastStore.shows.get(self.showId)
+    //   const response = yield apolloStore.createPodcastPlay({
+    //     episodeId: self.id,
+    //     showId: show.id,
+    //     sessionId: self.sessionId
+    //   })
+    //   console.log('✨response', response)
+    //   const { id, episode } = response.data.addPlay
+    //   self.sessionId = id
+    //   self.src = episode.src
+    //   userStore.updateHistory(self)
+    // }),
     setProgress(progress) {
       self.progress = progress
     }
@@ -92,7 +91,6 @@ export const PodcastStore = types
         getting.push(showId)
         console.log(`✨no result ${showId}`)
         const response = yield self.root.apolloStore.getGraphCoolShow(showId)
-        console.log('✨response', response)
         const { episodes, id, title, thumbLarge } = response.data.getPodcast
         self.shows.put({
           id: showId,

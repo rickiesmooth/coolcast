@@ -8,15 +8,14 @@ import {
   flow
 } from 'mobx-state-tree'
 import { Show, Episode } from './podcastStore'
-import { Playlist } from './playlistStore'
 import { AsyncStorage } from 'react-native'
 
 export const User = types.model('User', {
   id: types.identifier(),
   email: types.string,
+  name: types.string,
   fbid: types.string,
-  history: types.maybe(types.array(types.reference(Show))),
-  playlists: types.maybe(types.array(types.reference(Playlist)))
+  history: types.maybe(types.array(types.reference(Show)))
 })
 
 export const UserStore = types
@@ -28,18 +27,10 @@ export const UserStore = types
       return getRoot(self)
     },
     get hasHistory() {
-      console.log('✨checking')
       return (
         self.currentUser &&
         self.currentUser.history &&
         self.currentUser.history.length > 0
-      )
-    },
-    get hasPlaylists() {
-      return (
-        self.currentUser &&
-        self.currentUser.playlists &&
-        self.currentUser.playlists.length > 0
       )
     },
     get userHistory() {
@@ -53,6 +44,7 @@ export const UserStore = types
   .actions(self => ({
     setCurrentUser: flow(function*({ me }) {
       const { id, email, fbid, name, history, playlists } = me
+      console.log('✨name', name)
       const podcastStore = self.root.podcastStore
       const userInfo = {
         id,
@@ -66,7 +58,6 @@ export const UserStore = types
             thumbLarge: show.thumbLarge,
             graphcoolShowId: show.id,
             history: plays.map(play => {
-              console.log('✨play.id', play.id)
               self.root.podcastStore.addEpisode({
                 id: play.episode.id,
                 title: play.episode.title,
@@ -83,7 +74,15 @@ export const UserStore = types
           self.root.playlistStore.addPlaylist({
             id,
             name,
-            episodes: episodes.map(ep => ep.id)
+            author: me.id,
+            episodes: episodes.map(ep => {
+              self.root.podcastStore.addEpisode({
+                id: ep.id,
+                title: ep.title,
+                showId: ep.show[0].showId
+              })
+              return ep.id
+            })
           })
           return id
         })

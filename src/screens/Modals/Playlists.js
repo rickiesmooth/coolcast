@@ -16,7 +16,8 @@ export const CreatePlaylistContent = props => {
 }
 
 export const AddToPlaylistContent = props => {
-  const episodeId = props.state && props.state.episodeId
+  const { navigation, state } = props
+  const { episodeId } = state ? state : navigation.state.params
   return (
     <ModalContainer>
       <AddToPlaylist close={c(props)} episodeId={episodeId} />

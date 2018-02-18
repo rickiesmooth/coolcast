@@ -14,7 +14,8 @@ const AudioContainerComposer = Player =>
     disposer = reaction(
       () => this.props.playerStore.currentPlaying,
       episode => {
-        episode.getSessionId()
+        // episode.getSessionId()
+        console.log('✨EPI', episode.progress)
         this.props._loadNewPlaybackInstance(episode)
       }
     )
@@ -46,7 +47,7 @@ const AudioContainerComposer = Player =>
       const currentPlaying = this.currentPlaying
       return currentPlaying ? (
         <Player
-          artist={this.show.title}
+          artist={this.show ? this.show.title : ''}
           title={decodeURI(currentPlaying.title)}
           progress={progressPercentage}
           duration={playbackInstanceDuration}

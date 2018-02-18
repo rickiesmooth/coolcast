@@ -5,21 +5,40 @@ export const PlaylistItemComposer = PlaylistItem =>
   @inject('playlistStore')
   @observer
   class EnhancedPlaylistItem extends React.Component {
+    state = {
+      editing: false
+    }
+
     removePlaylist = e => {
       this.props.playlistStore.removePlaylist(this.props.id)
+    }
+
+    editPlaylist = e => {
+      this.setState({
+        editing: !this.state.editing
+      })
+    }
+
+    get editing() {
+      return this.state.editing
     }
 
     render() {
       // for rerender
       this.props.episodes.length
       return (
-        <PlaylistItem {...this.props} removePlaylist={this.removePlaylist} />
+        <PlaylistItem
+          {...this.props}
+          editPlaylist={this.editPlaylist}
+          removePlaylist={this.removePlaylist}
+          editing={this.editing}
+        />
       )
     }
   }
 
 export const CreatePlaylistComposer = CreatePlaylistComponent =>
-  @inject('playlistStore')
+  @inject('playlistStore', 'userStore')
   @observer
   class EnhancedButton extends React.Component {
     state = {
@@ -33,7 +52,8 @@ export const CreatePlaylistComposer = CreatePlaylistComponent =>
     submitPlaylist = e => {
       this.props.close(e)
       this.props.playlistStore.addPlaylist({
-        name: this.state.playlistName
+        name: this.state.playlistName,
+        author: this.props.userStore.currentUser.id
       })
     }
 
