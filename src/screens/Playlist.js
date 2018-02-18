@@ -22,6 +22,7 @@ export default class PlaylistScreen extends React.Component {
           name={playlist.name}
           id={playlist.id}
           episodes={playlist.episodes}
+          author={playlist.author}
         />
       ) : (
         <ActivityIndicator size="large" />
