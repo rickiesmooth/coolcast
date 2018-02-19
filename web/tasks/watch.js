@@ -14,6 +14,7 @@ const options = {
   historyApiFallback: {
     index: 'index.dev.html'
   },
+  host: '0.0.0.0',
   index: 'index.dev.html',
   hot: true,
   inline: true,
@@ -26,6 +27,6 @@ WebpackDevServer.addDevServerEntrypoints(dev, options)
 
 const server = new WebpackDevServer(compiler, options)
 
-server.listen(8080, '127.0.0.1', () => {
+server.listen(8080, '0.0.0.0', () => {
   console.log('Starting server on http://localhost:8080')
 })

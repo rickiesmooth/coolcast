@@ -73,20 +73,18 @@ const ListItem = props => {
   const { podcast, setCurrentPodcast } = props
   return (
     // @TODO fix navigation
-    <TouchableOpacity onPress={() => setCurrentPodcast(podcast)}>
-      <Link to={`/podcast/${podcast.id}`}>
-        <View style={styles.container}>
-          <Image style={styles.image} source={{ uri: podcast.thumb }} />
-          <Title
-            text={podcast.title}
-            size={'small'}
-            style={{
-              color: 'black'
-            }}
-          />
-        </View>
-      </Link>
-    </TouchableOpacity>
+    <Link onPress={setCurrentPodcast} to={`/podcast/${podcast.id}`}>
+      <View style={styles.container}>
+        <Image style={styles.image} source={{ uri: podcast.thumb }} />
+        <Title
+          text={podcast.title}
+          size={'small'}
+          style={{
+            color: 'black'
+          }}
+        />
+      </View>
+    </Link>
   )
 }
 
@@ -115,6 +113,7 @@ const styles = StyleSheet.create({
   },
   results: {
     backgroundColor: 'white',
+    flex: 1,
     width: '100%'
   },
   input: {
