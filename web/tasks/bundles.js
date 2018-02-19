@@ -41,7 +41,7 @@ const configureBabelLoader = browserlist => {
           ],
           'react-native'
         ],
-        plugins: ['react-native-web/babel', 'transform-decorators-legacy']
+        plugins: ['transform-decorators-legacy']
       }
     }
   }

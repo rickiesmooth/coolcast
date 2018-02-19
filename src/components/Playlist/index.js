@@ -81,13 +81,20 @@ const CreatePlaylistComponent = ({ name, create, submit, update, style }) => {
   console.log('✨style', style)
   return (
     <View style={style}>
-      <Title text={'New Playlist'} size={'large'} />
       <TextInput
         style={styles.input}
         onChangeText={update}
         placeholder={name}
       />
-      <Button onPress={submit} title={name} />
+      <Button
+        onPress={submit}
+        title={'create new playlist'}
+        style={{
+          borderWidth: 1,
+          borderRadius: 50,
+          borderColor: 'red'
+        }}
+      />
     </View>
   )
 }

@@ -52,9 +52,7 @@ const HistoryComponent = props => {
         }}
       />
     </View>
-  ) : (
-    <Button onPress={() => this.openModal()} title="Create Playlist" />
-  )
+  ) : null
 }
 
 export const HistoryRow = HistoryRowComposer(HistoryComponent)

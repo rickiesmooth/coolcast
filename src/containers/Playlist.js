@@ -62,7 +62,7 @@ export const CreatePlaylistComposer = CreatePlaylistComponent =>
       return (
         <CreatePlaylistComponent
           {...rest}
-          name={'Create Playlist'}
+          name={'Enter playlist name'}
           submit={this.submitPlaylist}
           update={this.updateName}
         />
