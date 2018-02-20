@@ -24,7 +24,9 @@ yarn install
 
 ### `npm run watch-web`
 
-This will start webpack and bundles the javascript for web and it will reload if you save edits to your files.
+Runs the web app in development mode.
+
+Open it on http://localhost:8080 or from your local IP. This will start Webpack and bundles the javascript for web and it will reload if you save edits to your files.
 
 ### `npm start`
 

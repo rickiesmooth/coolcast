@@ -140,6 +140,8 @@ const GET_PLAYLIST = gql`
       name
       user {
         id
+        name
+        fbid
       }
       episodes {
         id

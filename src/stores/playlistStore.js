@@ -5,7 +5,7 @@ import { User } from './userStore'
 export const Playlist = types.model('Playlist', {
   id: types.identifier(),
   name: types.string,
-  author: types.string,
+  author: types.reference(User),
   episodes: types.maybe(types.array(types.reference(Episode)))
 })
 
@@ -25,13 +25,15 @@ export const PlaylistStore = types
     const removePlaylist = id => {
       const playlist = self.playlists.get(id)
       self.root.apolloStore.removePlaylist(id)
-      console.log('✨playlist', playlist)
+
       return destroy(playlist)
     }
     const getPlaylist = flow(function*({ playlistId }) {
       const response = yield self.root.apolloStore.getPlaylist(playlistId)
       const { id, name, user, episodes } = response.data.playlists[0]
-
+      if (!self.root.userStore.users.get(user.id)) {
+        self.root.userStore.addUser(user)
+      }
       addPlaylist({
         id,
         name,
@@ -43,14 +45,12 @@ export const PlaylistStore = types
       })
     })
     const addToPlaylist = (playlistId, episodeId) => {
-      self.root.apolloStore.addToPlaylist(playlistId, episodeId)
       const playlist = self.playlists.get(playlistId)
-      console.log('✨playsist', playlist)
+      self.root.apolloStore.addToPlaylist(playlistId, episodeId)
       playlist.episodes.push(episodeId)
       return playlist
     }
     const addPlaylist = flow(function*({ id, author, name, episodes = [] }) {
-      console.log('✨episodes', author)
       if (!id) {
         const response = yield self.root.apolloStore.addPlaylist({ name })
         const playlistId = response.data.addPlaylist.id

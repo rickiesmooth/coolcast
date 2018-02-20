@@ -12,7 +12,7 @@ import { AsyncStorage } from 'react-native'
 
 export const User = types.model('User', {
   id: types.identifier(),
-  email: types.string,
+  email: types.maybe(types.string),
   name: types.string,
   fbid: types.string,
   history: types.maybe(types.array(types.reference(Show)))
@@ -20,7 +20,8 @@ export const User = types.model('User', {
 
 export const UserStore = types
   .model('UserStore', {
-    currentUser: types.maybe(User)
+    currentUser: types.maybe(types.reference(User)),
+    users: types.map(User)
   })
   .views(self => ({
     get root() {
@@ -44,9 +45,8 @@ export const UserStore = types
   .actions(self => ({
     setCurrentUser: flow(function*({ me }) {
       const { id, email, fbid, name, history, playlists } = me
-      console.log('✨name', name)
       const podcastStore = self.root.podcastStore
-      const userInfo = {
+      self.users.put({
         id,
         email,
         fbid,
@@ -70,26 +70,25 @@ export const UserStore = types
             })
           })
           return addedShow.id
-        }),
-        playlists: playlists.map(({ id, name, episodes }) => {
-          self.root.playlistStore.addPlaylist({
-            id,
-            name,
-            author: me.id,
-            episodes: episodes.map(ep => {
-              self.root.podcastStore.addEpisode({
-                id: ep.id,
-                title: ep.title,
-                showId: ep.show[0].showId
-              })
-              return ep.id
-            })
-          })
-          return id
         })
-      }
-
-      self.currentUser = User.create(userInfo)
+      })
+      self.currentUser = id
+      playlists.map(({ id, name, episodes }) => {
+        self.root.playlistStore.addPlaylist({
+          id,
+          name,
+          author: me.id,
+          episodes: episodes.map(ep => {
+            self.root.podcastStore.addEpisode({
+              id: ep.id,
+              title: ep.title,
+              showId: ep.show[0].showId
+            })
+            return ep.id
+          })
+        })
+        return id
+      })
     }),
     async readFromLocalStorage() {
       const token = await AsyncStorage.getItem('graphcoolToken')
@@ -110,6 +109,13 @@ export const UserStore = types
       const userHistory = await self.root.apolloStore.userFromToken
       self.setCurrentUser(userHistory.data)
       return graphcoolResponse
+    },
+    addUser({ name, fbid, id }) {
+      self.users.put({
+        id,
+        fbid,
+        name
+      })
     },
     updateHistory({ showId, id }) {
       const show = self.root.podcastStore.shows.get(showId)

@@ -17,7 +17,8 @@ const RootStore = types
       playlists: {}
     }),
     userStore: types.optional(UserStore, {
-      currentUser: null
+      currentUser: null,
+      users: {}
     }),
     navigationStore: types.optional(NavigationStore, {
       page: ''

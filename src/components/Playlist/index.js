@@ -78,7 +78,6 @@ const Playlist = props => {
 export const PlaylistItem = PlaylistItemComposer(Playlist)
 
 const CreatePlaylistComponent = ({ name, create, submit, update, style }) => {
-  console.log('✨style', style)
   return (
     <View style={style}>
       <TextInput

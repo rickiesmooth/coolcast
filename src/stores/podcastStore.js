@@ -17,20 +17,6 @@ export const Episode = types
     }
   }))
   .actions(self => ({
-    // getSessionId: flow(function* getSessionId() {
-    //   const { userStore, apolloStore } = self.root
-    //   const show = self.root.podcastStore.shows.get(self.showId)
-    //   const response = yield apolloStore.createPodcastPlay({
-    //     episodeId: self.id,
-    //     showId: show.id,
-    //     sessionId: self.sessionId
-    //   })
-    //   console.log('✨response', response)
-    //   const { id, episode } = response.data.addPlay
-    //   self.sessionId = id
-    //   self.src = episode.src
-    //   userStore.updateHistory(self)
-    // }),
     setProgress(progress) {
       self.progress = progress
     }

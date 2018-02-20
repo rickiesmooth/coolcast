@@ -5,7 +5,8 @@ import {
   Image,
   Text,
   StyleSheet,
-  AsyncStorage
+  AsyncStorage,
+  ActivityIndicator
 } from 'react-native'
 import { Button, FbLoginButton } from '../components/Buttons'
 
@@ -14,7 +15,7 @@ import { observer, inject } from 'mobx-react'
 
 @inject('userStore', 'apolloStore')
 @observer
-export default class Profile extends React.Component {
+export class Profile extends React.Component {
   render() {
     const { currentUser, logout } = this.props.userStore
     if (currentUser) {
@@ -33,7 +34,34 @@ export default class Profile extends React.Component {
   }
 }
 
-class LoggedInUser extends React.Component {
+@inject('userStore', 'apolloStore')
+export class User extends React.Component {
+  get userId() {
+    const { match, navigation } = this.props
+    return match ? match.params.id : navigation.state.params
+  }
+  get user() {
+    return this.props.userStore.users.get(this.userId)
+  }
+  render() {
+    return this.user ? (
+      <View style={styles.container}>
+        <Image
+          style={styles.thumb}
+          source={{
+            uri: `https://graph.facebook.com/${user.fbid}/picture?type=large`
+          }}
+        />
+        <Text>{this.user.name}</Text>
+        <Text>{this.user.email}</Text>
+      </View>
+    ) : (
+      <ActivityIndicator size="large" />
+    )
+  }
+}
+
+export class LoggedInUser extends React.Component {
   render() {
     const { logout, currentUser } = this.props
     const { email, fbid, name } = currentUser
