@@ -1,8 +1,7 @@
+# Coolcast server
 [![Build Status](https://travis-ci.org/rickiesmooth/coolcast.svg?branch=master)](https://travis-ci.org/rickiesmooth/coolcast)
 
-Repo for personal podcast project using React Native in combination with React Native Web. Using Gitlab for CD (after PR merged it deploys it to firebase) and will be available on https://coolcast.ricksm.it. Deployment to Apple's Testflight is manual after ejecting.
-
-*I'm currently in the process of refactoring the backend so the deployed version will not work at the moment*
+This repository contains the client code for the [**Coolcast app**](https://coolcast.ricksm.it)
 
 ## Table of Contents
 
@@ -19,12 +18,7 @@ Repo for personal podcast project using React Native in combination with React N
 cd coolcast
 yarn install
 
-cd coolcast/graphcool
-yarn install
-
 ## Running
-
-You'll need to setup some environment variables first, but then you can run the following commands.
 
 ### `npm start`
 
