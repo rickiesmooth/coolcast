@@ -137,7 +137,7 @@ const GET_PODCAST = gql`
     }
   }
 `
-GET_USER = gql`
+const GET_USER = gql`
   query GetUser($userId: ID!) {
     user(userId: $userId) {
       id
