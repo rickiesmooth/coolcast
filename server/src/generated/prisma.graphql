@@ -191,6 +191,15 @@ input EpisodeSubscriptionWhereInput {
   node: EpisodeWhereInput
 }
 
+input EpisodeUpdateDataInput {
+  title: String
+  date: DateTime
+  description: String
+  src: String
+  plays: PodcastPlayUpdateManyWithoutEpisodeInput
+  show: ShowUpdateManyWithoutEpisodesInput
+}
+
 input EpisodeUpdateInput {
   title: String
   date: DateTime
@@ -205,6 +214,8 @@ input EpisodeUpdateManyInput {
   connect: [EpisodeWhereUniqueInput!]
   disconnect: [EpisodeWhereUniqueInput!]
   delete: [EpisodeWhereUniqueInput!]
+  update: [EpisodeUpdateNestedInput!]
+  upsert: [EpisodeUpsertNestedInput!]
 }
 
 input EpisodeUpdateManyWithoutShowInput {
@@ -214,6 +225,11 @@ input EpisodeUpdateManyWithoutShowInput {
   delete: [EpisodeWhereUniqueInput!]
   update: [EpisodeUpdateWithoutShowInput!]
   upsert: [EpisodeUpsertWithoutShowInput!]
+}
+
+input EpisodeUpdateNestedInput {
+  where: EpisodeWhereUniqueInput!
+  data: EpisodeUpdateDataInput!
 }
 
 input EpisodeUpdateOneWithoutPlaysInput {
@@ -249,6 +265,12 @@ input EpisodeUpdateWithoutShowDataInput {
 input EpisodeUpdateWithoutShowInput {
   where: EpisodeWhereUniqueInput!
   data: EpisodeUpdateWithoutShowDataInput!
+}
+
+input EpisodeUpsertNestedInput {
+  where: EpisodeWhereUniqueInput!
+  update: EpisodeUpdateDataInput!
+  create: EpisodeCreateInput!
 }
 
 input EpisodeUpsertWithoutPlaysInput {
@@ -613,6 +635,12 @@ input PodcastPlaySubscriptionWhereInput {
   node: PodcastPlayWhereInput
 }
 
+input PodcastPlayUpdateDataInput {
+  progress: Float
+  user: UserUpdateOneWithoutPlaysInput
+  episode: EpisodeUpdateOneWithoutPlaysInput
+}
+
 input PodcastPlayUpdateInput {
   progress: Float
   user: UserUpdateOneWithoutPlaysInput
@@ -624,6 +652,8 @@ input PodcastPlayUpdateManyInput {
   connect: [PodcastPlayWhereUniqueInput!]
   disconnect: [PodcastPlayWhereUniqueInput!]
   delete: [PodcastPlayWhereUniqueInput!]
+  update: [PodcastPlayUpdateNestedInput!]
+  upsert: [PodcastPlayUpsertNestedInput!]
 }
 
 input PodcastPlayUpdateManyWithoutEpisodeInput {
@@ -644,6 +674,11 @@ input PodcastPlayUpdateManyWithoutUserInput {
   upsert: [PodcastPlayUpsertWithoutUserInput!]
 }
 
+input PodcastPlayUpdateNestedInput {
+  where: PodcastPlayWhereUniqueInput!
+  data: PodcastPlayUpdateDataInput!
+}
+
 input PodcastPlayUpdateWithoutEpisodeDataInput {
   progress: Float
   user: UserUpdateOneWithoutPlaysInput
@@ -662,6 +697,12 @@ input PodcastPlayUpdateWithoutUserDataInput {
 input PodcastPlayUpdateWithoutUserInput {
   where: PodcastPlayWhereUniqueInput!
   data: PodcastPlayUpdateWithoutUserDataInput!
+}
+
+input PodcastPlayUpsertNestedInput {
+  where: PodcastPlayWhereUniqueInput!
+  update: PodcastPlayUpdateDataInput!
+  create: PodcastPlayCreateInput!
 }
 
 input PodcastPlayUpsertWithoutEpisodeInput {
@@ -807,6 +848,13 @@ input ShowSubscriptionWhereInput {
   node: ShowWhereInput
 }
 
+input ShowUpdateDataInput {
+  title: String
+  showId: String
+  thumbLarge: String
+  episodes: EpisodeUpdateManyWithoutShowInput
+}
+
 input ShowUpdateInput {
   title: String
   showId: String
@@ -823,11 +871,18 @@ input ShowUpdateManyWithoutEpisodesInput {
   upsert: [ShowUpsertWithoutEpisodesInput!]
 }
 
+input ShowUpdateNestedInput {
+  where: ShowWhereUniqueInput!
+  data: ShowUpdateDataInput!
+}
+
 input ShowUpdateOneInput {
   create: ShowCreateInput
   connect: ShowWhereUniqueInput
   disconnect: ShowWhereUniqueInput
   delete: ShowWhereUniqueInput
+  update: ShowUpdateNestedInput
+  upsert: ShowUpsertNestedInput
 }
 
 input ShowUpdateWithoutEpisodesDataInput {
@@ -839,6 +894,12 @@ input ShowUpdateWithoutEpisodesDataInput {
 input ShowUpdateWithoutEpisodesInput {
   where: ShowWhereUniqueInput!
   data: ShowUpdateWithoutEpisodesDataInput!
+}
+
+input ShowUpsertNestedInput {
+  where: ShowWhereUniqueInput!
+  update: ShowUpdateDataInput!
+  create: ShowCreateInput!
 }
 
 input ShowUpsertWithoutEpisodesInput {
@@ -1074,6 +1135,11 @@ input UserHistoryShowSubscriptionWhereInput {
   node: UserHistoryShowWhereInput
 }
 
+input UserHistoryShowUpdateDataInput {
+  show: ShowUpdateOneInput
+  plays: PodcastPlayUpdateManyInput
+}
+
 input UserHistoryShowUpdateInput {
   show: ShowUpdateOneInput
   plays: PodcastPlayUpdateManyInput
@@ -1084,6 +1150,19 @@ input UserHistoryShowUpdateManyInput {
   connect: [UserHistoryShowWhereUniqueInput!]
   disconnect: [UserHistoryShowWhereUniqueInput!]
   delete: [UserHistoryShowWhereUniqueInput!]
+  update: [UserHistoryShowUpdateNestedInput!]
+  upsert: [UserHistoryShowUpsertNestedInput!]
+}
+
+input UserHistoryShowUpdateNestedInput {
+  where: UserHistoryShowWhereUniqueInput!
+  data: UserHistoryShowUpdateDataInput!
+}
+
+input UserHistoryShowUpsertNestedInput {
+  where: UserHistoryShowWhereUniqueInput!
+  update: UserHistoryShowUpdateDataInput!
+  create: UserHistoryShowCreateInput!
 }
 
 input UserHistoryShowWhereInput {

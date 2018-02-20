@@ -21,7 +21,7 @@ export default Button =>
         response => {
           this._facebookCallback(response)
         },
-        { scope: 'public_profile,email' }
+        { scope: 'public_profile, email, user_friends' }
       )
     }
 

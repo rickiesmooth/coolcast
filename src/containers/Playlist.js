@@ -1,4 +1,5 @@
 import React from 'react'
+import { ActivityIndicator } from 'react-native'
 import { observer, inject } from 'mobx-react'
 
 export const PlaylistItemComposer = PlaylistItem =>
@@ -23,16 +24,36 @@ export const PlaylistItemComposer = PlaylistItem =>
       return this.state.editing
     }
 
+    get playlist() {
+      console.log('✨this.props.id', this.props.id)
+      return this.props.playlistStore.playlists.get(this.props.id)
+    }
+
+    componentDidMount() {
+      const { id, playlistStore } = this.props
+      if (!this.playlist) {
+        // there is no show yet > when landing
+        playlistStore.getPlaylist({ playlistId: id })
+      } else if (this.playlist && !this.playlist.episodes) {
+        // there is a show but no episodes yet > when navigation from home
+        playlistStore.getPlaylistEpisodes(this.show)
+      }
+    }
+
     render() {
+      console.log('✨this.playlist', this.playlist)
       // for rerender
-      this.props.episodes.length
-      return (
+      // this.props.episodes.length
+      return this.playlist ? (
         <PlaylistItem
           {...this.props}
+          {...this.playlist}
           editPlaylist={this.editPlaylist}
           removePlaylist={this.removePlaylist}
           editing={this.editing}
         />
+      ) : (
+        <ActivityIndicator size={'large'} />
       )
     }
   }

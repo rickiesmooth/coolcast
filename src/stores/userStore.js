@@ -52,6 +52,7 @@ export const UserStore = types
         fbid,
         name,
         history: history.shows.map(({ show, plays }) => {
+          console.log('✨_plays', plays, me)
           const addedShow = self.root.podcastStore.addShow({
             id: show.showId,
             title: decodeURI(show.title),

@@ -19,6 +19,13 @@ export const ApolloStore = types
     }
   }))
   .actions(self => ({
+    getPlaylist: id => {
+      console.log('✨id>>', id)
+      return client.query({
+        query: GET_PLAYLIST,
+        variables: { playlistId: id }
+      })
+    },
     getEpisodes: id =>
       client.query({
         query: SHOW_EPISODES,
@@ -118,6 +125,22 @@ const GET_PODCAST = gql`
       id
       thumbLarge
       title
+      episodes {
+        id
+        title
+      }
+    }
+  }
+`
+
+const GET_PLAYLIST = gql`
+  query GetPlaylist($playlistId: ID!) {
+    playlists(id: $playlistId) {
+      id
+      name
+      user {
+        id
+      }
       episodes {
         id
         title

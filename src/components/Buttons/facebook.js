@@ -10,7 +10,7 @@ export default Button =>
         type,
         token
       } = await Facebook.logInWithReadPermissionsAsync('354324435015552', {
-        permissions: ['public_profile', 'email']
+        permissions: ['public_profile', 'email', 'user_friends']
         // behavior: 'native'
       })
       if (type === 'success') {

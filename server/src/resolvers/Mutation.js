@@ -11,6 +11,7 @@ function getPrismaUser(ctx, fbid) {
 }
 
 async function createPrismaUser(ctx, facebookUser) {
+  console.log('✨facebookUser', facebookUser)
   const user = await ctx.db.mutation.createUser({
     data: {
       fbid: facebookUser.id,
@@ -30,10 +31,8 @@ async function createPrismaUser(ctx, facebookUser) {
 }
 
 async function getFacebookUser(facebookToken) {
-  console.log('✨facebookToken', facebookToken)
-  const endpoint = `https://graph.facebook.com/v2.12/me?fields=id%2Cname%2Cemail&access_token=${facebookToken}`
+  const endpoint = `https://graph.facebook.com/v2.12/me?fields=id%2Cemail%2Cname%2Cfriends&access_token=${facebookToken}`
   const data = await global.fetch(endpoint).then(response => response.json())
-
   if (data.error) {
     throw new Error(JSON.stringify(data.error))
   }
@@ -108,6 +107,7 @@ async function addPlay(parent, { episodeId, showId, sessionId }, ctx, info) {
     { where: { id: userId } },
     '{ history { id shows { id show { showId } } } }'
   )
+
   const inHistory = user.history.shows.find(e => e.show.showId === showId)
 
   if (!inHistory) {
@@ -161,7 +161,8 @@ async function removePlaylist(parent, { id }, ctx, info) {
 }
 
 function updatePlay(parent, { sessionId, progress }, ctx, info) {
-  // const userId = getUserId(ctx)
+  const userId = getUserId(ctx)
+  console.log('✨sessionId', sessionId)
   return ctx.db.mutation.updatePodcastPlay(
     {
       where: { id: sessionId },

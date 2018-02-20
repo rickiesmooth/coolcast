@@ -16,17 +16,7 @@ export default class PlaylistScreen extends React.Component {
   render() {
     const { playlistStore } = this.props
     if (this.navigationKey) {
-      const playlist = playlistStore.playlists.get(this.navigationKey)
-      return playlist ? (
-        <PlaylistItem
-          name={playlist.name}
-          id={playlist.id}
-          episodes={playlist.episodes}
-          author={playlist.author}
-        />
-      ) : (
-        <ActivityIndicator size="large" />
-      )
+      return <PlaylistItem id={this.navigationKey} />
     }
   }
 }

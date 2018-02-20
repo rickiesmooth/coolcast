@@ -43,6 +43,7 @@ const HistoryComponent = props => {
             <ShowItem
               showId={item.id}
               episodes={item.history}
+              card={true}
               style={[
                 horizontal ? styles.horizontalItem : styles.verticalItem,
                 horizontal && index === 0 && styles.firstRowItem

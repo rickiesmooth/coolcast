@@ -2,12 +2,10 @@ import { types, getParent, flow, getRoot, destroy } from 'mobx-state-tree'
 import { Episode } from './podcastStore'
 import { User } from './userStore'
 
-console.log('✨User', User)
-
 export const Playlist = types.model('Playlist', {
   id: types.identifier(),
   name: types.string,
-  author: types.reference(User),
+  author: types.string,
   episodes: types.maybe(types.array(types.reference(Episode)))
 })
 
@@ -30,6 +28,20 @@ export const PlaylistStore = types
       console.log('✨playlist', playlist)
       return destroy(playlist)
     }
+    const getPlaylist = flow(function*({ playlistId }) {
+      const response = yield self.root.apolloStore.getPlaylist(playlistId)
+      const { id, name, user, episodes } = response.data.playlists[0]
+
+      addPlaylist({
+        id,
+        name,
+        author: user.id,
+        episodes: episodes.map(ep => {
+          self.root.podcastStore.addEpisode(ep)
+          return ep.id
+        })
+      })
+    })
     const addToPlaylist = (playlistId, episodeId) => {
       self.root.apolloStore.addToPlaylist(playlistId, episodeId)
       const playlist = self.playlists.get(playlistId)
@@ -52,6 +64,7 @@ export const PlaylistStore = types
 
     return {
       addPlaylist,
+      getPlaylist,
       addToPlaylist,
       removePlaylist
     }

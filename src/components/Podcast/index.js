@@ -60,7 +60,7 @@ const EpisodeItem = PodcastEpisodeComposer(Episode)
 export { EpisodeItem }
 
 const Header = ({ thumbLarge, title, showId, setCurrentPodcast }) => (
-  <Link onClick={setCurrentPodcast} to={`/podcast/${showId}`}>
+  <Link to={`/podcast/${showId}`}>
     <ItemHeaderContainer>
       <Title
         style={{
@@ -82,25 +82,41 @@ const Header = ({ thumbLarge, title, showId, setCurrentPodcast }) => (
   </Link>
 )
 
-const Show = ({ title, loading, episodes, thumbLarge, showId, style }) => {
+const ShowBody = ({ episodes, title, showId, thumbLarge, card }) => {
+  console.log('✨card', card)
+  const el = episodes.length - 1
+  return card ? (
+    <View>
+      <Header title={title} showId={showId} thumbLarge={thumbLarge} />
+      <EpisodeItem episodeId={episodes[el].id} />
+      <Link to={`/history/${showId}`}>
+        <Text>{`${el} more`}</Text>
+      </Link>
+    </View>
+  ) : (
+    <FlatList
+      data={episodes}
+      keyExtractor={(id, index) => id}
+      renderItem={({ item }) => <EpisodeItem episodeId={item.id} />}
+      ListHeaderComponent={() => (
+        <View>
+          <Header title={title} showId={showId} thumbLarge={thumbLarge} />
+          {(!episodes || episodes.length < 1) && (
+              <ActivityIndicator style={styles.horizontal} size={'large'} />
+            )}
+        </View>
+      )}
+    />
+  )
+}
+
+const Show = ({ loading, episodes, style, ...rest }) => {
   return (
     <View style={[style, styles.content]}>
       {loading || !episodes ? (
         <ActivityIndicator style={styles.horizontal} size={'large'} />
       ) : (
-        <FlatList
-          data={episodes}
-          keyExtractor={(id, index) => id}
-          renderItem={({ item }) => <EpisodeItem episodeId={item.id} />}
-          ListHeaderComponent={() => (
-            <View>
-              <Header title={title} showId={showId} thumbLarge={thumbLarge} />
-              {(!episodes || episodes.length < 1) && (
-                  <ActivityIndicator style={styles.horizontal} size={'large'} />
-                )}
-            </View>
-          )}
-        />
+        <ShowBody {...rest} episodes={episodes} />
       )}
     </View>
   )

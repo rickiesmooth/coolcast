@@ -73,7 +73,7 @@ const ListItem = props => {
   const { podcast, setCurrentPodcast } = props
   return (
     // @TODO fix navigation
-    <Link onPress={setCurrentPodcast} to={`/podcast/${podcast.id}`}>
+    <Link to={`/podcast/${podcast.id}`}>
       <View style={styles.container}>
         <Image style={styles.image} source={{ uri: podcast.thumb }} />
         <Title

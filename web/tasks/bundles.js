@@ -87,7 +87,12 @@ module.exports = {
     },
     plugins: [
       new webpack.HotModuleReplacementPlugin(),
-      new webpack.NamedModulesPlugin()
+      new webpack.NamedModulesPlugin(),
+      new webpack.DefinePlugin({
+        'process.env': {
+          API_URL: JSON.stringify(process.env.API_URL)
+        }
+      })
     ]
   }),
   prod: Object.assign({}, baseConfig, {

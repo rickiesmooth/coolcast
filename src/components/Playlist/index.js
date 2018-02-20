@@ -109,16 +109,21 @@ export const AddToPlaylistComponent = ({
   style
 }) => {
   return (
-    <View style={{ flex: 1 }}>
+    <View
+      style={{
+        flex: 1
+      }}
+    >
       <FlatList
-        style={{
-          backgroundColor: 'red'
-        }}
+        contentContainerStyle={styles.contentContainer}
         data={playlists.values()}
         keyExtractor={({ id }) => id}
         renderItem={({ item }) => {
           return (
-            <TouchableOpacity onPress={() => addToPlaylist(item.id, episodeId)}>
+            <TouchableOpacity
+              style={{ marginVertical: 5 }}
+              onPress={() => addToPlaylist(item.id, episodeId)}
+            >
               <Text>{item.name}</Text>
             </TouchableOpacity>
           )
@@ -158,6 +163,11 @@ export const CreatePlaylistButton = props => (
 const styles = StyleSheet.create({
   horizontal: {
     flex: 1
+  },
+  contentContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center'
   },
   input: {
     fontSize: 48,

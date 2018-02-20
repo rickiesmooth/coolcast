@@ -29,6 +29,7 @@ type UserHistory {
   user: User! @relation(name: "UserHistoryCollection")
 }
 
+# want to aggregate playCount https://github.com/graphcool/prisma/issues/1780
 type UserHistoryShow {
   id: ID! @unique
   show: Show!
