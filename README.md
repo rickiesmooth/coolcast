@@ -7,16 +7,18 @@ This repository contains the client code for the [**Coolcast app**](https://cool
 
 * [Installing](#installing)
 * [Running](#available-scripts)
+  * [npm run watch-web](#npm-run-watch-web)
   * [npm start](#npm-start)
   * [npm run ios](#npm-run-ios)
   * [npm run android](#npm-run-android)
   * [npm run eject](#npm-run-eject)
-  * [npm run watch-web](#npm-run-watch-web)
 
 ## Installing
 
-`cd coolcast`
-`yarn install`
+```
+cd coolcast
+yarn install
+```
 
 ## Running
 
