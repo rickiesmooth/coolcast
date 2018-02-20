@@ -162,7 +162,6 @@ async function removePlaylist(parent, { id }, ctx, info) {
 
 function updatePlay(parent, { sessionId, progress }, ctx, info) {
   const userId = getUserId(ctx)
-  console.log('✨sessionId', sessionId)
   return ctx.db.mutation.updatePodcastPlay(
     {
       where: { id: sessionId },
