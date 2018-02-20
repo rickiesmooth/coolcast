@@ -35,6 +35,7 @@ export class Profile extends React.Component {
 }
 
 @inject('userStore', 'apolloStore')
+@observer
 export class User extends React.Component {
   get userId() {
     const { match, navigation } = this.props
@@ -43,13 +44,19 @@ export class User extends React.Component {
   get user() {
     return this.props.userStore.users.get(this.userId)
   }
+  componentDidMount() {
+    if (!this.user) {
+      this.props.userStore.getUser(this.userId)
+    }
+  }
   render() {
     return this.user ? (
       <View style={styles.container}>
         <Image
           style={styles.thumb}
           source={{
-            uri: `https://graph.facebook.com/${user.fbid}/picture?type=large`
+            uri: `https://graph.facebook.com/${this.user
+              .fbid}/picture?type=large`
           }}
         />
         <Text>{this.user.name}</Text>

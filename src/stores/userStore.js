@@ -93,29 +93,25 @@ export const UserStore = types
     async readFromLocalStorage() {
       const token = await AsyncStorage.getItem('graphcoolToken')
       if (token) {
-        const graphcoolResponse = await self.root.apolloStore.userFromToken
-        self.setCurrentUser(graphcoolResponse.data)
+        const response = await self.root.apolloStore.userFromToken
+        self.setCurrentUser(response.data)
       }
     },
+    addUser(props) {
+      self.users.put(props)
+    },
+    async getUser(userId) {
+      const response = await self.root.apolloStore.getUser(userId)
+      self.addUser(response.data.user)
+      console.log('✨graphco', response)
+    },
     async login(token) {
-      const graphcoolResponse = await self.root.apolloStore.userFromFBToken(
-        token
-      )
-      AsyncStorage.setItem(
-        'graphcoolToken',
-        graphcoolResponse.data.authenticate.token
-      )
+      const response = await self.root.apolloStore.userFromFBToken(token)
+      AsyncStorage.setItem('graphcoolToken', response.data.authenticate.token)
 
       const userHistory = await self.root.apolloStore.userFromToken
       self.setCurrentUser(userHistory.data)
-      return graphcoolResponse
-    },
-    addUser({ name, fbid, id }) {
-      self.users.put({
-        id,
-        fbid,
-        name
-      })
+      return response
     },
     updateHistory({ showId, id }) {
       const show = self.root.podcastStore.shows.get(showId)

@@ -26,6 +26,11 @@ export const ApolloStore = types
         variables: { playlistId: id }
       })
     },
+    getUser: userId =>
+      client.query({
+        query: GET_USER,
+        variables: { userId }
+      }),
     getEpisodes: id =>
       client.query({
         query: SHOW_EPISODES,
@@ -129,6 +134,15 @@ const GET_PODCAST = gql`
         id
         title
       }
+    }
+  }
+`
+GET_USER = gql`
+  query GetUser($userId: ID!) {
+    user(userId: $userId) {
+      id
+      name
+      fbid
     }
   }
 `
