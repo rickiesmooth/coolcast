@@ -4,13 +4,13 @@ import {
   StyleSheet,
   TextInput,
   Platform,
+  Dimensions,
   Image,
   TouchableOpacity,
   Text
 } from 'react-native'
 import { computed, action, when } from 'mobx'
 import { observer, inject } from 'mobx-react'
-
 import { FlatList } from '../../utils'
 import { Link } from '../../navigation'
 import { Title, Subline } from '../Text'
@@ -106,7 +106,7 @@ const styles = StyleSheet.create({
     margin: Platform.OS === 'web' ? 0 : 15
   },
   searchInput: {
-    width: 400,
+    width: Dimensions.get('window').width > 550 ? 400 : '100%',
     position: 'relative',
     borderColor: 'rgba(0, 0, 0, 0.15)',
     borderRadius: 3,
