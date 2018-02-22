@@ -23,15 +23,15 @@ export const LikeButton = props => {
 
 const FbLogin = FbLoginApi(Button)
 
-export const FbLoginButton = props => {
-  console.log('✨props', props)
+export const FbLoginButton = ({ login, onSuccess, title }) => {
   return (
     <View style={[styles.facebook, styles.button]}>
       <FbLogin
-        {...props}
         textColor={'#FFF'}
         fontSize={18}
-        authenticateUserWithGraphCool={props.userStore.login}
+        title={title}
+        authenticateUserWithGraphCool={login}
+        onSuccess={onSuccess}
       />
     </View>
   )

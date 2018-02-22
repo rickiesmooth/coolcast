@@ -1,76 +1,38 @@
 import React from 'react'
-import { Platform, Text } from 'react-native'
-import { computed, observable, action } from 'mobx'
-import { observer, inject } from 'mobx-react'
+import { Platform } from 'react-native'
+import { observer } from 'mobx-react'
 import { ShowItem } from '../components/Podcast'
+import { PageComposer } from '../containers/Page'
 import Header from '../components/Header'
 const WEB = Platform.OS === 'web'
 
-@inject('podcastStore')
-@observer
-export class Podcast extends React.Component {
-  @computed
-  get navigationKey() {
-    const { match, navigation } = this.props
-    console.log('✨match', match)
-    return match ? match.params.id : navigation.state.params
-  }
-
-  render() {
-    const { podcastStore } = this.props
-    if (this.navigationKey) {
-      const currentShow = podcastStore.shows.get(this.navigationKey)
-      return WEB ? (
-        <ShowItem showId={this.navigationKey} />
-      ) : (
-        <Header title={currentShow ? currentShow.title : ''}>
-          <ShowItem showId={this.navigationKey} />
-        </Header>
-      )
-    } else {
-      return <Text>Super long loading</Text>
-    }
-  }
+const PodcastScreen = ({ navigationKey }) => {
+  console.log('✨navigationKey', navigationKey)
+  return WEB ? (
+    <ShowItem showId={navigationKey} />
+  ) : (
+    <Header title={'currentShow.title'}>
+      <ShowItem showId={navigationKey} />
+    </Header>
+  )
 }
 
-@inject('userStore')
-@observer
-export class PodcastHistory extends React.Component {
-  @computed
-  get navigationKey() {
-    const { match, navigation } = this.props
-    console.log('✨match', match)
-    return match ? match.params.id : navigation.state.params
-  }
+export const Podcast = PageComposer(PodcastScreen)
 
-  @computed
-  get userHistory() {
-    const { match, navigation, userStore } = this.props
-    return (
-      userStore.currentUser &&
-      userStore.currentUser.history &&
-      userStore.currentUser.history.length &&
-      userStore.currentUser.history.find(show => show.id === this.navigationKey)
+const PodcastHistoryScreen = observer(({ userStore, navigationKey }) => {
+  const collection = userStore.userHistoryShow(navigationKey)
+  if (collection) {
+    console.log('✨collection.title', collection.title)
+    return WEB ? (
+      <ShowItem showId={navigationKey} episodes={collection.history} />
+    ) : (
+      <Header title={collection.title}>
+        <ShowItem showId={navigationKey} episodes={collection.history} />
+      </Header>
     )
+  } else {
+    return <Text>Super long loading</Text>
   }
+})
 
-  render() {
-    if (this.userHistory) {
-      return WEB ? (
-        <ShowItem
-          showId={this.navigationKey}
-          episodes={this.userHistory.history}
-        />
-      ) : (
-        <Header title={this.userHistory.title}>
-          <ShowItem
-            showId={this.navigationKey}
-            episodes={this.userHistory.history}
-          />
-        </Header>
-      )
-    } else {
-      return <Text>Super long loading</Text>
-    }
-  }
-}
+export const PodcastHistory = PageComposer(PodcastHistoryScreen)

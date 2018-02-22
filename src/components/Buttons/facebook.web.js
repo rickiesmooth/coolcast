@@ -12,6 +12,9 @@ export default Button =>
         const res = await this.props.authenticateUserWithGraphCool(
           facebookToken
         )
+        if (res) {
+          this.props.onSuccess()
+        }
       } else {
         console.warn(`User did not authorize the Facebook application.`)
       }

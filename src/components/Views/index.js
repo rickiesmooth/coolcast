@@ -19,7 +19,7 @@ export const ModalContainer = ({ children }) => (
 )
 
 const styles = StyleSheet.create({
-  Container: { margin: 20 },
+  Container: { padding: 15 },
   Modal: {
     flex: 1,
     flexDirection: 'column',
@@ -29,10 +29,10 @@ const styles = StyleSheet.create({
     borderColor: 'red'
   },
   ItemHeaderContainer: {
-    margin: 15,
+    // margin: 15,
     flexDirection: 'row',
     borderColor: 'grey',
-    paddingBottom: 15,
+    paddingVertical: 15,
     borderBottomWidth: 1
   }
 })

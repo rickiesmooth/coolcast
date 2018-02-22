@@ -11,7 +11,7 @@ import { FlatList } from '../../utils'
 import { Link } from '../../navigation'
 import { Title } from '../Text'
 import { AddToPlaylistButton } from '../Playlist'
-import { ItemHeaderContainer } from '../Views'
+import { Container, ItemHeaderContainer } from '../Views'
 import {
   PodcastEpisodeComposer,
   PodcastShowComposer
@@ -27,27 +27,27 @@ const Episode = ({
   id
 }) => {
   return (
-    <View style={{ marginHorizontal: 15 }}>
-      <View style={{ flexDirection: 'row' }}>
+    <View>
+      <Container style={{ flexDirection: 'row' }}>
         <TouchableOpacity onPress={setCurrentPlaying} style={styles.left}>
           <Text numberOfLines={1}>{title}</Text>
         </TouchableOpacity>
         <AddToPlaylistButton episodeId={id} />
-      </View>
+      </Container>
       <View
         style={{
+          height: 3,
           width: '100%',
-          marginVertical: 15,
           backgroundColor: 'grey',
-          borderRadius: 50
+          borderRadius: 6
         }}
       >
         <View
           style={{
+            height: 3,
             width: `${progress * 100}%`,
             backgroundColor: 'blue',
-            height: 5,
-            borderRadius: 60
+            borderRadius: 6
           }}
         />
       </View>
@@ -73,8 +73,8 @@ const Header = ({ thumbLarge, title, showId, setCurrentPodcast }) => (
       <Image
         source={{ uri: thumbLarge }}
         style={{
-          height: 50,
-          width: 50,
+          height: 90,
+          width: 90,
           marginLeft: 'auto'
         }}
       />
@@ -83,13 +83,23 @@ const Header = ({ thumbLarge, title, showId, setCurrentPodcast }) => (
 )
 
 const ShowBody = ({ episodes, title, showId, thumbLarge, card }) => {
-  console.log('✨card', card)
   const el = episodes.length - 1
   return card ? (
-    <View>
+    <View
+      style={{
+        flex: 1,
+        position: 'relative',
+        flexDirection: 'column'
+      }}
+    >
       <Header title={title} showId={showId} thumbLarge={thumbLarge} />
       <EpisodeItem episodeId={episodes[el].id} />
-      <Link to={`/history/${showId}`}>
+      <Link
+        to={`/history/${showId}`}
+        style={{
+          marginTop: 'auto'
+        }}
+      >
         <Text>{`${el} more`}</Text>
       </Link>
     </View>
@@ -133,8 +143,6 @@ const styles = StyleSheet.create({
     marginRight: 'auto'
   },
   content: {
-    flex: 1,
-    borderWidth: 1,
-    borderColor: 'green'
+    flex: 1
   }
 })

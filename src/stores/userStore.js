@@ -34,11 +34,17 @@ export const UserStore = types
         self.currentUser.history.length > 0
       )
     },
-    get userHistory() {
-      const apolloStore = self.root.apolloStore
-      return apolloStore.userHistory
+    userHistoryShow(id) {
+      // const { match, navigation, userStore } = this.props
+      return (
+        self.currentUser &&
+        self.currentUser.history &&
+        self.currentUser.history.length &&
+        self.currentUser.history.find(show => show.id === id)
+      )
     },
     get groupedUserHistory() {
+      const userHistory = self.root.apolloStore.userHistory
       return self.currentUser.history
     }
   }))
@@ -97,13 +103,19 @@ export const UserStore = types
         self.setCurrentUser(response.data)
       }
     },
-    addUser(props) {
-      self.users.put(props)
+    addUser(user) {
+      const result = self.users.get(user.id)
+      if (!result) {
+        self.users.put(user)
+      } else {
+        for (var key in user) {
+          result[key] = result[key] || user[key]
+        }
+      }
     },
     async getUser(userId) {
       const response = await self.root.apolloStore.getUser(userId)
       self.addUser(response.data.user)
-      console.log('✨graphco', response)
     },
     async login(token) {
       const response = await self.root.apolloStore.userFromFBToken(token)

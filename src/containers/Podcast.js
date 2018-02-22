@@ -4,7 +4,7 @@ import { observable, computed, action } from 'mobx'
 import { observer, inject } from 'mobx-react'
 
 export const PodcastEpisodeComposer = Episode =>
-  @inject('playerStore', 'playlistStore', 'podcastStore', 'apolloStore')
+  @inject('playerStore', 'playlistStore', 'podcastStore')
   @observer
   class EnhancedEpisode extends React.Component {
     @computed
@@ -19,7 +19,7 @@ export const PodcastEpisodeComposer = Episode =>
     }
 
     render() {
-      const { playerStore, apolloStore } = this.props
+      const { playerStore } = this.props
       const {
         title,
         progress,

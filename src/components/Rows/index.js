@@ -20,7 +20,6 @@ import { HistoryRowComposer, PlaylistRowComposer } from '../../containers/Row'
 
 const HistoryComponent = props => {
   const { hasHistory, title, shows, episodes, horizontal } = props
-  console.log('✨shows', shows)
   return hasHistory ? (
     <View
       style={[
@@ -89,7 +88,6 @@ const PlaylistComponent = props => {
           </Container>
         )}
         renderItem={({ item, index }) => {
-          console.log('✨item', item)
           return (
             <PlaylistItem
               name={item.name}
@@ -114,9 +112,7 @@ export const PlayListRow = PlaylistRowComposer(PlaylistComponent)
 
 const styles = StyleSheet.create({
   container: {
-    width: '100%',
-    borderColor: 'rgba(0, 0, 0, 0.15)',
-    borderWidth: 1
+    width: '100%'
   },
   horizontal: {
     height: 250,
@@ -125,6 +121,13 @@ const styles = StyleSheet.create({
   horizontalItem: {
     width: 250,
     marginRight: 20
+  },
+  verticalItem: {
+    height: 250,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(0, 0, 0, 0.15)',
+    marginBottom: 20,
+    marginHorizontal: 20
   },
   firstRowItem: {
     marginLeft: 20
@@ -137,7 +140,7 @@ const styles = StyleSheet.create({
     alignItems: 'center'
   },
   listView: {
-    backgroundColor: '#eee'
+    backgroundColor: '#f9f9f9'
   }
 })
 

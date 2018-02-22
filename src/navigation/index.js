@@ -10,7 +10,7 @@ import {
 
 import { observable, action } from 'mobx'
 import { observer, inject } from 'mobx-react'
-import MainTabNavigator from './tabs'
+import { MainTabNavigator } from './tabs'
 
 class NavigationStore {
   @observable.ref
@@ -34,11 +34,12 @@ const navigationStore = new NavigationStore()
 @observer
 export class RootNavigation extends React.Component {
   render() {
+    const { dispatch, navigationState } = this.props.navigationStore
     return (
       <MainTabNavigator
         navigation={addNavigationHelpers({
-          dispatch: this.props.navigationStore.dispatch,
-          state: this.props.navigationStore.navigationState
+          state: navigationState,
+          dispatch
         })}
       />
     )

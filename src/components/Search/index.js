@@ -106,15 +106,21 @@ const styles = StyleSheet.create({
     margin: Platform.OS === 'web' ? 0 : 15
   },
   searchInput: {
-    width: '400px',
+    width: 400,
     position: 'relative',
-    display: 'block',
+    borderColor: 'rgba(0, 0, 0, 0.15)',
+    borderRadius: 3,
+    padding: 5,
+    borderWidth: 1,
     overflow: 'visible'
   },
   results: {
     backgroundColor: 'white',
-    flex: 1,
-    width: '100%'
+    position: Platform.OS === 'web' ? 'absolute' : 'relative',
+    top: 5,
+    borderRadius: 3,
+    width: '100%',
+    borderWidth: 1
   },
   input: {
     fontSize: Platform.OS === 'web' ? 'inherit' : 48,

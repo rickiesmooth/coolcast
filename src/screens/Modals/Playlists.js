@@ -4,23 +4,19 @@ import { Title } from '../../components/Text'
 import { ModalContainer } from '../../components/Views'
 import { CreatePlaylist, AddToPlaylist } from '../../components/Playlist'
 
-const c = ({ navigation, close }) =>
-  navigation ? () => navigation.goBack() : close
-
-export const CreatePlaylistContent = props => {
+export const CreatePlaylistContent = ({ navigation }) => {
   return (
     <ModalContainer>
-      <CreatePlaylist close={c(props)} />
+      <CreatePlaylist close={navigation.goBack} />
     </ModalContainer>
   )
 }
 
-export const AddToPlaylistContent = props => {
-  const { navigation, state } = props
+export const AddToPlaylistContent = ({ navigation, state }) => {
   const { episodeId } = state ? state : navigation.state.params
   return (
     <ModalContainer>
-      <AddToPlaylist close={c(props)} episodeId={episodeId} />
+      <AddToPlaylist close={navigation.goBack} episodeId={episodeId} />
     </ModalContainer>
   )
 }

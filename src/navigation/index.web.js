@@ -3,7 +3,7 @@ import { View, Text, TextInput, Button, Animated } from 'react-native'
 import { BrowserRouter as Router, Route, Switch, Link } from 'react-router-dom'
 import { observer } from 'mobx-react'
 
-import { Profile, User } from '../screens/Profile'
+import { ProfileScreen } from '../screens/Profile'
 import Home from '../screens/Home'
 import { Podcast, PodcastHistory } from '../screens/Podcast'
 import Playlist from '../screens/Playlist'
@@ -46,11 +46,11 @@ class RootSwitch extends React.Component {
         <Header />
         <Switch location={isModal ? this.previousLocation : location}>
           <Route exact path="/" component={Home} />
-          <Route path="/profile" component={Profile} />
+          <Route path="/login" component={ProfileScreen} />
           <Route path="/podcast/:id" component={Podcast} />
           <Route path="/playlist/:id" component={Playlist} />
           <Route path="/history/:id" component={PodcastHistory} />
-          <Route path="/user/:id" component={User} />
+          <Route path="/user/:id" component={ProfileScreen} />
         </Switch>
         <ModalRoute isModal={isModal} path={`/modal/:id`} />
         <MiniRemote />

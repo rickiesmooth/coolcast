@@ -7,6 +7,7 @@ import {
   Text,
   TouchableOpacity
 } from 'react-native'
+import { observer, inject } from 'mobx-react'
 import { MaterialIcons } from '@expo/vector-icons'
 import {
   StackNavigator,
@@ -15,10 +16,10 @@ import {
   NavigationActions
 } from 'react-navigation'
 
-import Profile from '../screens/Profile'
+import { ProfileScreen } from '../screens/Profile'
 import History from '../screens/History'
 import Playlists from '../screens/Playlists'
-import Podcast from '../screens/Podcast'
+import { Podcast } from '../screens/Podcast'
 import Playlist from '../screens/Playlist'
 import Search from '../screens/Search'
 import MiniRemote from '../components/MiniRemote'
@@ -102,53 +103,56 @@ const SearchNavigator = StackNavigator(
   }
 )
 
-const RootNavigation = TabNavigator(
+const RootNavOptions = {
+  navigationOptions: ({ navigation }) => ({
+    tabBarIcon: ({ focused }) => {
+      const { routeName } = navigation.state
+      let iconName
+      switch (routeName) {
+        case 'App':
+          iconName = 'history'
+          break
+        case 'Playlists':
+          iconName = 'list'
+          break
+        case 'Search':
+          iconName = 'search'
+          break
+        case 'Profile':
+          iconName = 'person'
+          break
+      }
+      return (
+        <MaterialIcons
+          name={iconName}
+          size={28}
+          color={focused ? Colors.tabIconSelected : Colors.tabIconDefault}
+        />
+      )
+    }
+  }),
+  tabBarComponent: TabBarWithMiniRemote,
+  tabBarPosition: 'bottom',
+  animationEnabled: false,
+  headerMode: 'none',
+  swipeEnabled: false
+}
+
+export const RootNavigationScreens = TabNavigator(
   {
     App: { screen: AppNavigator },
     Playlists: { screen: PlaylistNavigator },
     Search: { screen: SearchNavigator },
-    Profile: { screen: Profile }
+    Profile: { screen: ProfileScreen }
   },
   {
-    navigationOptions: ({ navigation }) => ({
-      tabBarIcon: ({ focused }) => {
-        const { routeName } = navigation.state
-        let iconName
-        switch (routeName) {
-          case 'App':
-            iconName = 'history'
-            break
-          case 'Playlists':
-            iconName = 'list'
-            break
-          case 'Search':
-            iconName = 'search'
-            break
-          case 'Profile':
-            iconName = 'person'
-            break
-        }
-        return (
-          <MaterialIcons
-            name={iconName}
-            size={28}
-            style={{ marginBottom: -3 }}
-            color={focused ? Colors.tabIconSelected : Colors.tabIconDefault}
-          />
-        )
-      }
-    }),
-    tabBarComponent: TabBarWithMiniRemote,
-    tabBarPosition: 'bottom',
-    animationEnabled: false,
-    headerMode: 'none',
-    swipeEnabled: false
+    ...RootNavOptions
   }
 )
 
-export default StackNavigator(
+export const MainTabNavigator = StackNavigator(
   {
-    MainCardNavigator: { screen: RootNavigation },
+    MainCardNavigator: { screen: RootNavigationScreens },
     ExpandedMiniRemote: { screen: ExpandedMiniRemote },
     CreatePlaylist: { screen: CreatePlaylistContent },
     AddToPlaylist: { screen: AddToPlaylistContent }

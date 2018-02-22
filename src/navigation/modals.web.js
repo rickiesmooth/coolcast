@@ -26,7 +26,6 @@ export class ModalComponent extends React.Component {
   render() {
     const { match, location } = this.props
     let { fadeAnim } = this.state
-    console.log('✨this.back', match)
     return (
       <Animated.View
         style={{
@@ -46,7 +45,9 @@ export class ModalComponent extends React.Component {
         <ModalContent
           content={match.params.id}
           state={location.state}
-          close={this.back}
+          navigation={{
+            goBack: () => this.back()
+          }}
         />
       </Animated.View>
     )

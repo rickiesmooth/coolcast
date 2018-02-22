@@ -1,46 +1,75 @@
 import React from 'react'
-import { View, StyleSheet, Text } from 'react-native'
-import { ComposedSearchInputWithResults } from '../../components/Search'
+import { View, StyleSheet, Text, Image } from 'react-native'
+import { ComposedSearchInputWithResults } from '../Search'
+import HeaderContainerComposer from '../../containers/Header'
 import { Link } from '../../navigation'
+import { RowContainer, Container } from '../Views'
 
-export default () => (
+const Header = ({ currentUser }) => (
   <View style={styles.header}>
-    <View style={styles.content}>
+    <Container style={styles.content}>
       <View style={styles.left}>
         <Link to={'/'}>
           <Text style={styles.link}>Home</Text>
         </Link>
       </View>
-      <ComposedSearchInputWithResults />
+      <View style={styles.middle}>
+        <ComposedSearchInputWithResults />
+      </View>
       <View style={styles.right}>
-        <Link to={'/profile'}>
-          <Text style={styles.link}>Profile</Text>
+        <Link to={currentUser ? `/user/${currentUser.id}` : '/login'}>
+          {currentUser ? (
+            <Image
+              style={styles.thumb}
+              source={{
+                uri: `https://graph.facebook.com/${currentUser.fbid}/picture?type=large`
+              }}
+            />
+          ) : (
+            <Text style={styles.link}>Login</Text>
+          )}
         </Link>
       </View>
-    </View>
+    </Container>
   </View>
 )
 
+export default HeaderContainerComposer(Header)
+
 const styles = StyleSheet.create({
-  left: {
-    marginRight: 'auto'
-  },
-  link: {
-    color: 'white'
+  header: {
+    height: 66,
+    borderBottomColor: 'rgba(0, 0, 0, 0.15)',
+    borderBottomWidth: 1,
+    zIndex: 1,
+    width: '100%',
+    position: 'relative',
+    flexDirection: 'row'
   },
   content: {
-    padding: 15,
     flexDirection: 'row',
     width: '100%'
   },
-  right: {
-    marginLeft: 'auto'
+  left: {
+    marginRight: 'auto',
+    flexDirection: 'row',
+    alignItems: 'center'
   },
-  header: {
-    width: '100%',
-    zIndex: 1,
-    position: 'relative',
-    height: 48,
-    backgroundColor: 'rgba(0,0,0,0.8)'
+  middle: {
+    flexDirection: 'row',
+    alignItems: 'center'
+  },
+  right: {
+    marginLeft: 'auto',
+    flexDirection: 'row',
+    alignItems: 'center'
+  },
+  thumb: {
+    height: 35,
+    width: 35,
+    borderRadius: '50%'
+  },
+  link: {
+    color: 'grey'
   }
 })

@@ -53,7 +53,9 @@ const Playlist = props => {
               <Link to={`/playlist/${id}`}>
                 <Title text={name} size={'medium'} numberOfLines={1} />
               </Link>
-              <Link to={`/user/${author.id}`}>{author.name}</Link>
+              <Link to={`/user/${author.id}`}>
+                <Text>{author.name}</Text>
+              </Link>
             </View>
             <Button
               title={editing ? 'Done' : 'Edit'}
@@ -175,13 +177,10 @@ const styles = StyleSheet.create({
   },
   list: {
     flex: 1,
-    borderColor: 'green',
     width: '100%',
     height: '100%'
   },
   content: {
-    flex: 1,
-    borderWidth: 1,
-    borderColor: 'green'
+    flex: 1
   }
 })
