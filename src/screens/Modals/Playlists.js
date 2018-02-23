@@ -1,5 +1,5 @@
 import React from 'react'
-import { View } from 'react-native'
+import { View, Text } from 'react-native'
 import { Title } from '../../components/Text'
 import { ModalContainer } from '../../components/Views'
 import { CreatePlaylist, AddToPlaylist } from '../../components/Playlist'
@@ -16,6 +16,7 @@ export const AddToPlaylistContent = ({ navigation, state }) => {
   const { episodeId } = state ? state : navigation.state.params
   return (
     <ModalContainer>
+      <Text>haha</Text>
       <AddToPlaylist close={navigation.goBack} episodeId={episodeId} />
     </ModalContainer>
   )

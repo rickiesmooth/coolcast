@@ -33,16 +33,18 @@ export const PlaylistRowComposer = PlaylistRow =>
   class Enhanced extends React.Component {
     @computed
     get hasPlaylists() {
-      return this.props.playlistStore.hasPlaylists
+      const { userStore } = this.props
+      return (
+        userStore.currentUser &&
+        userStore.currentUser.playlists &&
+        userStore.currentUser.playlists.length
+      )
     }
 
     @computed
     get playlists() {
-      console.log(
-        '✨this.props.playlistStore.playlists.values()',
-        this.hasPlaylists
-      )
-      return this.props.playlistStore.playlists.values()
+      const { userStore } = this.props
+      return userStore.currentUser ? userStore.currentUser.playlists : []
     }
 
     render() {

@@ -8,14 +8,27 @@ import {
   flow
 } from 'mobx-state-tree'
 import { Show, Episode } from './podcastStore'
+import { Playlist } from './playlistStore'
 import { AsyncStorage } from 'react-native'
 
 export const User = types.model('User', {
   id: types.identifier(),
-  email: types.maybe(types.string),
-  name: types.string,
-  fbid: types.string,
-  history: types.maybe(types.array(types.reference(Show)))
+  email: types.optional(types.string, ''),
+  name: types.optional(types.string, ''),
+  fbid: types.optional(types.string, ''),
+  history: types.optional(types.array(types.reference(Show)), []),
+  playlists: types.optional(
+    types.array(types.reference(types.late(() => Playlist))),
+    []
+  ),
+  following: types.optional(
+    types.array(types.reference(types.late(() => User))),
+    []
+  ),
+  followers: types.optional(
+    types.array(types.reference(types.late(() => User))),
+    []
+  )
 })
 
 export const UserStore = types
@@ -35,7 +48,6 @@ export const UserStore = types
       )
     },
     userHistoryShow(id) {
-      // const { match, navigation, userStore } = this.props
       return (
         self.currentUser &&
         self.currentUser.history &&
@@ -50,15 +62,41 @@ export const UserStore = types
   }))
   .actions(self => ({
     setCurrentUser: flow(function*({ me }) {
-      const { id, email, fbid, name, history, playlists } = me
+      const {
+        id,
+        email,
+        fbid,
+        name,
+        history,
+        playlists,
+        following,
+        followers
+      } = me
       const podcastStore = self.root.podcastStore
       self.users.put({
         id,
         email,
         fbid,
         name,
+        followers: followers.map(user => self.addUser(user)),
+        following: following.map(user => self.addUser(user)),
+        playlists: playlists.map(({ id, name, episodes }) => {
+          self.root.playlistStore.addPlaylist({
+            id,
+            name,
+            author: me.id,
+            episodes: episodes.map(ep => {
+              self.root.podcastStore.addEpisode({
+                id: ep.id,
+                title: ep.title,
+                showId: ep.show[0].showId
+              })
+              return ep.id
+            })
+          })
+          return id
+        }),
         history: history.shows.map(({ show, plays }) => {
-          console.log('✨_plays', plays, me)
           const addedShow = self.root.podcastStore.addShow({
             id: show.showId,
             title: decodeURI(show.title),
@@ -79,22 +117,6 @@ export const UserStore = types
         })
       })
       self.currentUser = id
-      playlists.map(({ id, name, episodes }) => {
-        self.root.playlistStore.addPlaylist({
-          id,
-          name,
-          author: me.id,
-          episodes: episodes.map(ep => {
-            self.root.podcastStore.addEpisode({
-              id: ep.id,
-              title: ep.title,
-              showId: ep.show[0].showId
-            })
-            return ep.id
-          })
-        })
-        return id
-      })
     }),
     async readFromLocalStorage() {
       const token = await AsyncStorage.getItem('graphcoolToken')
@@ -102,6 +124,10 @@ export const UserStore = types
         const response = await self.root.apolloStore.userFromToken
         self.setCurrentUser(response.data)
       }
+    },
+    async follow(id) {
+      const response = await self.root.apolloStore.followUser(id)
+      console.log('✨response', response.data)
     },
     addUser(user) {
       const result = self.users.get(user.id)
@@ -112,10 +138,17 @@ export const UserStore = types
           result[key] = result[key] || user[key]
         }
       }
+      return user.id
     },
     async getUser(userId) {
       const response = await self.root.apolloStore.getUser(userId)
-      self.addUser(response.data.user)
+      const { following, followers, ...rest } = response.data.user
+
+      self.addUser({
+        followers: followers.map(user => self.addUser(user)),
+        following: following.map(user => self.addUser(user)),
+        ...rest
+      })
     },
     async login(token) {
       const response = await self.root.apolloStore.userFromFBToken(token)
@@ -135,8 +168,11 @@ export const UserStore = types
         show.updateHistory(id)
       }
     },
-    updatePlaylists(id) {
-      self.currentUser.playlists.push(id)
+    updatePlaylists(id, remove) {
+      const playlist = self.currentUser.playlists
+      remove
+        ? (self.currentUser.playlists = playlist.filter(i => i != id))
+        : playlist.push(id)
     },
     logout() {
       AsyncStorage.removeItem('graphcoolToken')

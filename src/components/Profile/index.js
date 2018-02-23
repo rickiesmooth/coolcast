@@ -2,6 +2,7 @@ import React from 'react'
 import { View, StyleSheet, Image, Text, ActivityIndicator } from 'react-native'
 import { FbLoginButton, Button } from '../Buttons'
 import { observer, inject } from 'mobx-react'
+import { Title } from '../Text'
 
 export const Login = ({ userStore, navigation, back }) => {
   return (
@@ -40,7 +41,7 @@ export class User extends React.Component {
     }
   }
   render() {
-    const logout = this.props.userStore.logout
+    this.user && console.log('✨this.user.following[0]', this.user.following[0])
     return this.user ? (
       <View style={styles.container}>
         <Image
@@ -51,8 +52,27 @@ export class User extends React.Component {
           }}
         />
         <Text>{this.user.name}</Text>
-        <Text>{this.user.email}</Text>
-        {this.isCurrentUser && <Button title={'Logout'} onPress={logout} />}
+        <View style={{ flexDirection: 'row' }}>
+          <Title
+            text={`${this.user.following.length} following`}
+            size={'large'}
+            style={{
+              marginRight: 20
+            }}
+          />
+          <Title
+            text={`${this.user.followers.length} followers`}
+            size={'large'}
+          />
+        </View>
+        {this.isCurrentUser ? (
+          <Button title={'Logout'} onPress={this.props.userStore.logout} />
+        ) : (
+          <Button
+            title={'Follow'}
+            onPress={() => this.props.userStore.follow(this.user.id)}
+          />
+        )}
       </View>
     ) : (
       <ActivityIndicator size="large" />

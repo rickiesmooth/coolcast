@@ -19,6 +19,12 @@ export const ApolloStore = types
     }
   }))
   .actions(self => ({
+    followUser: id => {
+      return client.mutate({
+        mutation: FOLLOW_USER,
+        variables: { userId: id }
+      })
+    },
     getPlaylist: id => {
       console.log('✨id>>', id)
       return client.query({
@@ -91,6 +97,12 @@ const LOGGED_IN_USER = gql`
       email
       fbid
       name
+      followers {
+        id
+      }
+      following {
+        id
+      }
       playlists {
         id
         name
@@ -124,6 +136,14 @@ const LOGGED_IN_USER = gql`
   }
 `
 
+const FOLLOW_USER = gql`
+  mutation GetPodcast($userId: ID!) {
+    followUser(userId: $userId) {
+      id
+    }
+  }
+`
+
 const GET_PODCAST = gql`
   mutation GetPodcast($showId: String!) {
     getPodcast(showId: $showId) {
@@ -143,6 +163,12 @@ const GET_USER = gql`
       id
       name
       fbid
+      followers {
+        id
+      }
+      following {
+        id
+      }
     }
   }
 `

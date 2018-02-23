@@ -28,10 +28,16 @@ export const PodcastEpisodeComposer = Episode =>
         id,
         toggleLiked
       } = this.episode
+      let t
+      try {
+        t = decodeURI(title)
+      } catch (e) {
+        console.log('✨e', e)
+      }
       return (
         <Episode
           {...this.props}
-          title={decodeURI(title)}
+          title={t}
           id={id}
           progress={progress > 0 && progress}
           duration={duration}

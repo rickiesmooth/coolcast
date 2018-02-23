@@ -13,12 +13,12 @@ const RootStore = types
       shows: {},
       episodes: {}
     }),
-    playlistStore: types.optional(PlaylistStore, {
-      playlists: {}
-    }),
     userStore: types.optional(UserStore, {
       currentUser: null,
       users: {}
+    }),
+    playlistStore: types.optional(PlaylistStore, {
+      playlists: {}
     }),
     navigationStore: types.optional(NavigationStore, {
       page: ''
