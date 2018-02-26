@@ -16,7 +16,6 @@ export const AddToPlaylistContent = ({ navigation, state }) => {
   const { episodeId } = state ? state : navigation.state.params
   return (
     <ModalContainer>
-      <Text>haha</Text>
       <AddToPlaylist close={navigation.goBack} episodeId={episodeId} />
     </ModalContainer>
   )

@@ -6,6 +6,8 @@ import {
   AddToPlaylistContent
 } from '../screens/Modals/Playlists'
 
+import { FollowContent } from '../screens/Modals/Profile'
+
 export class ModalComponent extends React.Component {
   state = {
     fadeAnim: new Animated.Value(0) // Initial value for opacity: 0
@@ -60,6 +62,9 @@ export const ModalContent = ({ content, ...rest }) => {
       return <AddToPlaylistContent {...rest} />
     case 'CreatePlaylist':
       return <CreatePlaylistContent {...rest} />
+    case 'Follow':
+      return <FollowContent {...rest} />
+
     default:
       return <Text>Not found</Text>
   }

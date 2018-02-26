@@ -2,13 +2,19 @@ import React from 'react'
 import { View } from 'react-native'
 import { Title } from '../../components/Text'
 import { ModalContainer } from '../../components/Views'
-import { CreatePlaylist, AddToPlaylist } from '../../components/Playlist'
+import { Follow } from '../../components/Profile'
 
-export const FollowModal = ({ navigation, state }) => {
-  const { episodeId } = state ? state : navigation.state.params
+export const FollowContent = props => {
+  const { navigation, state } = props
+  const { following, followers } = state ? state : navigation.state.params
   return (
     <ModalContainer>
-      <Followlist close={navigation.goBack} episodeId={episodeId} />
+      <Follow
+        close={navigation.goBack}
+        userId={following || followers}
+        followers={!!followers}
+        following={!!following}
+      />
     </ModalContainer>
   )
 }

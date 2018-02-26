@@ -21,10 +21,11 @@ class NavigationStore {
   @action
   dispatch = (action, stackNavState = true) => {
     const previousNavState = stackNavState ? this.navigationState : null
-    return (this.navigationState = MainTabNavigator.router.getStateForAction(
+    const newState = (this.navigationState = MainTabNavigator.router.getStateForAction(
       action,
       previousNavState
     ))
+    return true
   }
 }
 

@@ -1,7 +1,7 @@
 import React from 'react'
 import { AppRegistry } from 'react-native'
 import { Provider as MobxProvider } from 'mobx-react'
-
+import { ApolloProvider } from 'react-apollo'
 import { RootNavigation } from './src/navigation'
 
 import RootStore from './src/stores'
@@ -16,9 +16,11 @@ if (typeof window !== 'undefined') {
 class Coolcast extends React.Component {
   render() {
     return (
-      <MobxProvider {...stores}>
-        <RootNavigation />
-      </MobxProvider>
+      <ApolloProvider client={client}>
+        <MobxProvider {...stores}>
+          <RootNavigation />
+        </MobxProvider>
+      </ApolloProvider>
     )
   }
 }

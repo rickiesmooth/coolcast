@@ -1,8 +1,15 @@
 import React from 'react'
-import { View, StyleSheet, Image, Text, ActivityIndicator } from 'react-native'
-import { FbLoginButton, Button } from '../Buttons'
-import { observer, inject } from 'mobx-react'
-import { Title } from '../Text'
+import { View, StyleSheet, ActivityIndicator } from 'react-native'
+import { FbLoginButton } from '../Buttons'
+import { ProfileComposer } from '../../containers/Profile'
+
+import { User } from './User'
+import { FollowModal } from './FollowModal'
+
+const ProfileSwitcher = ({ isLogin, ...rest }) =>
+  isLogin ? <Login {...rest} /> : <User {...rest} />
+
+export const Profile = ProfileComposer(ProfileSwitcher)
 
 export const Login = ({ userStore, navigation, back }) => {
   return (
@@ -16,71 +23,14 @@ export const Login = ({ userStore, navigation, back }) => {
   )
 }
 
-@inject('userStore')
-@observer
-export class User extends React.Component {
-  get isCurrentUser() {
-    const { userStore } = this.props
-    return (
-      !this.props.navigationKey ||
-      (userStore.currentUser &&
-        userStore.currentUser.id === this.props.navigationKey)
-    )
-  }
-  get user() {
-    const { userStore, navigationKey } = this.props
-    if (!navigationKey) {
-      return userStore.currentUser
-    } else {
-      return userStore.users.get(this.props.navigationKey)
-    }
-  }
-  componentDidMount() {
-    if (this.props.navigationKey && !this.user) {
-      this.props.userStore.getUser(this.props.navigationKey)
-    }
-  }
-  render() {
-    this.user && console.log('✨this.user.following[0]', this.user.following[0])
-    return this.user ? (
-      <View style={styles.container}>
-        <Image
-          style={styles.thumb}
-          source={{
-            uri: `https://graph.facebook.com/${this.user
-              .fbid}/picture?type=large`
-          }}
-        />
-        <Text>{this.user.name}</Text>
-        <View style={{ flexDirection: 'row' }}>
-          <Title
-            text={`${this.user.following.length} following`}
-            size={'large'}
-            style={{
-              marginRight: 20
-            }}
-          />
-          <Title
-            text={`${this.user.followers.length} followers`}
-            size={'large'}
-          />
-        </View>
-        {this.isCurrentUser ? (
-          <Button title={'Logout'} onPress={this.props.userStore.logout} />
-        ) : (
-          <Button
-            title={'Follow'}
-            onPress={() => this.props.userStore.follow(this.user.id)}
-          />
-        )}
-      </View>
-    ) : (
-      <ActivityIndicator size="large" />
-    )
-  }
-}
+export const Follow = FollowModal
 
 const styles = StyleSheet.create({
+  contentContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
   container: {
     flex: 1,
     backgroundColor: '#fff',

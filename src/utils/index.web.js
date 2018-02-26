@@ -22,7 +22,6 @@ export const FlatList = function(props) {
     renderItem,
     style
   } = props
-  console.log('✨data', data)
   return (
     <View style={{ flex: 1, flexDirection: !horizontal ? 'row' : 'column' }}>
       {horizontal && ListHeaderComponent && <ListHeaderComponent />}

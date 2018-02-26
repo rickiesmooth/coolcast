@@ -72,14 +72,12 @@ export const UserStore = types
         following,
         followers
       } = me
-      const podcastStore = self.root.podcastStore
+      const { podcastStore } = self.root
       self.users.put({
         id,
         email,
         fbid,
         name,
-        followers: followers.map(user => self.addUser(user)),
-        following: following.map(user => self.addUser(user)),
         playlists: playlists.map(({ id, name, episodes }) => {
           self.root.playlistStore.addPlaylist({
             id,
@@ -170,9 +168,11 @@ export const UserStore = types
     },
     updatePlaylists(id, remove) {
       const playlist = self.currentUser.playlists
-      remove
-        ? (self.currentUser.playlists = playlist.filter(i => i != id))
-        : playlist.push(id)
+      if (remove) {
+        self.currentUser.playlists = playlist.filter(i => i.id !== id)
+      } else {
+        playlist.push(id)
+      }
     },
     logout() {
       AsyncStorage.removeItem('graphcoolToken')
