@@ -60,11 +60,11 @@ const SearchResults = props => {
 }
 
 const SearchInputWithResults = props => {
-  const { toggleSearchResults, isHidden } = props
+  const { toggleSearchResults, hidden } = props
   return (
     <View style={styles.searchInput}>
       <ComposedSearchInput toggleSearchResults={toggleSearchResults} />
-      <ComposedSearchResults style={styles.results} isHidden={isHidden} />
+      {!hidden && <ComposedSearchResults style={styles.results} />}
     </View>
   )
 }
@@ -72,7 +72,6 @@ const SearchInputWithResults = props => {
 const ListItem = props => {
   const { podcast, setCurrentPodcast } = props
   return (
-    // @TODO fix navigation
     <Link to={`/podcast/${podcast.id}`}>
       <View style={styles.container}>
         <Image style={styles.image} source={{ uri: podcast.thumb }} />

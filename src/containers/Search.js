@@ -3,73 +3,75 @@ import { View, Platform } from 'react-native'
 import { computed, action, observable } from 'mobx'
 import { observer, inject } from 'mobx-react'
 
-export const SearchInputComposer = SearchInput =>
-  @inject('podcastStore', 'searchStore')
-  @observer
-  class Enhanced extends React.Component {
-    onTextInputChange = value => this.props.searchStore.searchPodcast(value)
-    render() {
-      return (
-        <SearchInput
-          {...this.props}
-          toggleSearchResults={this.props.toggleSearchResults}
-          onTextInputChange={this.onTextInputChange}
-          query={this.props.searchStore.query}
-          placeholder={'Search...'}
-        />
-      )
-    }
-  }
+import { pure, compose, withHandlers, withState, mapProps } from 'recompose'
+import gql from 'graphql-tag'
+import { graphql } from 'react-apollo'
 
-export const SearchResultsComposer = SearchResults =>
-  @inject('searchStore', 'podcastStore', 'navigationStore')
-  @observer
-  class Enhanced extends React.Component {
-    @computed
-    get results() {
-      return this.props.searchStore.searchResults
-    }
+export const SearchInputComposer = SearchInput => {
+  return compose(
+    inject('searchStore'),
+    observer,
+    withHandlers({
+      onTextInputChange: props => async value => {
+        props.searchStore.searchPodcast(value)
+      }
+    })
+  )(SearchInput)
+}
 
-    setCurrentPodcast = show => {
-      return this.props.podcastStore.getShow(show.id)
-    }
-
-    render() {
-      return !this.results || this.props.isHidden ? null : (
-        <SearchResults
-          {...this.props}
-          results={this.results}
-          setCurrentPodcast={this.setCurrentPodcast}
-        />
-      )
-    }
-  }
+export const SearchResultsComposer = SearchResults => {
+  return compose(
+    inject('searchStore'),
+    observer,
+    mapProps(({ searchStore, isHidden, ...rest }) => ({
+      get results() {
+        return searchStore.searchResults
+      },
+      get isHidden() {
+        return !this.results || isHidden
+      },
+      searchStore,
+      isHidden,
+      ...rest
+    }))
+  )(SearchResults)
+}
 
 export const SearchInputWithResultsComposer = SearchInputWithResults =>
-  @inject('userStore', 'podcastStore')
-  @observer
-  class Enhanced extends React.Component {
-    @observable hidden = true
-
-    @action
-    toggleSearchResults = val => {
-      if (Platform.OS === 'web') {
-        this.hidden = val
+  compose(
+    inject('searchStore'),
+    withState('hidden', 'setHidden', true),
+    withHandlers({
+      toggleSearchResults: props => val => {
+        if (Platform.OS === 'web') {
+          props.setHidden(val)
+        }
       }
-    }
+    })
+  )(SearchInputWithResults)
 
-    @computed
-    get isHidden() {
-      return this.hidden
-    }
-
-    render() {
-      return (
-        <SearchInputWithResults
-          {...this.props}
-          toggleSearchResults={this.toggleSearchResults}
-          isHidden={this.isHidden}
-        />
-      )
-    }
-  }
+// class Enhanced extends React.Component {
+//   @observable hidden = true
+//
+//   @action
+//   toggleSearchResults = val => {
+//     if (Platform.OS === 'web') {
+//       this.hidden = val
+//     }
+//   }
+//
+//   @computed
+//   get isHidden() {
+//     return this.hidden
+//   }
+//
+//   render() {
+//     return (
+//       <SearchInputWithResults
+//         {...this.props}
+//         toggleSearchResults={this.toggleSearchResults}
+//         isHidden={this.isHidden}
+//       />
+//     )
+//   }
+// }

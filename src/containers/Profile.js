@@ -9,26 +9,16 @@ export const ProfileComposer = Component =>
       return this.props.userStore.currentUser
     }
     get isCurrentUser() {
-      return !this.props.navigationKey
+      return !this.props.userId
         ? true
         : this.props.userStore.currentUser &&
-            this.props.userStore.currentUser.id === this.props.navigationKey
+            this.props.userStore.currentUser.id === this.props.userId
     }
     get isLogin() {
       return (
-        !this.props.navigationKey &&
-        this.props.location &&
-        this.props.location.pathname === '/login'
+        !this.props.userId ||
+        (this.props.location && this.props.location.pathname === '/login')
       )
-    }
-
-    get user() {
-      const { userStore, navigationKey } = this.props
-      if (!navigationKey) {
-        return userStore.currentUser
-      } else {
-        return userStore.users.get(this.props.navigationKey)
-      }
     }
 
     render() {

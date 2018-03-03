@@ -12,9 +12,10 @@ import { FbLoginButton, Button } from '../Buttons'
 const UserProfileResultPure = ({
   userStore,
   isCurrentUser,
+  isLogin,
   data: { loading, user }
 }) => {
-  if (loading) {
+  if (loading || !user) {
     return <Text>Loading</Text>
   } else {
     const { fbid, name, id, following, followers } = user
@@ -85,7 +86,9 @@ const data = graphql(
   `,
   {
     options: props => ({
-      variables: { userId: props.navigationKey || props.currentUser.id }
+      variables: {
+        userId: props.userId || (props.currentUser && props.currentUser.id)
+      }
     })
   }
 )

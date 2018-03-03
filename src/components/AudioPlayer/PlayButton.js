@@ -11,7 +11,7 @@ export const PlayButton = props => {
       style={styles.wrapper}
     >
       <View>
-        <Icon name={!isPlaying ? 'play' : 'pause'} size={24} color={color} />
+        <Icon name={!isPlaying ? 'play' : 'pause'} size={32} color={color} />
       </View>
     </TouchableOpacity>
   )

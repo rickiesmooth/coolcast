@@ -15,11 +15,14 @@ import { observable, action, computed } from 'mobx'
 
 import { EpisodeItem, ShowItem } from '../Podcast'
 import { PlaylistItem, CreatePlaylistButton } from '../Playlist'
-import { Container } from '../Views'
-import { HistoryRowComposer, PlaylistRowComposer } from '../../containers/Row'
+import { Container, RowContainer } from '../Views'
+
+import { pure, compose } from 'recompose'
+import gql from 'graphql-tag'
+import { graphql } from 'react-apollo'
 
 const HistoryComponent = props => {
-  const { hasHistory, title, shows, episodes, horizontal } = props
+  const { hasHistory, title, shows, horizontal } = props
   return hasHistory ? (
     <View
       style={[
@@ -30,18 +33,20 @@ const HistoryComponent = props => {
       <FlatList
         data={shows}
         style={styles.listView}
-        keyExtractor={item => item.id}
+        keyExtractor={item => item.show.showId}
         horizontal={horizontal}
         ListHeaderComponent={() => (
           <Container style={styles.header}>
             <Title text={title} size={'large'} numberOfLines={1} />
           </Container>
         )}
-        renderItem={({ item, index }) => {
+        renderItem={({ item: { show }, index }) => {
           return (
             <ShowItem
-              showId={item.id}
-              episodes={item.history}
+              showId={show.showId}
+              episodes={show.onlyEpisodesWithHistory}
+              thumbLarge={show.thumbLarge}
+              title={show.title}
               card={true}
               style={[
                 horizontal ? styles.horizontalItem : styles.verticalItem,
@@ -54,8 +59,6 @@ const HistoryComponent = props => {
     </View>
   ) : null
 }
-
-export const HistoryRow = HistoryRowComposer(HistoryComponent)
 
 const PlaylistComponent = props => {
   const { hasPlaylists, title, playlists, createPlaylist, horizontal } = props
@@ -91,8 +94,8 @@ const PlaylistComponent = props => {
           return (
             <PlaylistItem
               name={item.name}
-              id={item.id}
-              author={item.author}
+              playlistId={item.id}
+              author={item.user}
               episodes={item.episodes}
               style={[
                 horizontal ? styles.horizontalItem : styles.verticalItem,
@@ -108,7 +111,72 @@ const PlaylistComponent = props => {
   )
 }
 
-export const PlayListRow = PlaylistRowComposer(PlaylistComponent)
+const data = graphql(
+  gql`
+    query UserQuery {
+      me {
+        id
+        playlists {
+          id
+          name
+          user {
+            id
+            name
+          }
+          episodes {
+            id
+            title
+            show {
+              showId
+            }
+          }
+        }
+        history {
+          id
+          shows {
+            show {
+              id
+              title
+              thumbLarge
+              showId
+              onlyEpisodesWithHistory {
+                id
+                title
+                plays {
+                  id
+                  progress
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  `
+)
+
+const HomeRowsPure = ({ userStore, isCurrentUser, data: { loading, me } }) => {
+  if (loading) {
+    return <Text>Loading</Text>
+  } else {
+    return (
+      <RowContainer>
+        <HistoryComponent
+          horizontal={true}
+          shows={me && me.history.shows}
+          hasHistory={me && !!me.history}
+        />
+        <PlaylistComponent
+          horizontal={true}
+          playlists={me && me.playlists}
+          hasPlaylists={me && !!me.playlists}
+        />
+      </RowContainer>
+    )
+  }
+}
+
+export const HomeRows = compose(data, pure)(HomeRowsPure)
 
 const styles = StyleSheet.create({
   container: {

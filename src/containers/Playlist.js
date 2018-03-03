@@ -2,117 +2,115 @@ import React from 'react'
 import { ActivityIndicator } from 'react-native'
 import { observer, inject } from 'mobx-react'
 
-export const PlaylistItemComposer = PlaylistItem =>
-  @inject('playlistStore')
-  @observer
-  class EnhancedPlaylistItem extends React.Component {
-    state = {
-      editing: false
-    }
+import { pure, compose, withHandlers, mapProps, withState } from 'recompose'
+import gql from 'graphql-tag'
+import { graphql } from 'react-apollo'
 
-    removePlaylist = e => {
-      this.props.playlistStore.removePlaylist(this.props.id)
-    }
-
-    editPlaylist = e => {
-      this.setState({
-        editing: !this.state.editing
-      })
-    }
-
-    get editing() {
-      return this.state.editing
-    }
-
-    get hasEpisodes() {
-      return (
-        this.playlist && this.playlist.episodes && this.playlist.episodes.length
-      )
-    }
-
-    get playlist() {
-      return this.props.playlistStore.playlists.get(this.props.id)
-    }
-
-    componentDidMount() {
-      const { id, playlistStore } = this.props
-      if (!this.playlist) {
-        // there is no playlist yet > when landing
-        playlistStore.getPlaylist({ playlistId: id })
-      } else if (this.playlist && !this.playlist.episodes) {
-        // there is a playlist but no episodes yet > when navigation from home
-        playlistStore.getPlaylistEpisodes(this.show)
+export const PlaylistItemComposer = PlaylistComponent =>
+  compose(
+    observer,
+    graphql(removeMutation),
+    graphql(data, {
+      options: ({ playlistId }) => ({ variables: { playlistId } })
+    }),
+    withState('editing', 'setEditing', false),
+    withHandlers({
+      editPlaylist: ({ editing, setEditing }) => e => setEditing(!editing),
+      removePlaylist: props => e => {
+        const { mutate, playlistId } = props
+        mutate({ variables: { id: playlistId } })
       }
-    }
-
-    render() {
-      return this.playlist ? (
-        <PlaylistItem
-          {...this.props}
-          {...this.playlist}
-          editPlaylist={this.editPlaylist}
-          removePlaylist={this.removePlaylist}
-          editing={this.editing}
-          hasEpisodes={this.hasEpisodes}
-        />
-      ) : (
-        <ActivityIndicator size={'large'} />
-      )
-    }
-  }
+    })
+  )(PlaylistComponent)
 
 export const CreatePlaylistComposer = CreatePlaylistComponent =>
-  @inject('playlistStore', 'userStore')
-  @observer
-  class EnhancedButton extends React.Component {
-    state = {
-      playlistName: null
-    }
-
-    updateName = playlistName => {
-      this.setState({ playlistName })
-    }
-
-    submitPlaylist = e => {
-      this.props.close(e)
-      this.props.playlistStore.addPlaylist({
-        name: this.state.playlistName,
-        author: this.props.userStore.currentUser.id
-      })
-    }
-
-    render() {
-      const { viewStore, apolloStore, ...rest } = this.props
-      return (
-        <CreatePlaylistComponent
-          {...rest}
-          name={'Enter playlist name'}
-          submit={this.submitPlaylist}
-          update={this.updateName}
-        />
-      )
-    }
-  }
+  compose(
+    inject('userStore'),
+    observer,
+    graphql(addMutation),
+    withState('playlistName', 'setPlaylistName', null),
+    withHandlers({
+      submit: ({ mutate, playlistName, userStore, close }) => e => {
+        close(e)
+        mutate({
+          variables: {
+            name: playlistName,
+            author: userStore.currentUser.id
+          }
+        })
+      },
+      update: props => e => props.setPlaylistName(e)
+    })
+  )(CreatePlaylistComponent)
 
 export const AddToPlaylistComposer = AddToPlaylistComponent =>
-  @inject('playlistStore', 'apolloStore')
-  @observer
-  class EnhancedButton extends React.Component {
-    addToPlaylist = (playlistId, episodeId) => {
-      this.props.playlistStore.addToPlaylist(playlistId, episodeId)
-      this.props.close()
-    }
+  compose(
+    inject('userStore'),
+    observer,
+    graphql(addToPlaylistMutation),
+    graphql(playlistsQuery),
+    withState('playlistName', 'setPlaylistName', null),
+    withHandlers({
+      addToPlaylist: props => (playlistId, e) => {
+        const { mutate, close, episodeId } = props
+        mutate({ variables: { playlistId, episodeId } })
+        close(e)
+      },
+      update: props => e => {
+        props.setPlaylistName(e)
+      }
+    })
+  )(AddToPlaylistComponent)
 
-    render() {
-      const { viewStore, apolloStore, playlistStore, ...rest } = this.props
-
-      return (
-        <AddToPlaylistComponent
-          {...rest}
-          name={'Create Playlist'}
-          playlists={playlistStore.playlists}
-          addToPlaylist={this.addToPlaylist}
-        />
-      )
+const addMutation = gql`
+  mutation AddPlaylist($name: String!) {
+    addPlaylist(name: $name) {
+      id
     }
   }
+`
+
+const removeMutation = gql`
+  mutation RemovePlaylist($id: ID!) {
+    removePlaylist(id: $id) {
+      id
+    }
+  }
+`
+
+const addToPlaylistMutation = gql`
+  mutation UpdatePlaylist($playlistId: ID!, $episodeId: ID!) {
+    updatePlaylist(playlistId: $playlistId, episodeId: $episodeId) {
+      id
+    }
+  }
+`
+
+const playlistsQuery = gql`
+  query myPlaylists {
+    me {
+      playlists {
+        id
+        name
+      }
+    }
+  }
+`
+
+const data = gql`
+  query GetPlaylist($playlistId: ID!) {
+    playlist(id: $playlistId) {
+      id
+      name
+      user {
+        id
+        name
+        fbid
+      }
+      episodes {
+        id
+        title
+      }
+    }
+  }
+`

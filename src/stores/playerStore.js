@@ -1,5 +1,25 @@
 import { types, getRoot, flow } from 'mobx-state-tree'
-import { Episode } from './podcastStore'
+
+export const Episode = types
+  .model('Episode', {
+    id: types.identifier(),
+    title: types.maybe(types.string),
+    src: types.maybe(types.string),
+    progress: types.maybe(types.number),
+    showId: types.maybe(types.string),
+    duration: types.maybe(types.number),
+    sessionId: types.maybe(types.string)
+  })
+  .views(self => ({
+    get root() {
+      return getRoot(self)
+    }
+  }))
+  .actions(self => ({
+    setProgress(progress) {
+      self.progress = progress
+    }
+  }))
 
 const PlaybackState = types.model({
   playbackInstancePosition: types.number,
@@ -17,7 +37,7 @@ export const PlayerStore = types
     isSeeking: false,
     shouldPlayAtendOfSeek: false,
     state: PlaybackState,
-    currentPlaying: types.maybe(types.reference(Episode))
+    currentPlaying: types.maybe(Episode)
   })
   .views(self => ({
     get root() {
@@ -29,34 +49,13 @@ export const PlayerStore = types
         state.playbackInstancePosition / state.playbackInstanceDuration || 0
       )
     }
-    // get secondsFromPercentage() {
-    //   console.log(
-    //     '✨this.props.playerStore.state.durationMillis',
-    //     self.state.durationMillis
-    //   )
-    //   return self.state
-    // }
   }))
   .actions(self => ({
-    setCurrentPlaying: flow(function*(props) {
-      const { id, showId, sessionId, src } = props
-      const { userStore, apolloStore, podcastStore } = self.root
+    setCurrentPlaying: flow(function*(currentPlaying) {
+      const { userStore } = self.root
 
-      if (!sessionId || !src) {
-        const response = yield apolloStore.createPodcastPlay({
-          episodeId: id,
-          showId,
-          sessionId: sessionId
-        })
-        podcastStore.addEpisode({
-          id: id,
-          src: response.data.addPlay.episode.src,
-          sessionId: response.data.addPlay.id
-        })
-      }
-      userStore.updateHistory(props)
-      console.log('✨id', id)
-      self.currentPlaying = id
+      // userStore.updateHistory(props)
+      self.currentPlaying = currentPlaying
     }),
     onPlayPausePressed() {
       if (self.playbackInstance != null) {
