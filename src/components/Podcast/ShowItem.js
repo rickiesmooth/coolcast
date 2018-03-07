@@ -35,14 +35,13 @@ const ShowList = ({ episodes, title, showId, thumbLarge }) => {
       data={episodes}
       keyExtractor={({ id }) => id}
       renderItem={({ item }) => {
-        const { plays, id, ...rest } = item
-        const play = plays[0]
+        const { id, sessionId, progress, ...rest } = item
         return (
           <EpisodeItem
             {...rest}
             episodeId={id}
-            sessionId={(play && play.id) || null}
-            progress={play && play.progress}
+            sessionId={sessionId || null}
+            progress={progress}
             showId={showId}
           />
         )
@@ -62,9 +61,7 @@ const ShowList = ({ episodes, title, showId, thumbLarge }) => {
 const ShowCard = ({ episodes, title, showId, thumbLarge }) => {
   const el = episodes.length - 1
   const lastEpisode = episodes[el]
-  const { plays, id, ...rest } = lastEpisode
-
-  const play = plays[0]
+  const { id, sessionId, progress, ...rest } = lastEpisode
   return (
     <View
       style={{
@@ -81,9 +78,9 @@ const ShowCard = ({ episodes, title, showId, thumbLarge }) => {
       <EpisodeItem
         showId={showId}
         {...rest}
-        progress={play && play.progress}
-        sessionId={(play && play.id) || null}
-        episodeId={lastEpisode.id}
+        progress={progress}
+        sessionId={sessionId || null}
+        episodeId={id}
       />
       <Link
         to={`/history/${showId}`}
@@ -91,19 +88,20 @@ const ShowCard = ({ episodes, title, showId, thumbLarge }) => {
           marginTop: 'auto'
         }}
       >
-        <Text>{`${el} more`}</Text>
+        {el > 0 && <Text>View all</Text>}
       </Link>
     </View>
   )
 }
 
 export const ShowItem = ({ loading, episodes, card, style, ...rest }) => {
+  console.log('✨episodes', episodes)
   return (
     <View style={[style, styles.content]}>
       {card ? (
         <ShowCard {...rest} episodes={episodes} />
       ) : (
-        <ShowList {...rest} episodes={episodes} />
+        <ShowList {...rest} episodes={episodes || []} />
       )}
     </View>
   )

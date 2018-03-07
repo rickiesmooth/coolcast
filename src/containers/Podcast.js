@@ -5,33 +5,40 @@ import { pure, compose, withHandlers, mapProps } from 'recompose'
 import gql from 'graphql-tag'
 import { graphql } from 'react-apollo'
 
+import { UserQuery } from './Page'
+
 const mutation = gql`
   mutation makePlay($episodeId: ID!, $showId: String!, $sessionId: ID) {
     addPlay(episodeId: $episodeId, showId: $showId, sessionId: $sessionId) {
       id
       episode {
+        id
         src
       }
     }
   }
 `
-
-export const PodcastEpisodeComposer = Episode => {
-  return compose(
+export const PodcastEpisodeComposer = Episode =>
+  compose(
     inject('playerStore'),
-    observer,
-    graphql(mutation),
-    mapProps(({ playerStore, episodeId, ...rest }) => ({
-      get isCurrentlyPlaying() {
-        return (
-          playerStore.currentPlaying &&
-          playerStore.currentPlaying.id === episodeId
-        )
-      },
-      episodeId,
-      playerStore,
-      ...rest
-    })),
+    graphql(mutation, {
+      options: {
+        refetchQueries: [{ query: UserQuery }] // <-- new
+      }
+    }),
+    mapProps(({ playerStore, episodeId, ...rest }) => {
+      return {
+        get isCurrentlyPlaying() {
+          return (
+            playerStore.currentPlaying &&
+            playerStore.currentPlaying.id === episodeId
+          )
+        },
+        episodeId,
+        playerStore,
+        ...rest
+      }
+    }),
     withHandlers({
       createPlay: props => {
         const { mutate, episodeId, showId, sessionId, src, progress } = props
@@ -47,6 +54,6 @@ export const PodcastEpisodeComposer = Episode => {
           props.playerStore.setCurrentPlaying(cp)
         }
       }
-    })
+    }),
+    pure
   )(Episode)
-}

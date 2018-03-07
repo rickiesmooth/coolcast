@@ -6,12 +6,14 @@ import { pure, compose, withHandlers, mapProps, withState } from 'recompose'
 import gql from 'graphql-tag'
 import { graphql } from 'react-apollo'
 
+import { UserQuery } from './Page'
+
 export const PlaylistItemComposer = PlaylistComponent =>
   compose(
-    observer,
-    graphql(removeMutation),
-    graphql(data, {
-      options: ({ playlistId }) => ({ variables: { playlistId } })
+    graphql(removeMutation, {
+      options: {
+        refetchQueries: [{ query: UserQuery }] // <-- new
+      }
     }),
     withState('editing', 'setEditing', false),
     withHandlers({
@@ -20,14 +22,28 @@ export const PlaylistItemComposer = PlaylistComponent =>
         const { mutate, playlistId } = props
         mutate({ variables: { id: playlistId } })
       }
-    })
+    }),
+    pure
   )(PlaylistComponent)
+
+export const PlaylistPageComposer = Page =>
+  compose(
+    graphql(data, {
+      options: ({ navigationKey }) => {
+        return { variables: { playlistId: navigationKey } }
+      }
+    }),
+    pure
+  )(Page)
 
 export const CreatePlaylistComposer = CreatePlaylistComponent =>
   compose(
     inject('userStore'),
-    observer,
-    graphql(addMutation),
+    graphql(addMutation, {
+      options: {
+        refetchQueries: [{ query: UserQuery }] // <-- new
+      }
+    }),
     withState('playlistName', 'setPlaylistName', null),
     withHandlers({
       submit: ({ mutate, playlistName, userStore, close }) => e => {
@@ -40,13 +56,12 @@ export const CreatePlaylistComposer = CreatePlaylistComponent =>
         })
       },
       update: props => e => props.setPlaylistName(e)
-    })
+    }),
+    pure
   )(CreatePlaylistComponent)
 
 export const AddToPlaylistComposer = AddToPlaylistComponent =>
   compose(
-    inject('userStore'),
-    observer,
     graphql(addToPlaylistMutation),
     graphql(playlistsQuery),
     withState('playlistName', 'setPlaylistName', null),
@@ -59,7 +74,8 @@ export const AddToPlaylistComposer = AddToPlaylistComponent =>
       update: props => e => {
         props.setPlaylistName(e)
       }
-    })
+    }),
+    pure
   )(AddToPlaylistComponent)
 
 const addMutation = gql`

@@ -2,17 +2,11 @@ import { types, getEnv } from 'mobx-state-tree'
 import { PlayerStore } from './playerStore'
 import { UserStore } from './userStore'
 import { ApolloStore } from './apolloStore'
-import { SearchStore } from './searchStore'
 
 const RootStore = types
   .model('RootStore', {
     userStore: types.optional(UserStore, {
-      currentUser: null,
-      users: {}
-    }),
-    searchStore: types.optional(SearchStore, {
-      results: {},
-      query: ''
+      currentUser: null
     }),
     apolloStore: types.optional(ApolloStore, {
       client: ''

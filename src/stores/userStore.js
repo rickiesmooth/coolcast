@@ -18,8 +18,7 @@ export const User = types.model('User', {
 
 export const UserStore = types
   .model('UserStore', {
-    currentUser: types.maybe(types.reference(User)),
-    users: types.map(User)
+    currentUser: types.maybe(User)
   })
   .views(self => ({
     get root() {
@@ -29,13 +28,7 @@ export const UserStore = types
   .actions(self => ({
     setCurrentUser: flow(function*({ me }) {
       const { id, email, fbid, name } = me
-      self.users.put({
-        id,
-        email,
-        fbid,
-        name
-      })
-      self.currentUser = id
+      self.currentUser = { id, email, fbid, name }
     }),
     async readFromLocalStorage() {
       const token = await AsyncStorage.getItem('graphcoolToken')
@@ -43,14 +36,6 @@ export const UserStore = types
         const response = await self.root.apolloStore.userFromToken
         self.setCurrentUser(response.data)
       }
-    },
-    async login(token) {
-      const response = await self.root.apolloStore.userFromFBToken(token)
-      AsyncStorage.setItem('graphcoolToken', response.data.authenticate.token)
-
-      const userHistory = await self.root.apolloStore.userFromToken
-      self.setCurrentUser(userHistory.data)
-      return response
     },
     logout() {
       AsyncStorage.removeItem('graphcoolToken')

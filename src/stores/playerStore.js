@@ -53,8 +53,6 @@ export const PlayerStore = types
   .actions(self => ({
     setCurrentPlaying: flow(function*(currentPlaying) {
       const { userStore } = self.root
-
-      // userStore.updateHistory(props)
       self.currentPlaying = currentPlaying
     }),
     onPlayPausePressed() {

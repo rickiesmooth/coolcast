@@ -20,14 +20,16 @@ import {
   SearchInputWithResultsComposer
 } from '../../containers/Search'
 
+const inString = (s, q) => s.toLowerCase().includes(q.toLowerCase())
+
 const SearchInput = props => {
-  const { query, onTextInputChange, toggleSearchResults, placeholder } = props
+  const { query, toggleSearchResults, onInput, placeholder } = props
   return (
     <View style={styles.search}>
       <TextInput
         value={query}
         style={styles.input}
-        onChangeText={onTextInputChange}
+        onChangeText={onInput}
         onFocus={toggleSearchResults ? () => toggleSearchResults(false) : null}
         onBlur={
           toggleSearchResults
@@ -47,24 +49,38 @@ const SearchInput = props => {
 
 const SearchResults = props => {
   const { results, style, setCurrentPodcast } = props
-  return (
+  const hasResults = results.length > 0
+  return hasResults ? (
     <FlatList
       data={results}
       style={style}
       keyExtractor={(item, index) => item.id}
-      renderItem={({ item }) => (
-        <ListItem podcast={item} setCurrentPodcast={setCurrentPodcast} />
-      )}
+      renderItem={({ item }) => {
+        return <ListItem podcast={item} setCurrentPodcast={setCurrentPodcast} />
+      }}
     />
-  )
+  ) : null
 }
 
 const SearchInputWithResults = props => {
-  const { toggleSearchResults, hidden } = props
+  const { toggleSearchResults, hidden, results, onInput, query } = props
+
   return (
     <View style={styles.searchInput}>
-      <ComposedSearchInput toggleSearchResults={toggleSearchResults} />
-      {!hidden && <ComposedSearchResults style={styles.results} />}
+      <SearchInput
+        toggleSearchResults={toggleSearchResults}
+        results={results}
+        query={query}
+        onInput={onInput}
+      />
+      {!hidden && (
+        <SearchResults
+          style={styles.results}
+          results={Object.values(query ? results : []).filter(r =>
+            inString(r.title, query)
+          )}
+        />
+      )}
     </View>
   )
 }

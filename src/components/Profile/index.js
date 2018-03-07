@@ -6,10 +6,11 @@ import { compose } from 'recompose'
 
 import { User } from './User'
 
-const ProfileSwitcher = ({ isLogin, ...rest }) =>
-  isLogin ? <Login {...rest} /> : <User {...rest} />
+const ProfileSwitcher = ({ isLogin, ...rest }) => {
+  return isLogin ? <Login {...rest} /> : <User {...rest} />
+}
 
-export const Profile = compose(ProfileComposer)(ProfileSwitcher)
+export const Profile = ProfileComposer(ProfileSwitcher)
 
 export const Login = ({ userStore, navigation, back }) => {
   return (

@@ -1,92 +1,28 @@
 import React from 'react'
 import { ActivityIndicator } from 'react-native'
 
-import { pure, compose } from 'recompose'
-import gql from 'graphql-tag'
-import { graphql } from 'react-apollo'
+import { ShowPageComposer, HistoryPageComposer } from '../../containers/Page'
 import { ShowItem } from './ShowItem'
 import { EpisodeItem } from './EpisodeItem'
 
-const ShowScreenPure = ({ showId, data: { loading, show } }) => {
+const ShowScreenPure = ({ loading, ...rest }) =>
+  loading ? <ActivityIndicator size="large" /> : <ShowItem {...rest} />
+
+const HistoryScreenPure = props => {
+  const { showId, loading, episodes, ...rest } = props
   if (loading) {
     return <ActivityIndicator size="large" />
   } else {
-    const { episodesWithPlays, ...rest } = show
-    return <ShowItem showId={showId} {...rest} episodes={episodesWithPlays} />
+    console.log('✨props', props)
+    return <ShowItem showId={showId} episodes={episodes} {...rest} />
+    return null
   }
 }
 
-const HistoryScreenPure = ({ showId, data: { loading, me } }) => {
-  if (loading) {
-    return <ActivityIndicator size="large" />
-  } else {
-    const { onlyEpisodesWithHistory, ...rest } = me.history.shows[0].show
-    return (
-      <ShowItem showId={showId} episodes={onlyEpisodesWithHistory} {...rest} />
-    )
-  }
-}
+export const ShowScreen = ShowPageComposer(ShowScreenPure)
 
-const show = graphql(
-  gql`
-    query GetPodcast($showId: String!) {
-      show(showId: $showId) {
-        id
-        thumbLarge
-        title
-        episodesWithPlays {
-          id
-          title
-          plays {
-            progress
-            id
-          }
-        }
-      }
-    }
-  `,
-  {
-    options: props => ({
-      variables: { showId: props.showId }
-    })
-  }
-)
-
-const history = graphql(
-  gql`
-    query GetPodcastHistory($showId: String!) {
-      me {
-        id
-        history {
-          id
-          shows(where: { show: { showId: $showId } }) {
-            id
-            show {
-              thumbLarge
-              title
-              onlyEpisodesWithHistory {
-                id
-                title
-                plays {
-                  id
-                  progress
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-  `,
-  {
-    options: props => ({
-      variables: { showId: props.showId }
-    })
-  }
-)
-
-export const HistoryScreen = compose(history, pure)(HistoryScreenPure)
-export const ShowScreen = compose(show, pure)(ShowScreenPure)
+export const HistoryScreen = HistoryPageComposer(HistoryScreenPure)
+// compose(history, pure)(HistoryScreenPure)
 
 export { ShowItem }
 export { EpisodeItem }

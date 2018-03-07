@@ -1,77 +1,68 @@
 import React from 'react'
-import { View, Platform } from 'react-native'
-import { computed, action, observable } from 'mobx'
+import { Platform } from 'react-native'
 import { observer, inject } from 'mobx-react'
 
 import { pure, compose, withHandlers, withState, mapProps } from 'recompose'
 import gql from 'graphql-tag'
 import { graphql } from 'react-apollo'
 
+const API_URL = 'https://itunes.apple.com'
+
 export const SearchInputComposer = SearchInput => {
   return compose(
-    inject('searchStore'),
-    observer,
     withHandlers({
       onTextInputChange: props => async value => {
         props.searchStore.searchPodcast(value)
       }
-    })
+    }),
+    pure
   )(SearchInput)
 }
 
 export const SearchResultsComposer = SearchResults => {
   return compose(
-    inject('searchStore'),
-    observer,
     mapProps(({ searchStore, isHidden, ...rest }) => ({
-      get results() {
-        return searchStore.searchResults
-      },
-      get isHidden() {
-        return !this.results || isHidden
-      },
+      results: searchStore.searchResults,
+      isHidden: !this.results || isHidden,
       searchStore,
       isHidden,
       ...rest
-    }))
+    })),
+    pure
   )(SearchResults)
 }
 
 export const SearchInputWithResultsComposer = SearchInputWithResults =>
   compose(
-    inject('searchStore'),
     withState('hidden', 'setHidden', true),
+    withState('results', 'setResults', {}),
+    withState('query', 'setQuery', ''),
     withHandlers({
-      toggleSearchResults: props => val => {
-        if (Platform.OS === 'web') {
-          props.setHidden(val)
-        }
-      }
-    })
+      onInput: ({ query, setResults, results, setQuery }) => async val => {
+        setQuery(val)
+        const apiSearchResults = await fetch(
+          `${API_URL}/search?term=${encodeURIComponent(
+            query
+          )}&entity=podcast&limit=10`
+        ).then(response => response.json())
+        apiSearchResults.results.forEach(item => {
+          const key = item.collectionId
+          if (!results[key] && item.feedUrl) {
+            setResults(
+              Object.assign(results, {
+                [key]: {
+                  id: key.toString(),
+                  title: item.trackName,
+                  feedUrl: item.feedUrl,
+                  thumb: item.artworkUrl60
+                }
+              })
+            )
+          }
+        })
+      },
+      toggleSearchResults: ({ setHidden }) => val =>
+        Platform.OS === 'web' && setHidden(val)
+    }),
+    pure
   )(SearchInputWithResults)
-
-// class Enhanced extends React.Component {
-//   @observable hidden = true
-//
-//   @action
-//   toggleSearchResults = val => {
-//     if (Platform.OS === 'web') {
-//       this.hidden = val
-//     }
-//   }
-//
-//   @computed
-//   get isHidden() {
-//     return this.hidden
-//   }
-//
-//   render() {
-//     return (
-//       <SearchInputWithResults
-//         {...this.props}
-//         toggleSearchResults={this.toggleSearchResults}
-//         isHidden={this.isHidden}
-//       />
-//     )
-//   }
-// }

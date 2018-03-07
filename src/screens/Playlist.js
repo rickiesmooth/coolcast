@@ -1,9 +1,18 @@
 import React from 'react'
+import { Text } from 'react-native'
 import { PlaylistItem } from '../components/Playlist'
 import { PageComposer } from '../containers/Page'
+import { PlaylistPageComposer } from '../containers/Playlist'
 
-const PlaylistScreen = props => (
-  <PlaylistItem playlistId={props.navigationKey} />
-)
+const PlaylistWithData = props => {
+  const { navigationKey, data: { loading, playlist } } = props
+  if (loading) {
+    return <Text>Loading</Text>
+  } else {
+    return <PlaylistItem playlistId={navigationKey} {...playlist} />
+  }
+}
 
-export default PageComposer(PlaylistScreen)
+const Test = PlaylistPageComposer(PlaylistWithData)
+
+export default PageComposer(Test)

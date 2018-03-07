@@ -13,6 +13,8 @@ const UserProfileResultPure = ({
   userStore,
   isCurrentUser,
   isLogin,
+  logout,
+  follow,
   data: { loading, user }
 }) => {
   if (loading || !user) {
@@ -59,9 +61,9 @@ const UserProfileResultPure = ({
           </Link>
         </View>
         {isCurrentUser ? (
-          <Button title={'Logout'} onPress={userStore.logout} />
+          <Button title={'Logout'} onPress={logout} />
         ) : (
-          <Button title={'Follow'} onPress={() => userStore.follow(id)} />
+          <Button title={'Follow'} onPress={() => follow(id)} />
         )}
       </View>
     )

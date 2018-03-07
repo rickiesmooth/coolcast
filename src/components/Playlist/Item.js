@@ -9,8 +9,7 @@ import {
   TextInput,
   View,
   StyleSheet,
-  Image,
-  ActivityIndicator
+  Image
 } from 'react-native'
 import { FlatList, Modal } from '../../utils'
 import { Link } from '../../navigation'
@@ -31,13 +30,14 @@ export const Playlist = props => {
     editPlaylist,
     style,
     playlistId,
-    data: { loading, playlist },
+    episodes,
+    user,
     editing
   } = props
-  return !loading ? (
+  return (
     <View style={[style, styles.content]}>
       <FlatList
-        data={playlist.episodes}
+        data={episodes}
         keyExtractor={({ id }) => id}
         renderItem={({ item }) => <EpisodeItem {...item} />}
         ListHeaderComponent={() => (
@@ -46,8 +46,8 @@ export const Playlist = props => {
               <Link to={`/playlist/${playlistId}`}>
                 <Title text={name} size={'medium'} numberOfLines={1} />
               </Link>
-              <Link to={`/user/${playlist.user.id}`}>
-                <Text>{playlist.user.name}</Text>
+              <Link to={`/user/${user.id}`}>
+                <Text>{user.name}</Text>
               </Link>
             </View>
             <Button
@@ -67,8 +67,6 @@ export const Playlist = props => {
         />
       )}
     </View>
-  ) : (
-    <ActivityIndicator size={'large'} />
   )
 }
 

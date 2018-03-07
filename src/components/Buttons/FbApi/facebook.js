@@ -5,7 +5,6 @@ import { AsyncStorage } from 'react-native'
 export default Button =>
   class extends React.Component {
     async handleFBLogin() {
-      console.log('✨going')
       const {
         type,
         token
@@ -15,6 +14,7 @@ export default Button =>
       })
       if (type === 'success') {
         const res = await this.props.authenticateUserWithGraphCool(token)
+        console.log('✨going', res)
       }
     }
 
@@ -22,3 +22,20 @@ export default Button =>
       return <Button {...this.props} onPress={() => this.handleFBLogin()} />
     }
   }
+
+// const FbLoginComposer = Button =>
+//   compose(
+//     inject('userStore'),
+//     observer,
+//     withHandlers({
+//       addToPlaylist: props => (playlistId, e) => {
+//         const { mutate, close, episodeId } = props
+//         mutate({ variables: { playlistId, episodeId } })
+//         close(e)
+//       },
+//       update: props => e => {
+//         props.setPlaylistName(e)
+//       }
+//     }),
+//     pure
+//   )(Button)
