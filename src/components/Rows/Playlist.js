@@ -9,6 +9,7 @@ import { graphql } from 'react-apollo'
 import { PlaylistItem, CreatePlaylistButton } from '../Playlist'
 import { Container } from '../Views'
 import { Title } from '../Text'
+import { PlaylistRowComposer } from '../../containers/Page'
 
 import styles from './styles'
 
@@ -62,3 +63,4 @@ export const PlaylistComponent = props => {
     <CreatePlaylistButton />
   )
 }
+export const PlaylistRow = PlaylistRowComposer(PlaylistComponent)

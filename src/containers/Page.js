@@ -16,24 +16,21 @@ import { graphql } from 'react-apollo'
 
 export const PageComposer = Page =>
   compose(
-    mapProps(({ match, navigation, ...rest }) => ({
-      // difference between web and native
-      navigationKey: match ? match.params.id : navigation.state.params,
-      ...rest
-    })),
+    mapProps(({ match, navigation, ...rest }) => {
+      return {
+        // difference between web and native
+        navigation,
+        navigationKey: match ? match.params.id : navigation.state.params,
+        ...rest
+      }
+    }),
     withHandlers({
-      back: ({ history, navigation }) => () =>
-        history ? history.push('/') : navigation.dispatch
+      back: ({ history, navigation }) => () => {
+        return history ? history.push('/') : navigation.goBack(null)
+      }
     }),
     pure
   )(Page)
-
-const Loading = () => <ActivityIndicator size="large" />
-
-const displayLoadingState = branch(
-  props => props.data.loading,
-  renderComponent(Loading)
-)
 
 export const HomePageComposer = Home =>
   compose(
@@ -48,14 +45,7 @@ export const HomePageComposer = Home =>
 
       return {
         playlists: me && me.playlists,
-        history:
-          HistoryShows &&
-          HistoryShows.map(show => ({
-            ...show.show,
-            episodes: show.plays.map(({ progress, id, episode }) =>
-              Object.assign({}, { progress, sessionId: id }, episode)
-            )
-          })),
+        history: getUserHistoryFromShows(HistoryShows),
         loading
       }
     }),
@@ -65,7 +55,9 @@ export const HomePageComposer = Home =>
 export const ShowPageComposer = ShowPage =>
   compose(
     graphql(getShowQuery, {
-      options: ({ showId }) => ({ variables: { showId } })
+      options: ({ showId }) => {
+        return { variables: { showId } }
+      }
     }),
     displayLoadingState,
     mapProps(({ showId, data: { loading, show } }) => {
@@ -74,6 +66,7 @@ export const ShowPageComposer = ShowPage =>
         showId,
         ...show,
         episodes:
+          show &&
           show.episodes &&
           show.episodes.map(({ plays, ...rest }) => {
             if (plays && plays[0]) {
@@ -114,6 +107,36 @@ export const HistoryPageComposer = HistoryPage =>
     }),
     pure
   )(HistoryPage)
+
+export const HistoryRowComposer = HistoryRow =>
+  compose(
+    graphql(getHistoryRowQuery),
+    displayLoadingState,
+    mapProps(({ loading, data: { me } }) => {
+      const history = me && me.history.shows
+      return {
+        loading,
+        shows: getUserHistoryFromShows(history)
+      }
+    }),
+    pure
+  )(HistoryRow)
+
+export const PlaylistRowComposer = playlistRow => {
+  return compose(
+    graphql(getPlaylistRowQuery),
+    displayLoadingState,
+    mapProps(({ loading, data: { me } }) => {
+      const playlists = me && me.playlists
+      return {
+        loading,
+        playlists,
+        hasPlaylists: playlists && playlists.length > 0
+      }
+    }),
+    pure
+  )(playlistRow)
+}
 
 export const UserQuery = gql`
   query UserQuery {
@@ -200,3 +223,66 @@ const getHistoryQuery = gql`
     }
   }
 `
+
+const getHistoryRowQuery = gql`
+  query getHistoryRowQuery {
+    me {
+      id
+      history {
+        id
+        shows {
+          id
+          show {
+            showId
+            thumbLarge
+            title
+          }
+          plays {
+            id
+            progress
+            episode {
+              id
+              title
+            }
+          }
+        }
+      }
+    }
+  }
+`
+
+const getPlaylistRowQuery = gql`
+  query getPlaylistRowQuery {
+    me {
+      id
+      playlists {
+        id
+        name
+        user {
+          id
+          name
+        }
+        episodes {
+          id
+          title
+        }
+      }
+    }
+  }
+`
+
+const Loading = () => <ActivityIndicator size="large" />
+
+const displayLoadingState = branch(
+  props => props.data.loading,
+  renderComponent(Loading)
+)
+
+const getUserHistoryFromShows = HistoryShows =>
+  HistoryShows &&
+  HistoryShows.map(show => ({
+    ...show.show,
+    episodes: show.plays.map(({ progress, id, episode }) =>
+      Object.assign({}, { progress, sessionId: id }, episode)
+    )
+  }))

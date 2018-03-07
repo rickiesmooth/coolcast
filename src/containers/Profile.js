@@ -1,25 +1,28 @@
 import React from 'react'
 import { observer, inject } from 'mobx-react'
 
-import { pure, compose, withHandlers, withState, mapProps } from 'recompose'
+import { pure, compose, withHandlers, mapProps } from 'recompose'
 
 export const ProfileComposer = Profile =>
   compose(
     inject('userStore'),
     observer,
-    mapProps(props => {
-      const { userStore, userId, location, back } = props
-      return {
-        currentUser: userStore.currentUser,
-        isCurrentUser: !userId
-          ? true
-          : userStore.currentUser && userStore.currentUser.id === userId,
-        isLogin: !userId || (location && location.pathname === '/login'),
-        userId,
-        back,
-        userStore
+    mapProps(
+      ({ userStore: { currentUser }, userId, location, back, navigation }) => {
+        const nativeProfile = navigation && navigation.state.key === 'Profile'
+        const webLoginPath =
+          !userId || (location && location.pathname === '/login')
+        return {
+          currentUser,
+          isCurrentUser: !userId
+            ? true
+            : currentUser && currentUser.id === userId,
+          isLogin: webLoginPath && !(nativeProfile && currentUser),
+          userId,
+          back
+        }
       }
-    }),
+    ),
     withHandlers({
       logout: ({ userStore }) => val => {
         userStore.logout()

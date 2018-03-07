@@ -60,6 +60,7 @@ export const AddToPlaylistComponent = ({
   data: { me, loading },
   style
 }) => {
+  console.log('✨me', me)
   return !loading ? (
     <View
       style={{
@@ -71,7 +72,6 @@ export const AddToPlaylistComponent = ({
         data={me.playlists}
         keyExtractor={({ id }) => id}
         renderItem={({ item }) => {
-          console.log('✨item', item)
           return (
             <TouchableOpacity
               style={{ marginVertical: 5 }}

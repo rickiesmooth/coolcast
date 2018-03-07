@@ -2,8 +2,6 @@ import React from 'react'
 import { AsyncStorage } from 'react-native'
 
 import { pure, compose, withHandlers, lifecycle, mapProps } from 'recompose'
-import gql from 'graphql-tag'
-import { graphql } from 'react-apollo'
 
 export default Button =>
   compose(

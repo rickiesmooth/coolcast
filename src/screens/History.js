@@ -6,9 +6,7 @@ import { HistoryRow } from '../components/Rows/History'
 import { RowContainer } from '../components/Views'
 const WEB = Platform.OS === 'web'
 
-@inject('userStore')
-@observer
-export default class Playlists extends React.Component {
+export default class History extends React.Component {
   static navigationOptions = {
     tabBarLabel: 'History'
   }

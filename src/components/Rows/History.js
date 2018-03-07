@@ -9,12 +9,12 @@ import { graphql } from 'react-apollo'
 import { Title } from '../Text'
 import { Container } from '../Views'
 import { EpisodeItem, ShowItem } from '../Podcast'
+import { HistoryRowComposer } from '../../containers/Page'
 
 import styles from './styles'
 
 export const HistoryComponent = props => {
   const { title, shows, horizontal } = props
-  console.log('✨shows', shows)
   return shows ? (
     <View
       style={[
@@ -55,33 +55,4 @@ export const HistoryComponent = props => {
   ) : null
 }
 
-// export const UserQuery = graphql(
-//   gql`
-//     query UserQuery {
-//       me {
-//         id
-//         history {
-//           id
-//           shows {
-//             show {
-//               id
-//               title
-//               thumbLarge
-//               showId
-//               onlyEpisodesWithHistory {
-//                 id
-//                 title
-//                 plays {
-//                   id
-//                   progress
-//                 }
-//               }
-//             }
-//           }
-//         }
-//       }
-//     }
-//   `
-// )
-//
-// export const HistoryRow = compose(UserQuery, pure)(HistoryComponent)
+export const HistoryRow = HistoryRowComposer(HistoryComponent)

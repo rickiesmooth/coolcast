@@ -12,14 +12,10 @@ const ProfileSwitcher = ({ isLogin, ...rest }) => {
 
 export const Profile = ProfileComposer(ProfileSwitcher)
 
-export const Login = ({ userStore, navigation, back }) => {
+export const Login = ({ back }) => {
   return (
     <View style={styles.container}>
-      <FbLoginButton
-        title={'Login with Facebook'}
-        login={userStore.login}
-        onSuccess={back}
-      />
+      <FbLoginButton title={'Login with Facebook'} onSuccess={back} />
     </View>
   )
 }

@@ -59,6 +59,7 @@ const ShowList = ({ episodes, title, showId, thumbLarge }) => {
 }
 
 const ShowCard = ({ episodes, title, showId, thumbLarge }) => {
+  console.log('✨showId', showId)
   const el = episodes.length - 1
   const lastEpisode = episodes[el]
   const { id, sessionId, progress, ...rest } = lastEpisode
@@ -95,7 +96,6 @@ const ShowCard = ({ episodes, title, showId, thumbLarge }) => {
 }
 
 export const ShowItem = ({ loading, episodes, card, style, ...rest }) => {
-  console.log('✨episodes', episodes)
   return (
     <View style={[style, styles.content]}>
       {card ? (

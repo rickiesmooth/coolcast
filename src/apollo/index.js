@@ -12,7 +12,7 @@ function toIdValue(id, generated = false) {
 }
 
 const httpLink = new HttpLink({
-  uri: process.env.API_URL || 'https://coolcast-server.now.sh'
+  uri: 'http://192.168.1.16:4000' || 'https://coolcast-server.now.sh'
 })
 
 const authLink = setContext(async (req, { headers }) => {

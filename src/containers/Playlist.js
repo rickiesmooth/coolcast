@@ -105,6 +105,7 @@ const addToPlaylistMutation = gql`
 const playlistsQuery = gql`
   query myPlaylists {
     me {
+      id
       playlists {
         id
         name

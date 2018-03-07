@@ -34,7 +34,7 @@ export const SearchResultsComposer = SearchResults => {
 
 export const SearchInputWithResultsComposer = SearchInputWithResults =>
   compose(
-    withState('hidden', 'setHidden', true),
+    withState('hidden', 'setHidden', Platform.OS === 'web' ? true : false),
     withState('results', 'setResults', {}),
     withState('query', 'setQuery', ''),
     withHandlers({
