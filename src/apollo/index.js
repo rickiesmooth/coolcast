@@ -3,6 +3,14 @@ import { ApolloClient, HttpLink, InMemoryCache } from 'apollo-client-preset'
 import { setContext } from 'apollo-link-context'
 import { ApolloLink } from 'apollo-link'
 
+function toIdValue(id, generated = false) {
+  return {
+    type: 'id',
+    id,
+    generated
+  }
+}
+
 const httpLink = new HttpLink({
   uri: process.env.API_URL || 'https://coolcast-server.now.sh'
 })
@@ -17,7 +25,22 @@ const authLink = setContext(async (req, { headers }) => {
 
 const link = authLink.concat(httpLink)
 
+const cache = new InMemoryCache({
+  cacheResolvers: {
+    Query: {
+      playlists: (_, args) =>
+        toIdValue(
+          cache.config.dataIdFromObject({ __typename: 'Playlist', id: args.id })
+        ),
+      user: (_, args) =>
+        toIdValue(
+          cache.config.dataIdFromObject({ __typename: 'User', id: args.id })
+        )
+    }
+  }
+})
+
 export const client = new ApolloClient({
   link,
-  cache: new InMemoryCache()
+  cache
 })

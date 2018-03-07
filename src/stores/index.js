@@ -1,31 +1,12 @@
 import { types, getEnv } from 'mobx-state-tree'
-import { PodcastStore } from './podcastStore'
 import { PlayerStore } from './playerStore'
-import { PlaylistStore } from './playlistStore'
 import { UserStore } from './userStore'
-import { NavigationStore } from './navigationStore'
 import { ApolloStore } from './apolloStore'
-import { SearchStore } from './searchStore'
 
 const RootStore = types
   .model('RootStore', {
-    podcastStore: types.optional(PodcastStore, {
-      shows: {},
-      episodes: {}
-    }),
     userStore: types.optional(UserStore, {
-      currentUser: null,
-      users: {}
-    }),
-    playlistStore: types.optional(PlaylistStore, {
-      playlists: {}
-    }),
-    navigationStore: types.optional(NavigationStore, {
-      page: ''
-    }),
-    searchStore: types.optional(SearchStore, {
-      results: {},
-      query: ''
+      currentUser: null
     }),
     apolloStore: types.optional(ApolloStore, {
       client: ''
@@ -44,14 +25,6 @@ const RootStore = types
       }
     })
   })
-  .views(self => ({
-    get fetch() {
-      return getEnv(self).fetch
-    },
-    get currentShow() {
-      return self.podcastStore.shows.get(self.navigationStore.selectedShowId)
-    }
-  }))
   .actions(self => ({
     afterCreate() {
       if (typeof window !== 'undefined') {

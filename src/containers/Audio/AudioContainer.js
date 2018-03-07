@@ -8,25 +8,18 @@ function CustomAudio(props) {
 }
 
 const AudioContainerComposer = Player =>
-  @inject('playerStore', 'navigationStore', 'podcastStore')
+  @inject('playerStore')
   @observer
   class AudioContainer extends React.Component {
     disposer = reaction(
       () => this.props.playerStore.currentPlaying,
       episode => {
-        // episode.getSessionId()
-        console.log('✨EPI', episode.progress)
         this.props._loadNewPlaybackInstance(episode)
       }
     )
 
     componentWillUnmount() {
       this.disposer()
-    }
-
-    @computed
-    get show() {
-      return this.props.podcastStore.shows.get(this.currentPlaying.showId)
     }
 
     @computed
@@ -47,7 +40,7 @@ const AudioContainerComposer = Player =>
       const currentPlaying = this.currentPlaying
       return currentPlaying ? (
         <Player
-          artist={this.show ? this.show.title : ''}
+          artist={decodeURI(currentPlaying.title)}
           title={decodeURI(currentPlaying.title)}
           progress={progressPercentage}
           duration={playbackInstanceDuration}

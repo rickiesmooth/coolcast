@@ -1,97 +1,59 @@
 import React from 'react'
-import { View, Text } from 'react-native'
-import { observable, computed, action } from 'mobx'
 import { observer, inject } from 'mobx-react'
 
-export const PodcastEpisodeComposer = Episode =>
-  @inject('playerStore', 'playlistStore', 'podcastStore')
-  @observer
-  class EnhancedEpisode extends React.Component {
-    @computed
-    get episode() {
-      const { episodeId, podcastStore } = this.props
-      return podcastStore.episodes.get(episodeId)
-    }
+import { pure, compose, withHandlers, mapProps } from 'recompose'
+import gql from 'graphql-tag'
+import { graphql } from 'react-apollo'
 
-    addToPlaylist = () => {
-      console.log('✨adding tp playlist')
-      this.props.playlistStore.addToPlaylist(this.episode.id)
-    }
+import { UserQuery } from './Page'
 
-    render() {
-      const { playerStore } = this.props
-      const {
-        title,
-        progress,
-        duration,
-        likeId,
-        id,
-        toggleLiked
-      } = this.episode
-      let t
-      try {
-        t = decodeURI(title)
-      } catch (e) {
-        console.log('✨e', e)
+const mutation = gql`
+  mutation makePlay($episodeId: ID!, $showId: String!, $sessionId: ID) {
+    addPlay(episodeId: $episodeId, showId: $showId, sessionId: $sessionId) {
+      id
+      episode {
+        id
+        src
       }
-      return (
-        <Episode
-          {...this.props}
-          title={t}
-          id={id}
-          progress={progress > 0 && progress}
-          duration={duration}
-          setCurrentPlaying={() => playerStore.setCurrentPlaying(this.episode)}
-          liked={likeId}
-          likeApi={() => toggleLiked(likeId)}
-          playlistApi={this.addToPlaylist}
-        />
-      )
     }
   }
-
-export const PodcastShowComposer = Show =>
-  @inject('podcastStore')
-  @observer
-  class EnhancedShow extends React.Component {
-    @computed
-    get show() {
-      const { showId, podcastStore } = this.props
-      return podcastStore.shows.get(showId)
-    }
-
-    @computed
-    get episodes() {
-      const { episodes, podcastStore, showId } = this.props
-      return episodes ? episodes : this.show && this.show.episodes
-    }
-
-    componentDidMount() {
-      const { showId, podcastStore, episodes } = this.props
-      if (!episodes) {
-        // the episodes are not yet added from history > not on homepage
-        if (!this.show) {
-          // there is no show yet > when landing
-          podcastStore.getShow(showId)
-        } else if (this.show && !this.show.episodes) {
-          // there is a show but no episodes yet > when navigation from home
-          podcastStore.getEpisodes(this.show)
+`
+export const PodcastEpisodeComposer = Episode =>
+  compose(
+    inject('playerStore'),
+    graphql(mutation, {
+      options: {
+        refetchQueries: [{ query: UserQuery }] // <-- new
+      }
+    }),
+    mapProps(({ playerStore, episodeId, ...rest }) => {
+      return {
+        get isCurrentlyPlaying() {
+          return (
+            playerStore.currentPlaying &&
+            playerStore.currentPlaying.id === episodeId
+          )
+        },
+        episodeId,
+        playerStore,
+        ...rest
+      }
+    }),
+    withHandlers({
+      createPlay: props => {
+        const { mutate, episodeId, showId, sessionId, src, progress } = props
+        return async () => {
+          const cp = { id: episodeId, src, sessionId, progress }
+          if (!sessionId || !src) {
+            const res = await mutate({
+              variables: { episodeId, showId, sessionId }
+            })
+            cp.sessionId = res.data.addPlay.id
+            cp.src = res.data.addPlay.episode.src
+          }
+          props.playerStore.setCurrentPlaying(cp)
         }
       }
-    }
-
-    render() {
-      const show = this.show
-      const { showId } = this.props
-      return (
-        <Show
-          {...this.props}
-          title={(show && show.title) || ''}
-          episodes={this.episodes || []}
-          thumbLarge={(show && show.thumbLarge) || ''}
-          showId={showId}
-          loading={!show}
-        />
-      )
-    }
-  }
+    }),
+    pure
+  )(Episode)

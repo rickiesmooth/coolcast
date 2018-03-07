@@ -12,9 +12,12 @@ import { FbLoginButton, Button } from '../Buttons'
 const UserProfileResultPure = ({
   userStore,
   isCurrentUser,
+  isLogin,
+  logout,
+  follow,
   data: { loading, user }
 }) => {
-  if (loading) {
+  if (loading || !user) {
     return <Text>Loading</Text>
   } else {
     const { fbid, name, id, following, followers } = user
@@ -58,9 +61,9 @@ const UserProfileResultPure = ({
           </Link>
         </View>
         {isCurrentUser ? (
-          <Button title={'Logout'} onPress={userStore.logout} />
+          <Button title={'Logout'} onPress={logout} />
         ) : (
-          <Button title={'Follow'} onPress={() => userStore.follow(id)} />
+          <Button title={'Follow'} onPress={() => follow(id)} />
         )}
       </View>
     )
@@ -85,7 +88,9 @@ const data = graphql(
   `,
   {
     options: props => ({
-      variables: { userId: props.navigationKey || props.currentUser.id }
+      variables: {
+        userId: props.userId || (props.currentUser && props.currentUser.id)
+      }
     })
   }
 )

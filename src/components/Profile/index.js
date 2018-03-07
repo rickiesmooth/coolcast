@@ -2,12 +2,13 @@ import React from 'react'
 import { View, StyleSheet, ActivityIndicator } from 'react-native'
 import { FbLoginButton } from '../Buttons'
 import { ProfileComposer } from '../../containers/Profile'
+import { compose } from 'recompose'
 
 import { User } from './User'
-import { FollowModal } from './FollowModal'
 
-const ProfileSwitcher = ({ isLogin, ...rest }) =>
-  isLogin ? <Login {...rest} /> : <User {...rest} />
+const ProfileSwitcher = ({ isLogin, ...rest }) => {
+  return isLogin ? <Login {...rest} /> : <User {...rest} />
+}
 
 export const Profile = ProfileComposer(ProfileSwitcher)
 
@@ -23,7 +24,7 @@ export const Login = ({ userStore, navigation, back }) => {
   )
 }
 
-export const Follow = FollowModal
+export { FollowModal } from './FollowModal'
 
 const styles = StyleSheet.create({
   contentContainer: {

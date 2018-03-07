@@ -1,14 +1,11 @@
 import React from 'react'
 import { observer, inject } from 'mobx-react'
+import { pure, compose, withHandlers, mapProps } from 'recompose'
 
 export default Header =>
-  @inject('userStore')
-  @observer
-  class Enhanced extends React.Component {
-    get currentUser() {
-      return this.props.userStore.currentUser
-    }
-    render() {
-      return <Header {...this.props} currentUser={this.currentUser} />
-    }
-  }
+  compose(
+    inject('userStore'),
+    observer,
+    mapProps(({ userStore: { currentUser } }) => ({ currentUser })),
+    pure
+  )(Header)

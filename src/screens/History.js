@@ -1,14 +1,10 @@
 import React from 'react'
 import { View, Text, StyleSheet, Platform } from 'react-native'
 import { observer, inject } from 'mobx-react'
-import { HistoryRow, PlayListRow } from '../components/Rows'
+import { HistoryRow } from '../components/Rows/History'
 
-import { RowContainer, Container } from '../components/Views'
+import { RowContainer } from '../components/Views'
 const WEB = Platform.OS === 'web'
-
-// style={{
-//   marginTop: IS_IOS ? 20 : 0
-// }}
 
 @inject('userStore')
 @observer

@@ -61,6 +61,7 @@ const ScreenComposer = Screen => {
       }
     })
     render() {
+      console.log('✨this.props', this.props)
       return <Screen {...this.props} />
     }
   }
@@ -141,8 +142,8 @@ const RootNavOptions = {
 export const RootNavigationScreens = TabNavigator(
   {
     App: { screen: AppNavigator },
-    Playlists: { screen: PlaylistNavigator },
-    Search: { screen: SearchNavigator },
+    // Playlists: { screen: PlaylistNavigator },
+    // Search: { screen: SearchNavigator },
     Profile: { screen: ProfileScreen }
   },
   {
@@ -152,10 +153,10 @@ export const RootNavigationScreens = TabNavigator(
 
 export const MainTabNavigator = StackNavigator(
   {
-    MainCardNavigator: { screen: RootNavigationScreens },
-    ExpandedMiniRemote: { screen: ExpandedMiniRemote },
-    CreatePlaylist: { screen: CreatePlaylistContent },
-    AddToPlaylist: { screen: AddToPlaylistContent }
+    MainCardNavigator: { screen: RootNavigationScreens }
+    // ExpandedMiniRemote: { screen: ExpandedMiniRemote },
+    // CreatePlaylist: { screen: CreatePlaylistContent },
+    // AddToPlaylist: { screen: AddToPlaylistContent }
   },
   {
     screenBackgroundColor: 'transparent',

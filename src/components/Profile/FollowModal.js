@@ -51,6 +51,8 @@ const data = graphql(
   }
 )
 
+export const FollowModal = compose(data, pure)(FollowModalPure)
+
 const styles = StyleSheet.create({
   contentContainer: {
     flex: 1,
@@ -69,5 +71,3 @@ const styles = StyleSheet.create({
     borderRadius: 50
   }
 })
-
-export const FollowModal = compose(data, pure)(FollowModalPure)

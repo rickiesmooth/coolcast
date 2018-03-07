@@ -22,70 +22,20 @@ import {
   CreatePlaylistComposer,
   AddToPlaylistComposer
 } from '../../containers/Playlist'
+import { Icon } from '../Icons'
 
 import { EpisodeItem } from '../../components/Podcast'
-
-const RemovePlaylistButton = ({ playlistId, removePlaylistApi }) => {
-  return <Button onPress={removePlaylistApi} title={'remove'} />
-}
-
-const Playlist = props => {
-  const {
-    name,
-    removePlaylist,
-    editPlaylist,
-    episodes,
-    style,
-    id,
-    author,
-    editing
-  } = props
-
-  return (
-    <View style={[style, styles.content]}>
-      <FlatList
-        data={episodes || []}
-        keyExtractor={({ id }) => id}
-        renderItem={({ item }) => <EpisodeItem episodeId={item.id} />}
-        ListHeaderComponent={() => (
-          <ItemHeaderContainer>
-            <View>
-              <Link to={`/playlist/${id}`}>
-                <Title text={name} size={'medium'} numberOfLines={1} />
-              </Link>
-              <Link to={`/user/${author.id}`}>
-                <Text>{author.name}</Text>
-              </Link>
-            </View>
-            <Button
-              title={editing ? 'Done' : 'Edit'}
-              onPress={editPlaylist}
-              style={{
-                marginLeft: 'auto'
-              }}
-            />
-          </ItemHeaderContainer>
-        )}
-      />
-      {editing && (
-        <RemovePlaylistButton
-          playlistId={id}
-          removePlaylistApi={removePlaylist}
-        />
-      )}
-    </View>
-  )
-}
+import { Playlist } from './Item'
 
 export const PlaylistItem = PlaylistItemComposer(Playlist)
 
-const CreatePlaylistComponent = ({ name, create, submit, update, style }) => {
+const CreatePlaylistComponent = ({ create, submit, update, style }) => {
   return (
     <View style={style}>
       <TextInput
         style={styles.input}
         onChangeText={update}
-        placeholder={name}
+        placeholder={'Enter playlist name'}
       />
       <Button
         onPress={submit}
@@ -107,9 +57,10 @@ export const AddToPlaylistComponent = ({
   close,
   addToPlaylist,
   episodeId,
+  data: { me, loading },
   style
 }) => {
-  return (
+  return !loading ? (
     <View
       style={{
         flex: 1
@@ -117,13 +68,14 @@ export const AddToPlaylistComponent = ({
     >
       <FlatList
         contentContainerStyle={styles.contentContainer}
-        data={playlists.values()}
+        data={me.playlists}
         keyExtractor={({ id }) => id}
         renderItem={({ item }) => {
+          console.log('✨item', item)
           return (
             <TouchableOpacity
               style={{ marginVertical: 5 }}
-              onPress={() => addToPlaylist(item.id, episodeId)}
+              onPress={e => addToPlaylist(item.id, e)}
             >
               <Text>{item.name}</Text>
             </TouchableOpacity>
@@ -131,6 +83,8 @@ export const AddToPlaylistComponent = ({
         }}
       />
     </View>
+  ) : (
+    <ActivityIndicator size={'large'} />
   )
 }
 
@@ -144,7 +98,7 @@ export const AddToPlaylistButton = props => {
         state: { modal: true, episodeId: props.episodeId }
       }}
     >
-      <Text>+</Text>
+      <Icon name={'add'} size={24} />
     </Link>
   )
 }

@@ -1,6 +1,6 @@
 import React from 'react'
 import { View, TouchableOpacity, Text, StyleSheet } from 'react-native'
-import FbLoginApi from './facebook'
+import { FbApi } from './FbApi'
 
 export const Button = props => {
   const { textColor, fontSize, title, style, onPress } = props
@@ -21,16 +21,15 @@ export const LikeButton = props => {
   )
 }
 
-const FbLogin = FbLoginApi(Button)
+const FbLogin = FbApi(Button)
 
-export const FbLoginButton = ({ login, onSuccess, title }) => {
+export const FbLoginButton = ({ onSuccess, title, ...rest }) => {
   return (
     <View style={[styles.facebook, styles.button]}>
       <FbLogin
         textColor={'#FFF'}
         fontSize={18}
         title={title}
-        authenticateUserWithGraphCool={login}
         onSuccess={onSuccess}
       />
     </View>
