@@ -12,10 +12,6 @@ export default class History extends React.Component {
   }
 
   render() {
-    return (
-      <RowContainer>
-        <HistoryRow horizontal={false} />
-      </RowContainer>
-    )
+    return <HistoryRow horizontal={false} />
   }
 }

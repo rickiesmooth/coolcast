@@ -61,7 +61,6 @@ const ScreenComposer = Screen => {
       }
     })
     render() {
-      console.log('✨this.props', this.props)
       return <Screen {...this.props} />
     }
   }
@@ -104,41 +103,6 @@ const SearchNavigator = StackNavigator(
   }
 )
 
-const RootNavOptions = {
-  navigationOptions: ({ navigation }) => ({
-    tabBarIcon: ({ focused }) => {
-      const { routeName } = navigation.state
-      let iconName
-      switch (routeName) {
-        case 'App':
-          iconName = 'history'
-          break
-        case 'Playlists':
-          iconName = 'list'
-          break
-        case 'Search':
-          iconName = 'search'
-          break
-        case 'Profile':
-          iconName = 'person'
-          break
-      }
-      return (
-        <MaterialIcons
-          name={iconName}
-          size={28}
-          color={focused ? Colors.tabIconSelected : Colors.tabIconDefault}
-        />
-      )
-    }
-  }),
-  tabBarComponent: TabBarWithMiniRemote,
-  tabBarPosition: 'bottom',
-  animationEnabled: false,
-  headerMode: 'none',
-  swipeEnabled: false
-}
-
 export const RootNavigationScreens = TabNavigator(
   {
     App: { screen: AppNavigator },
@@ -147,7 +111,38 @@ export const RootNavigationScreens = TabNavigator(
     Profile: { screen: ProfileScreen }
   },
   {
-    ...RootNavOptions
+    navigationOptions: ({ navigation }) => ({
+      tabBarIcon: ({ focused }) => {
+        const { routeName } = navigation.state
+        let iconName
+        switch (routeName) {
+          case 'App':
+            iconName = 'history'
+            break
+          case 'Playlists':
+            iconName = 'list'
+            break
+          case 'Search':
+            iconName = 'search'
+            break
+          case 'Profile':
+            iconName = 'person'
+            break
+        }
+        return (
+          <MaterialIcons
+            name={iconName}
+            size={28}
+            color={focused ? Colors.tabIconSelected : Colors.tabIconDefault}
+          />
+        )
+      }
+    }),
+    tabBarComponent: TabBarWithMiniRemote,
+    tabBarPosition: 'bottom',
+    animationEnabled: false,
+    headerMode: 'none',
+    swipeEnabled: false
   }
 )
 

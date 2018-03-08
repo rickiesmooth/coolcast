@@ -15,6 +15,8 @@ import styles from './styles'
 
 export const HistoryComponent = props => {
   const { title, shows, horizontal } = props
+  console.log('✨rendingerign HistoryComponent')
+
   return shows ? (
     <View
       style={[
@@ -29,7 +31,11 @@ export const HistoryComponent = props => {
         horizontal={horizontal}
         ListHeaderComponent={() => (
           <Container style={styles.header}>
-            <Title text={title} size={'large'} numberOfLines={1} />
+            <Title
+              text={'Continue listenling'}
+              size={'large'}
+              numberOfLines={1}
+            />
           </Container>
         )}
         renderItem={({

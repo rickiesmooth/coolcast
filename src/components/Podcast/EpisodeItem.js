@@ -1,6 +1,6 @@
 import React from 'react'
 import { Text, TouchableOpacity, View, StyleSheet } from 'react-native'
-import { Container } from '../Views'
+import { VerticalPaddedView } from '../Views'
 import { PodcastEpisodeComposer } from '../../containers/Podcast'
 import { AddToPlaylistButton } from '../Playlist'
 
@@ -8,12 +8,14 @@ const Episode = props => {
   const { title, plays, duration, progress, createPlay, episodeId } = props
   return (
     <View>
-      <Container style={{ flexDirection: 'row', alignItems: 'center' }}>
+      <VerticalPaddedView
+        style={{ flexDirection: 'row', alignItems: 'center' }}
+      >
         <TouchableOpacity onPress={createPlay} style={styles.left}>
           <Text numberOfLines={1}>{transformTitle(title)}</Text>
         </TouchableOpacity>
         <AddToPlaylistButton episodeId={episodeId} />
-      </Container>
+      </VerticalPaddedView>
       <View
         style={{
           height: 3,

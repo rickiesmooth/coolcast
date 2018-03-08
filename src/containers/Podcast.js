@@ -23,8 +23,15 @@ export const PodcastEpisodeComposer = Episode =>
     inject('playerStore'),
     graphql(mutation, {
       options: {
-        refetchQueries: [{ query: UserQuery }] // <-- new
+        refetchQueries: [{ query: UserQuery }]
       }
+      // update: (proxy, props) => {
+      //   const { data: { addPlay } } = props
+      //   const data = proxy.readQuery({ query: UserQuery })
+      //   data.me.history.shows.push(addPlay)
+      //
+      //   proxy.writeQuery({ query: UserQuery, data })
+      // }
     }),
     mapProps(({ playerStore, episodeId, ...rest }) => {
       return {

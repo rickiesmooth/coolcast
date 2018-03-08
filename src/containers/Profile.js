@@ -7,26 +7,24 @@ export const ProfileComposer = Profile =>
   compose(
     inject('userStore'),
     observer,
-    mapProps(
-      ({ userStore: { currentUser }, userId, location, back, navigation }) => {
-        const nativeProfile = navigation && navigation.state.key === 'Profile'
-        const webLoginPath =
-          !userId || (location && location.pathname === '/login')
-        return {
-          currentUser,
-          isCurrentUser: !userId
-            ? true
-            : currentUser && currentUser.id === userId,
-          isLogin: webLoginPath && !(nativeProfile && currentUser),
-          userId,
-          back
-        }
+    mapProps(({ userStore, userId, location, back, navigation }) => {
+      const nativeProfile = navigation && navigation.state.key === 'Profile'
+      const currentUser = userStore.currentUser
+      const webLoginPath =
+        !userId || (location && location.pathname === '/login')
+      return {
+        currentUser,
+        isCurrentUser: !userId
+          ? true
+          : currentUser && currentUser.id === userId,
+        isLogin: webLoginPath && !(nativeProfile && currentUser),
+        userId,
+        logout: userStore.logout,
+        back
       }
-    ),
+    }),
     withHandlers({
-      logout: ({ userStore }) => val => {
-        userStore.logout()
-      },
+      logout: ({ logout }) => val => logout(),
       follow: ({ userStore }) => val => {
         userStore.follow(val)
       }

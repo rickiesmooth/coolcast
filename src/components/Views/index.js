@@ -6,6 +6,10 @@ export const Container = ({ style, children }) => (
   <View style={[styles.Container, style]}>{children}</View>
 )
 
+export const VerticalPaddedView = ({ style, children }) => (
+  <View style={[styles.VerticalPadding, style]}>{children}</View>
+)
+
 export const ItemHeaderContainer = ({ style, children }) => (
   <View style={[styles.ItemHeaderContainer, style]}>{children}</View>
 )
@@ -20,6 +24,7 @@ export const ModalContainer = ({ children }) => (
 
 const styles = StyleSheet.create({
   Container: { padding: 15 },
+  VerticalPadding: { paddingVertical: 15 },
   Modal: {
     flex: 1,
     flexDirection: 'column',

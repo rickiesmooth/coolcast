@@ -59,7 +59,6 @@ const ShowList = ({ episodes, title, showId, thumbLarge }) => {
 }
 
 const ShowCard = ({ episodes, title, showId, thumbLarge }) => {
-  console.log('✨showId', showId)
   const el = episodes.length - 1
   const lastEpisode = episodes[el]
   const { id, sessionId, progress, ...rest } = lastEpisode

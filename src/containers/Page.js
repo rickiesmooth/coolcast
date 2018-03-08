@@ -45,8 +45,7 @@ export const HomePageComposer = Home =>
 
       return {
         playlists: me && me.playlists,
-        history: getUserHistoryFromShows(HistoryShows),
-        loading
+        history: getUserHistoryFromShows(HistoryShows)
       }
     }),
     pure
@@ -112,7 +111,8 @@ export const HistoryRowComposer = HistoryRow =>
   compose(
     graphql(getHistoryRowQuery),
     displayLoadingState,
-    mapProps(({ loading, data: { me } }) => {
+    mapProps(props => {
+      const { data: { loading, me } } = props
       const history = me && me.history.shows
       return {
         loading,
@@ -126,7 +126,7 @@ export const PlaylistRowComposer = playlistRow => {
   return compose(
     graphql(getPlaylistRowQuery),
     displayLoadingState,
-    mapProps(({ loading, data: { me } }) => {
+    mapProps(({ data: { loading, me } }) => {
       const playlists = me && me.playlists
       return {
         loading,

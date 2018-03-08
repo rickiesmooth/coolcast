@@ -8,25 +8,14 @@ import { PlaylistComponent } from './Playlist'
 import { HomePageComposer } from '../../containers/Page'
 
 const HomeRowsPure = props => {
-  const { playlists, history, loading } = props
-  if (loading) {
-    return <Text>Loading</Text>
-  } else {
-    return (
-      <RowContainer>
-        <HistoryComponent
-          horizontal={true}
-          shows={history}
-          hasHistory={!!history}
-        />
-        <PlaylistComponent
-          horizontal={true}
-          playlists={playlists}
-          hasPlaylists={!!playlists}
-        />
-      </RowContainer>
-    )
-  }
+  const { playlists, history } = props
+  console.log('✨history', history)
+  return (
+    <RowContainer>
+      <HistoryComponent horizontal={true} shows={history} />
+      <PlaylistComponent horizontal={true} playlists={playlists} />
+    </RowContainer>
+  )
 }
 
 export const HomeRows = HomePageComposer(HomeRowsPure)

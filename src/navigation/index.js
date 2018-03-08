@@ -5,6 +5,7 @@ import {
   addNavigationHelpers,
   TabNavigator,
   TabBarBottom,
+  withNavigation,
   NavigationActions
 } from 'react-navigation'
 
@@ -12,63 +13,22 @@ import { observable, action } from 'mobx'
 import { observer, inject } from 'mobx-react'
 import { MainTabNavigator } from './tabs'
 
-class NavigationStore {
-  @observable.ref
-  navigationState = MainTabNavigator.router.getStateForAction(
-    NavigationActions.init()
-  )
+export const RootNavigation = () => <MainTabNavigator />
 
-  @action
-  dispatch = (action, stackNavState = true) => {
-    const previousNavState = stackNavState ? this.navigationState : null
-    const newState = (this.navigationState = MainTabNavigator.router.getStateForAction(
-      action,
-      previousNavState
-    ))
-    return true
-  }
-}
-
-const navigationStore = new NavigationStore()
-
-@inject(stores => ({ navigationStore }))
-@observer
-export class RootNavigation extends React.Component {
-  render() {
-    const { dispatch, navigationState } = this.props.navigationStore
-    return (
-      <MainTabNavigator
-        navigation={addNavigationHelpers({
-          state: navigationState,
-          dispatch
-        })}
-      />
-    )
-  }
-}
-
-export class Link extends React.Component {
-  constructor() {
-    super()
-    this.press = this.press.bind(this)
-  }
-
+class LinkComponent extends React.Component {
   onNavigate() {
-    if (this.props.to.state && this.props.to.state.modal) {
-      const { modal, ...rest } = this.props.to.state
-      const route = this.props.to.pathname.split('/')
-      navigationStore.dispatch(
-        NavigationActions.navigate({ routeName: route[2], params: rest })
-      )
+    const { to, navigation } = this.props
+    if (to.state && to.state.modal) {
+      const { modal, ...rest } = to.state
+      const route = to.pathname.split('/')
+      navigation.navigate({ routeName: route[2], params: rest })
     } else {
-      const route = this.props.to.split('/')
-      navigationStore.dispatch(
-        NavigationActions.navigate({ routeName: route[1], params: route[2] })
-      )
+      const route = to.split('/')
+      navigation.navigate({ routeName: route[1], params: route[2] })
     }
   }
 
-  press() {
+  press = () => {
     this.onNavigate()
     this.props.onClick && this.props.onClick()
     this.props.onMouseDown && this.props.onMouseDown()
@@ -82,3 +42,5 @@ export class Link extends React.Component {
     )
   }
 }
+
+export const Link = withNavigation(LinkComponent)
